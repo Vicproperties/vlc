@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 4 — Admin Authentication & Dashboard Foundation                                                                                                                                                                                                                                                                |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                                                                                                                               |
-| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                           |
-| Next task     | Owner: run `npm run admin:bootstrap -- --email web4vic@gmail.com --name "<full name>"`, set the password via /admin/forgot-password, sign in with the emailed code (first real-inbox test), and approve Stage 4. Owner still to reset dev DB password (R-009). Then present the Stage 5 (Properties & Estates) plan. |
+| Item          | Value                                                                                                                                                                                 |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 5 — Property & Estate Management                                                                                                                                                |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                |
+| Last updated  | 2026-11-04                                                                                                                                                                            |
+| Next task     | Owner: try the property screens (Properties, Estates, Bulk import) and approve Stage 5. Owner still to reset dev DB password (R-009). Then present the Stage 6 (Public website) plan. |
 
 ## Stage history
 
@@ -20,8 +20,8 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 1. Planning & architecture                       | Complete                    | 2026-11-03 |
 | 2. Setup & design system                         | Complete                    | 2026-11-04 |
 | 3. Database & security foundation                | Complete                    | 2026-11-04 |
-| 4. Admin auth & dashboard shell                  | Complete, awaiting approval | —          |
-| 5. Properties & estates                          | Not started                 | —          |
+| 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
+| 5. Properties & estates                          | Complete, awaiting approval | —          |
 | 6. Public website                                | Not started                 | —          |
 | 7. Inspections & enquiries                       | Not started                 | —          |
 | 8. Content management                            | Not started                 | —          |
@@ -29,6 +29,129 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 10. Customer accounts                            | Not started                 | —          |
 | 11. Marketing, announcements, analytics, consent | Not started                 | —          |
 | 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 5 — Property & Estate Management
+
+Owner decisions (2026-11-04): Stage 4 approved; Stage 5 plan approved.
+
+- Photos are resized automatically (max 2400 px), converted to WebP and stripped of GPS/EXIF data.
+- Descriptions use simple formatted text.
+- State is a dropdown of the 36 states plus the FCT.
+
+### Completed
+
+- **Estates:**
+  - list showing how many properties each estate has;
+  - add and edit, plus internal notes;
+  - activate or deactivate;
+  - delete, only when the estate has no properties;
+  - each estate page lists its properties.
+  - Estates are internal only.
+- **Separate Land and Building forms**, which share the basics, location, pricing, features, video and SEO sections:
+  - **Land:** land use, size and unit (dropdown), dimensions, available plots;
+  - **Building:** building type, bedrooms, bathrooms, toilets, parking, optional plot size.
+- **Validation** shared by the forms and the CSV import (`src/features/properties/schemas.ts`):
+  - a payment period only for rent or lease;
+  - land size and unit entered together;
+  - during a promotion, the sales price must be below the regular price;
+  - states must come from the dropdown;
+  - Google Maps links on HTTPS only;
+  - YouTube links accepted in every common form;
+  - naira amounts typed with commas or ₦.
+- **Live discount preview.** The database still computes the stored discount.
+- **Formatted descriptions** (TipTap): bold, italic, sub-heading, bullet and numbered lists. HTML is sanitised on the server (sanitize-html allow-list), and plain text is saved for search.
+- **Photos:**
+  - the browser downscales before upload (fast on mobile data; under Vercel's 4.5 MB limit);
+  - the server re-checks size and type, decodes with a pixel limit, re-encodes to WebP at most 2400 px, and drops all metadata;
+  - cover photo, reorder (drag, or keyboard-accessible arrow buttons), descriptions for screen readers, delete;
+  - at most 30 per property.
+- **Status changes:**
+  - Draft, Published, Unavailable, Archived;
+  - publish and unpublish need the publish permission;
+  - publishing needs a price, state, location or city, description and at least one photo;
+  - delete needs the delete permission and removes the stored photos.
+- **Duplicate review:** flagged properties show the possible match. Only a publisher can mark one "Not a duplicate", and publishing stays blocked until then.
+- **Property list:**
+  - search across title and location (full-text);
+  - filters for status, type and "Needs duplicate review";
+  - pagination; featured switch and order; SEO title and description.
+- **Building types page:** add new types, or hide types from new properties.
+- **CSV bulk import:**
+  - separate Land and Building templates (download);
+  - uploads up to 500 rows / 2 MB, and the file is never stored;
+  - every row gets the same validation as the form;
+  - friendly values are accepted ("for sale", "Lagos State", "FCT", "plots", "per annum");
+  - estate and building type names must match existing ones;
+  - formula-style cells (=, +, @) are rejected;
+  - duplicates are flagged both against existing properties (one batch database call) and within the same file;
+  - the preview lists errors per row;
+  - confirming creates **drafts only**, skipping likely duplicates by default; the import can also be discarded.
+- **Activity log entries** for property edits, photos, duplicate review, deletes, estates, building types and imports. Status changes and creation are logged by the database.
+- **"No access" page** for sections an admin lacks permission for.
+
+### Files created / modified
+
+- Migrations: `20261104000015_property_management.sql`, `20261104000016_import_duplicate_batch.sql`; regenerated `src/types/database.ts`
+- Features:
+  - `src/features/properties/{options,links,schemas,row,form-values,media,resize-image,queries,actions,image-actions,building-type-actions}.ts`;
+  - `src/features/properties/import/{csv,actions}.ts`;
+  - `src/features/estates/actions.ts`
+- Lib: `src/lib/rich-text.ts` (server sanitiser), `src/lib/plain-text.ts`, `src/lib/supabase/errors.ts`
+- Components:
+  - `src/components/admin/{property-form,rich-text-editor,property-images,property-status-controls,estate-form,estate-controls,building-types-manager,import-upload-form,no-access}.tsx`;
+  - `src/components/ui/field.tsx` (label id)
+- Pages:
+  - `src/app/admin/(dashboard)/properties/{page,new/page,new/[kind]/page,[id]/page,building-types/page,import/page,import/[jobId]/page}.tsx`;
+  - `properties/import/template/[kind]/route.ts`;
+  - `src/app/admin/(dashboard)/estates/{page,new/page,[id]/page}.tsx`
+- Config: `next.config.ts` (Server Action body limit 4 MB); `src/app/globals.css` (formatted text styles); `package.json` (@tiptap/react, @tiptap/pm, @tiptap/starter-kit, sanitize-html, papaparse, sharp)
+- Tests:
+  - `tests/unit/properties.test.ts`;
+  - `tests/integration/properties.test.ts`;
+  - `tests/integration/helpers.ts` (run-scoped cleanup, `inRolledBackTransaction`);
+  - `tests/integration/access-control.test.ts` (super admin guard tested in a rolled-back transaction);
+  - `tests/e2e/{properties.spec.ts,session.ts,admin-fixtures.ts}`;
+  - `playwright.config.ts`
+- Docs: `docs/database.md`, `PROJECT_PROGRESS.md`
+
+### Database changes
+
+- **0015:** Nigerian state check constraint; `description_html` column; `property_listings` view now includes `description_html`; 30-photo limit trigger; `set_property_cover`, `reorder_property_images`, `find_property_duplicate`.
+- **0016:** `find_property_duplicates` (batch).
+- Both are applied to dev.
+
+### Tests and results (2026-11-04)
+
+| Check                                              | Result                                                                                                                                                     |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests (new)                                   | 40 / 40 pass (properties.test.ts)                                                                                                                          |
+| `npm run test:rls -- --retry=2`                    | 60 / 60 pass                                                                                                                                               |
+| typecheck / lint / production build                | Pass                                                                                                                                                       |
+| Full `npm run test:e2e -- --retries=2` (final run) | 15 passed, 3 flaky (every first attempt failed on DNS `ENOTFOUND`, then passed), 1 skipped (mobile-only), **0 failed**                                     |
+| New property journeys (4)                          | Pass: create, photo resized to WebP 2400 px with metadata removed, publish with 20% discount; duplicate review; editor cannot publish; estate + CSV import |
+| `npm run check:secrets`                            | Pass (39 client files)                                                                                                                                     |
+
+### Issues found and fixed during the stage
+
+- Every export of a `"use server"` file becomes a callable endpoint, so the row converter was moved to a server-only module.
+- The status action now checks permissions before reading the property.
+- A duplicate-property relation is ambiguous in the generated types, so it is now fetched separately.
+- The Storage API normalises `../` in object names, so traversal can't escape the bucket. The test now checks rejection of unsafe characters instead.
+- Owner's real super admin account in dev:
+  - the old "last super admin" test demoted a test account and broke a later test;
+  - it is now tested inside a rolled-back transaction, and the owner's account was verified untouched.
+- Each test file's cleanup could delete another file's accounts while running in parallel: cleanup now removes only its own run's data, plus leftovers over an hour old.
+- The "Cover photo" overlay looked like a badge (design rule): it is now plain text.
+- e2e locators: required-field labels show an asterisk, and "Description" also matched other fields: tests now use exact accessible names.
+
+### Outstanding issues
+
+- **R-009:** reset the development database password (still open).
+- **R-014:** no email domain yet.
+- Public property pages (listing, detail, search) are Stage 6; published properties are only visible through the database view for now.
+- HEIC photos from iPhones upload in Safari (which can read them) but not in Chrome on Windows; users there should export as JPEG.
 
 ---
 

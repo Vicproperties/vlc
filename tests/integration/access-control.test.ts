@@ -3,6 +3,7 @@ import {
   anonClient,
   cleanup,
   createUser,
+  inRolledBackTransaction,
   isDenied,
   makeAdmin,
   serviceClient,
@@ -304,13 +305,29 @@ describe("privilege escalation", () => {
     expect(isDenied(error)).toBe(true);
   });
 
-  it("the last active super admin cannot be demoted, even by the service role", async () => {
-    // superAdmin and unverified are both super admins; deactivate one, then try the last.
-    const first = await service.from("admin_users").update({ is_active: false }).eq("id", unverified.id);
-    expect(first.error).toBeNull();
-    const last = await service.from("admin_users").update({ role: "sub_admin" }).eq("id", superAdmin.id);
-    expect(last.error?.message).toMatch(/last active super admin/i);
-    await service.from("admin_users").update({ is_active: true }).eq("id", unverified.id);
+  it("the last active super admin cannot be demoted", async () => {
+    // Real super admins may exist in the development project, so the "only one left" state
+    // is created inside a transaction that is always rolled back: no real row changes.
+    const outcome = await inRolledBackTransaction(async (query) => {
+      await query("update public.admin_users set is_active = false where role = 'super_admin' and id <> $1", [
+        superAdmin.id,
+      ]);
+      return query("update public.admin_users set role = 'sub_admin' where id = $1", [superAdmin.id]).then(
+        () => "demoted",
+        (error: Error) => error.message,
+      );
+    });
+    expect(outcome).toMatch(/last active super admin/i);
+  });
+
+  it("other super admins can be demoted while one remains", async () => {
+    const outcome = await inRolledBackTransaction((query) =>
+      query("update public.admin_users set role = 'sub_admin' where id = $1", [unverified.id]).then(
+        () => "demoted",
+        (error: Error) => error.message,
+      ),
+    );
+    expect(outcome).toBe("demoted");
   });
 });
 

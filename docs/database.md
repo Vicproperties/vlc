@@ -82,6 +82,25 @@ Public read views (see ADR-001): `property_listings`, `property_listing_images`,
 
 See `docs/security/admin-authentication.md` for the full flow.
 
+## Property management (migrations 0015, 0016)
+
+- `properties.state` must be one of Nigeria's 36 states or `Federal Capital Territory`
+  (`private.nigerian_states()`; the app list is `src/features/properties/options.ts`).
+- `properties.description_html` holds sanitised formatted text: paragraphs, bold, italic,
+  sub-headings and lists, sanitised by the app before saving. `description` holds its plain
+  text and feeds search. Both are exposed in `property_listings`.
+- Photos: at most 30 per property (trigger). The app stores WebP (max 2400 px) with no metadata.
+
+| Function                                     | Caller        | Purpose                                                                       |
+| -------------------------------------------- | ------------- | ----------------------------------------------------------------------------- |
+| `set_property_cover(property, image)`        | authenticated | Switch the cover photo atomically (caller's RLS applies: properties:edit)     |
+| `reorder_property_images(property, ids[])`   | authenticated | Save photo order; refuses an out-of-date list (RLS applies)                   |
+| `find_property_duplicate(...)`               | authenticated | Single duplicate check (properties:create)                                    |
+| `find_property_duplicates(kind, rows jsonb)` | authenticated | Batch duplicate check for import previews, max 1,000 rows (properties:create) |
+
+CSV imports keep only parsed rows (`import_jobs`, `import_rows`). The uploaded file is read
+in memory and never stored. Confirmed rows are always inserted as **drafts**.
+
 ## Storage buckets
 
 | Bucket           | Public | Types                 | Max size | Write permission                              |

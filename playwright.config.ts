@@ -18,8 +18,8 @@ export default defineConfig({
   use: { baseURL: "http://localhost:3100", trace: "on-first-retry" },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    // The auth journey creates accounts; run it once (desktop) rather than per device.
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /admin-auth/ },
+    // Dashboard journeys create accounts and data; run them once (desktop) rather than per device.
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /admin-auth|properties/ },
   ],
   webServer: {
     command: "npm run start -- -p 3100",

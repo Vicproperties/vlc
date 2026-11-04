@@ -144,27 +144,59 @@ export async function sql<T extends pg.QueryResultRow = pg.QueryResultRow>(
   }
 }
 
+/**
+ * Runs statements in one direct-database transaction that is ALWAYS rolled back, so a
+ * test can set up a state (e.g. "only one super admin left") without changing real rows.
+ */
+export async function inRolledBackTransaction<T>(
+  fn: (query: (text: string, params?: unknown[]) => Promise<unknown>) => Promise<T>,
+) {
+  const client = dbClient();
+  await client.connect();
+  try {
+    await client.query("begin");
+    return await fn((text, params = []) => client.query(text, params));
+  } finally {
+    await client.query("rollback").catch(() => undefined);
+    await client.end();
+  }
+}
+
 export async function cleanup(propertyIds: string[]) {
   const client = dbClient();
   await client.connect();
   try {
     await client.query("begin");
     await client.query("set local app.allow_admin_purge = 'on'");
-    // Properties from this run, plus leftovers from earlier interrupted runs: test titles
-    // always end with the uniqueText() token (12 hex chars + run id).
-    const leftovers = `[0-9a-f]{12}[0-9a-z]{6,12}[0-9a-f]{6}$`;
+    // Test data from THIS run, plus leftovers over an hour old from interrupted runs. Other
+    // test files may be running in parallel, so their recent data is never touched.
+    // Test titles always end with the uniqueText() token (12 hex chars + run id).
+    const testTitle = "[0-9a-f]{12}[0-9a-z]{6,12}[0-9a-f]{6}$";
+    const thisRun = `[0-9a-f]{12}${RUN_ID}$`;
+    const stale = "created_at < now() - interval '1 hour'";
+    const testRow = `(title ~ $2 and (title ~ $3 or ${stale}))`;
     await client.query(
       `delete from public.inspection_requests where property_id = any($1::uuid[])
-         or property_id in (select id from public.properties where title ~ $2)`,
-      [propertyIds, leftovers],
+         or property_id in (select id from public.properties where ${testRow})`,
+      [propertyIds, testTitle, thisRun],
     );
-    await client.query("delete from public.properties where id = any($1::uuid[]) or title ~ $2", [
+    await client.query(`delete from public.properties where id = any($1::uuid[]) or ${testRow}`, [
       propertyIds,
-      leftovers,
+      testTitle,
+      thisRun,
     ]);
-    await client.query("delete from public.estates where name::text ~ $1", [leftovers]);
-    await client.query("delete from public.blog_posts where title ~ $1", [leftovers]);
-    await client.query("delete from auth.users where email like $1", [`rls-test-%@${EMAIL_DOMAIN}`]);
+    await client.query(`delete from public.estates where name::text ~ $1 and (name::text ~ $2 or ${stale})`, [
+      testTitle,
+      thisRun,
+    ]);
+    await client.query(`delete from public.blog_posts where title ~ $1 and (title ~ $2 or ${stale})`, [
+      testTitle,
+      thisRun,
+    ]);
+    await client.query(`delete from auth.users where email like $1 and (email like $2 or ${stale})`, [
+      `rls-test-%@${EMAIL_DOMAIN}`,
+      `%-${RUN_ID}@${EMAIL_DOMAIN}`,
+    ]);
     await client.query("commit");
   } catch (error) {
     await client.query("rollback");

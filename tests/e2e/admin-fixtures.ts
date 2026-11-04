@@ -16,11 +16,17 @@ export interface TestAdmin {
   name: string;
 }
 
-type Module = "properties" | "blog" | "admins";
+type Module = "properties" | "estates" | "blog" | "admins";
+type Flags = Partial<Record<"can_view" | "can_create" | "can_edit" | "can_publish" | "can_delete", boolean>>;
 
 export async function createTestAdmin(
   label: string,
-  opts: { role?: "super_admin" | "sub_admin"; view?: Module[]; admin?: boolean } = {},
+  opts: {
+    role?: "super_admin" | "sub_admin";
+    view?: Module[];
+    permissions?: Partial<Record<Module, Flags>>;
+    admin?: boolean;
+  } = {},
 ): Promise<TestAdmin> {
   const service = serviceClient();
   const email = `rls-test-e2e-${label}-${RUN_ID}@example.com`;
@@ -38,6 +44,12 @@ export async function createTestAdmin(
       const res = await service
         .from("admin_permissions")
         .insert({ admin_id: data.user.id, module: moduleName, can_view: true });
+      if (res.error) throw new Error(`admin_permissions: ${res.error.message}`);
+    }
+    for (const [moduleName, flags] of Object.entries(opts.permissions ?? {})) {
+      const res = await service
+        .from("admin_permissions")
+        .insert({ admin_id: data.user.id, module: moduleName as Module, ...flags });
       if (res.error) throw new Error(`admin_permissions: ${res.error.message}`);
     }
   }

@@ -1146,6 +1146,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           description: string | null;
+          description_html: string | null;
           dimensions: string | null;
           discount_percent: number | null;
           duplicate_of: string | null;
@@ -1197,6 +1198,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
+          description_html?: string | null;
           dimensions?: string | null;
           discount_percent?: number | null;
           duplicate_of?: string | null;
@@ -1248,6 +1250,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           description?: string | null;
+          description_html?: string | null;
           dimensions?: string | null;
           discount_percent?: number | null;
           duplicate_of?: string | null;
@@ -1662,6 +1665,7 @@ export type Database = {
           city: string | null;
           cover_image_path: string | null;
           description: string | null;
+          description_html: string | null;
           dimensions: string | null;
           discount_percent: number | null;
           effective_price: number | null;
@@ -1762,6 +1766,31 @@ export type Database = {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
       };
+      find_property_duplicate: {
+        Args: {
+          p_kind: Database["public"]["Enums"]["property_kind"];
+          p_land_size?: number;
+          p_land_size_unit?: Database["public"]["Enums"]["land_size_unit"];
+          p_location_text: string;
+          p_title: string;
+        };
+        Returns: {
+          id: string;
+          status: Database["public"]["Enums"]["property_status"];
+          title: string;
+        }[];
+      };
+      find_property_duplicates: {
+        Args: {
+          p_kind: Database["public"]["Enums"]["property_kind"];
+          p_rows: Json;
+        };
+        Returns: {
+          id: string;
+          idx: number;
+          title: string;
+        }[];
+      };
       log_activity: {
         Args: {
           p_action: string;
@@ -1805,6 +1834,14 @@ export type Database = {
           is_super_admin: boolean;
           module: Database["public"]["Enums"]["admin_module"];
         }[];
+      };
+      reorder_property_images: {
+        Args: { p_image_ids: string[]; p_property_id: string };
+        Returns: undefined;
+      };
+      set_property_cover: {
+        Args: { p_image_id: string; p_property_id: string };
+        Returns: undefined;
       };
     };
     Enums: {

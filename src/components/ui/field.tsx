@@ -25,7 +25,7 @@ export function fieldDescribedBy(id: string, opts: { hint?: unknown; error?: unk
 export function FormField({ id, label, hint, error, required, optionalLabel, className, children }: FormFieldProps) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <label htmlFor={id} className="text-small font-medium text-ink">
+      <label id={`${id}-label`} htmlFor={id} className="text-small font-medium text-ink">
         {label}
         {required && (
           <span className="text-danger" aria-hidden="true">

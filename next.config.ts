@@ -54,6 +54,11 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  experimental: {
+    // Photos are resized in the browser before upload (max 2400 px WebP, well under this).
+    // Kept below Vercel's 4.5 MB request limit.
+    serverActions: { bodySizeLimit: "4mb" },
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -1,12 +1,13 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdminPermission } from "@/features/auth/admin-session";
 import { dbErrorMessage } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { type PropertyKind, type PropertyStatus, PROPERTY_KINDS, PROPERTY_STATUSES } from "./options";
 import { toPropertyRow } from "./row";
+import { LISTINGS_TAG } from "@/features/listings/tags";
 import { parsePropertyInput, publishProblems } from "./schemas";
 
 export interface PropertyFormState {
@@ -80,6 +81,7 @@ export async function updatePropertyAction(
 
   await supabase.rpc("log_activity", { p_action: "property.updated", p_entity_type: "property", p_entity_id: id });
   refresh();
+  updateTag(LISTINGS_TAG);
   return {
     status: "success",
     message:
@@ -126,6 +128,7 @@ export async function changePropertyStatusAction(id: string, next: PropertyStatu
   const { error } = await supabase.from("properties").update({ status: next }).eq("id", id);
   if (error) return { ok: false, message: dbErrorMessage(error) };
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: `Status changed to ${next}.` };
 }
 
@@ -150,6 +153,7 @@ export async function clearDuplicateAction(id: string): Promise<ActionResult> {
     p_entity_id: id,
   });
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Marked as not a duplicate. It can now be published." };
 }
 
@@ -176,5 +180,6 @@ export async function deletePropertyAction(id: string): Promise<ActionResult> {
     p_entity_id: id,
     p_metadata: { title: property.title, photos_removed: paths.length },
   });
+  updateTag(LISTINGS_TAG);
   redirect("/admin/properties?deleted=1");
 }

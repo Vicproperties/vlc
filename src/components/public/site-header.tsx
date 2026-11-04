@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { siteConfig, publicNav } from "@/config/site";
-import { DesktopNav, MobileNav } from "./site-nav";
+import { DesktopNav, DesktopNavLinks, MobileNav, MobileNavMenu } from "./site-nav";
 
 export function SiteHeader() {
   return (
@@ -9,8 +10,12 @@ export function SiteHeader() {
         <Link href="/" className="font-serif text-[1.375rem] leading-none tracking-[-0.01em] text-ink">
           {siteConfig.name}
         </Link>
-        <DesktopNav items={publicNav} />
-        <MobileNav items={publicNav} />
+        <Suspense fallback={<DesktopNavLinks items={publicNav} pathname="" />}>
+          <DesktopNav items={publicNav} />
+        </Suspense>
+        <Suspense fallback={<MobileNavMenu items={publicNav} pathname="" />}>
+          <MobileNav items={publicNav} />
+        </Suspense>
       </div>
     </header>
   );

@@ -49,3 +49,12 @@ test("mobile menu opens and closes", async ({ page, isMobile }) => {
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
 });
+
+test("mobile property filters open in a drawer", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "mobile only");
+  await page.goto("/properties", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  const drawer = page.getByRole("dialog", { name: "Filter properties" });
+  await expect(drawer).toBeVisible();
+  await expect(drawer.getByRole("button", { name: "Show results" })).toBeVisible();
+});

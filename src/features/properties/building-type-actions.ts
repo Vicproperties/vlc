@@ -1,9 +1,10 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import { requireAdminPermission } from "@/features/auth/admin-session";
 import { slugify } from "@/lib/slug";
 import { dbErrorMessage } from "@/lib/supabase/errors";
+import { LISTINGS_TAG } from "@/features/listings/tags";
 import { createClient } from "@/lib/supabase/server";
 
 export interface SimpleState {
@@ -42,6 +43,7 @@ export async function createBuildingTypeAction(_prev: SimpleState, formData: For
     p_metadata: { name },
   });
   refresh();
+  updateTag(LISTINGS_TAG);
   return { status: "success", message: `“${name}” added.` };
 }
 
@@ -57,6 +59,7 @@ export async function setBuildingTypeActiveAction(id: string, active: boolean): 
     p_entity_id: id,
   });
   refresh();
+  updateTag(LISTINGS_TAG);
   return {
     status: "success",
     message: active ? "Building type activated." : "Building type hidden from new properties.",

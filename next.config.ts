@@ -25,10 +25,10 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' blob: data:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  `img-src 'self' blob: data: https://i.ytimg.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,
-  "frame-src 'none'",
+  "frame-src https://www.youtube-nocookie.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -54,6 +54,13 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  images: {
+    // Property photos are served from the public Supabase Storage bucket.
+    remotePatterns: supabaseOrigin
+      ? [{ protocol: "https", hostname: new URL(supabaseOrigin).hostname, pathname: "/storage/v1/object/public/**" }]
+      : [],
+    formats: ["image/avif", "image/webp"],
+  },
   experimental: {
     // Photos are resized in the browser before upload (max 2400 px WebP, well under this).
     // Kept below Vercel's 4.5 MB request limit.

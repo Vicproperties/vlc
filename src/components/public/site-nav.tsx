@@ -12,8 +12,15 @@ function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/**
+ * The current path is only known at request time, so the hook-based components are wrapped
+ * in Suspense by the header; the fallbacks render the same links without the active state.
+ */
 export function DesktopNav({ items }: { items: NavItem[] }) {
-  const pathname = usePathname();
+  return <DesktopNavLinks items={items} pathname={usePathname()} />;
+}
+
+export function DesktopNavLinks({ items, pathname }: { items: NavItem[]; pathname: string }) {
   return (
     <nav aria-label="Main" className="hidden md:block">
       <ul className="flex items-center gap-9">
@@ -43,8 +50,11 @@ export function DesktopNav({ items }: { items: NavItem[] }) {
 }
 
 export function MobileNav({ items }: { items: NavItem[] }) {
+  return <MobileNavMenu items={items} pathname={usePathname()} />;
+}
+
+export function MobileNavMenu({ items, pathname }: { items: NavItem[]; pathname: string }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
 
   return (
     <div className="md:hidden">

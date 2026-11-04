@@ -24,6 +24,9 @@ npm run dev                  # http://localhost:3000
 
 Pages:
 
+- `/` — homepage (sections editable from the dashboard in Stage 8)
+- `/properties` and `/properties/[slug]` — public search and property pages
+
 - `/design` — every design-system component and state (development only; 404 in production)
 - `/admin` — dashboard: password + emailed code (see `docs/security/admin-authentication.md`)
 

@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                 |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 5 — Property & Estate Management                                                                                                                                                |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                |
-| Last updated  | 2026-11-04                                                                                                                                                                            |
-| Next task     | Owner: try the property screens (Properties, Estates, Bulk import) and approve Stage 5. Owner still to reset dev DB password (R-009). Then present the Stage 6 (Public website) plan. |
+| Item          | Value                                                                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Current stage | Stage 6 — Public Website                                                                                                                                                                         |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                           |
+| Last updated  | 2026-11-04                                                                                                                                                                                       |
+| Next task     | Owner: review the public site (/, /properties, a published property) and approve Stage 6. Owner still to reset dev DB password (R-009). Then present the Stage 7 (Inspections & enquiries) plan. |
 
 ## Stage history
 
@@ -21,14 +21,99 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 2. Setup & design system                         | Complete                    | 2026-11-04 |
 | 3. Database & security foundation                | Complete                    | 2026-11-04 |
 | 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
-| 5. Properties & estates                          | Complete, awaiting approval | —          |
-| 6. Public website                                | Not started                 | —          |
+| 5. Properties & estates                          | Complete                    | 2026-11-04 |
+| 6. Public website                                | Complete, awaiting approval | —          |
 | 7. Inspections & enquiries                       | Not started                 | —          |
 | 8. Content management                            | Not started                 | —          |
 | 9. Blog                                          | Not started                 | —          |
 | 10. Customer accounts                            | Not started                 | —          |
 | 11. Marketing, announcements, analytics, consent | Not started                 | —          |
 | 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 6 — Public Website
+
+Owner: Stage 5 approved, and Stage 6 started 2026-11-04 under the scope agreed in Stage 1. No new decisions were needed.
+
+### Completed
+
+- **Homepage** (`/`):
+  - hero with a quick search (location or keyword, type, purpose);
+  - featured properties, falling back to the latest listings;
+  - "Why choose us" (shown only when items exist).
+  - The text comes from `page_sections` (typed in `src/features/content/home-sections.ts`), with neutral defaults and no company claims.
+  - Includes WebSite + SearchAction structured data.
+- **Property search** (`/properties`):
+  - filters live in the URL: keyword (full-text), type, purpose, state, price range, land use, building type, bedrooms, availability;
+  - sort by newest or price; 12 per page with pagination;
+  - sidebar filters on desktop, and a drawer on mobile;
+  - an active-filter list with remove links and "Clear all";
+  - loading, empty and no-match states;
+  - untrusted URL values are dropped;
+  - available listings come first, and unavailable ones stay visible, marked and filterable;
+  - filtered URLs are noindex, and canonical URLs are set.
+- **Property details** (`/properties/[slug]`):
+  - breadcrumb; purpose plus the discount or unavailable label;
+  - gallery with a full-screen viewer (keyboard prev/next) and fallback alt text;
+  - key details depend on the property type, and empty fields are hidden;
+  - formatted description (sanitised again on render), features;
+  - click-to-load YouTube (youtube-nocookie);
+  - location plus an "Open in Google Maps" link;
+  - price panel with instalments; a WhatsApp enquiry button when a WhatsApp number is set in site settings (Stage 8);
+  - copy link and WhatsApp share;
+  - RealEstateListing + BreadcrumbList structured data, canonical URL, Open Graph image;
+  - recently listed properties are prerendered at build time.
+- **Organization structured data** on every public page (confirmed facts only: name, URL).
+- **`sitemap.xml`** (home, properties, every listing) and **`robots.txt`** (disallows /admin and /design).
+- **Caching:** public data is cached (tag `listings`, up to 1 hour). Every dashboard change that affects listings clears it (`updateTag`), and the e2e test confirms that dashboard changes appear immediately.
+- **Images:** photos are served through the Next.js image optimiser (AVIF/WebP, responsive sizes). The CSP allows only youtube-nocookie frames and i.ytimg.com thumbnails.
+- **Header navigation:** wrapped in Suspense, because the current path is a request-time value under Cache Components.
+- **Accessibility:** axe (WCAG 2.1 AA) reports no serious or critical issues on the homepage, search page or a property page.
+
+### Files created / modified
+
+- Features: `src/features/listings/{filters,queries,tags}.ts`, `src/features/content/home-sections.ts`
+- Components:
+  - `src/components/public/{property-card,property-search-form,listing-filters,listing-controls,property-gallery,youtube-embed,share-buttons,json-ld}.tsx`;
+  - `site-header.tsx` / `site-nav.tsx` (Suspense-safe nav)
+- Pages: `src/app/(public)/page.tsx` (homepage), `src/app/(public)/properties/page.tsx`, `src/app/(public)/properties/[slug]/page.tsx`, `src/app/(public)/layout.tsx` (Organization data), `src/app/sitemap.ts`, `src/app/robots.ts`
+- Dashboard actions now clear the public cache: `src/features/properties/{actions,image-actions,building-type-actions}.ts`
+- Config: `next.config.ts` (image remote pattern, YouTube CSP sources); `package.json` (@axe-core/playwright)
+- Tests: `tests/unit/listings.test.ts`, `tests/e2e/public.spec.ts`, `tests/e2e/smoke.spec.ts` (mobile filter drawer), `playwright.config.ts`
+- Docs: `docs/decisions/ADR-003-not-found-status.md`, `docs/security/risk-register.md` (R-018 to R-020), `README.md`
+
+### Database changes
+
+None.
+
+### Tests and results (2026-11-05)
+
+| Check                                          | Result                                                                                                                                                                                                                                                       |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit tests                                     | 96 / 96 pass (7 new: URL filters)                                                                                                                                                                                                                            |
+| `npm run test:rls -- --retry=2`                | 60 / 60 pass                                                                                                                                                                                                                                                 |
+| Full `npm run test:e2e -- --retries=2`         | **24 passed, 0 failed, 0 flaky**, 2 skipped (device-specific)                                                                                                                                                                                                |
+| Public journeys (6 new)                        | Pass: homepage featured + search; URL filters, remove, empty state, hostile params; details, price, gallery, video, JSON-LD; drafts hidden + unavailable marked + dashboard change visible immediately; sitemap/robots; axe WCAG 2.1 AA (0 serious/critical) |
+| `npm run check:secrets`                        | Pass (42 client files)                                                                                                                                                                                                                                       |
+| typecheck / lint / prettier / production build | Pass                                                                                                                                                                                                                                                         |
+| Visual review                                  | Home, search, details at 1440 px and 390 px                                                                                                                                                                                                                  |
+
+### Issues found and fixed during the stage
+
+- `usePathname()` in the header broke prerendering of dynamic routes: the nav is now in Suspense with a static fallback.
+- A missing property returned a 200 page. The property is now looked up before rendering, and `generateStaticParams` uses a placeholder because Cache Components needs at least one entry. URLs never built still return 200 with noindex (ADR-003).
+- The JSON-LD escaping regex was saved with literal line-separator characters: it now uses character codes.
+- A nested `Field` component in the filter form was recreated on each render: it is now a helper function.
+- The e2e setup hook needed its own timeout; leftover test listings from a failed attempt were removed.
+
+### Outstanding issues
+
+- **R-009:** reset the development database password.
+- **R-014:** no email domain yet.
+- Header links to About, Blog and Contact show "not found" until Stages 8 and 9. Latest blog posts on the homepage come with Stage 9.
+- The inspection request form on property pages is Stage 7.
+- Site-wide company details (phone, WhatsApp, address) are edited in Stage 8. Until then, the WhatsApp enquiry button stays hidden.
 
 ---
 

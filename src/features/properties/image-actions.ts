@@ -1,12 +1,13 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { refresh } from "next/cache";
+import { refresh, updateTag } from "next/cache";
 import sharp from "sharp";
 import { requireAdminPermission } from "@/features/auth/admin-session";
 import { dbErrorMessage } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_PHOTOS_PER_PROPERTY, PHOTO_ACCEPTED_TYPES, PHOTO_MAX_EDGE, PHOTO_MAX_UPLOAD_BYTES } from "./media";
+import { LISTINGS_TAG } from "@/features/listings/tags";
 import type { ActionResult } from "./actions";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -87,6 +88,7 @@ export async function uploadPropertyImageAction(propertyId: string, formData: Fo
     p_entity_id: propertyId,
   });
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Photo added." };
 }
 
@@ -101,6 +103,7 @@ export async function updateImageAltAction(propertyId: string, imageId: string, 
     .eq("property_id", propertyId);
   if (error) return { ok: false, message: dbErrorMessage(error) };
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Description saved." };
 }
 
@@ -111,6 +114,7 @@ export async function setCoverImageAction(propertyId: string, imageId: string): 
   const { error } = await supabase.rpc("set_property_cover", { p_property_id: propertyId, p_image_id: imageId });
   if (error) return { ok: false, message: dbErrorMessage(error) };
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Cover photo updated." };
 }
 
@@ -125,6 +129,7 @@ export async function reorderImagesAction(propertyId: string, imageIds: string[]
   });
   if (error) return { ok: false, message: dbErrorMessage(error) };
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Photo order saved." };
 }
 
@@ -162,5 +167,6 @@ export async function deleteImageAction(propertyId: string, imageId: string): Pr
     p_entity_id: propertyId,
   });
   refresh();
+  updateTag(LISTINGS_TAG);
   return { ok: true, message: "Photo removed." };
 }

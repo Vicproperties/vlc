@@ -19,7 +19,7 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     // Dashboard journeys create accounts and data; run them once (desktop) rather than per device.
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /admin-auth|properties/ },
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /admin-auth|properties|public/ },
   ],
   webServer: {
     command: "npm run start -- -p 3100",

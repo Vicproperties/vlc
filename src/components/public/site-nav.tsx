@@ -26,7 +26,7 @@ export function DesktopNav({ items }: { items: NavItem[] }) {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative py-2 text-small tracking-[0.02em] transition-colors",
-                  "after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:bg-forest after:transition-transform after:duration-200",
+                  "after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:bg-brand after:transition-transform after:duration-200",
                   active
                     ? "text-ink after:scale-x-100"
                     : "text-stone after:scale-x-0 hover:text-ink hover:after:scale-x-100",
@@ -68,7 +68,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
                     href={item.href}
                     onClick={() => setOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={cn("block py-4 font-serif text-h3", active ? "text-forest" : "text-ink")}
+                    className={cn("block py-4 font-serif text-h3", active ? "text-brand" : "text-ink")}
                   >
                     {item.label}
                   </Link>

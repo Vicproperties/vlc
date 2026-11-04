@@ -29,7 +29,7 @@ export function PasswordInput({ className, ...props }: Omit<InputProps, "type">)
         aria-pressed={visible}
         aria-label={visible ? "Hide password" : "Show password"}
         aria-controls={props.id}
-        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-stone transition-colors hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-forest"
+        className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-stone transition-colors hover:text-ink focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand"
       >
         {visible ? (
           <EyeOff className="size-[1.125rem]" strokeWidth={1.5} aria-hidden="true" />

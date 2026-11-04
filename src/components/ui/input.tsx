@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 export const controlBase =
   "w-full bg-surface text-ink placeholder:text-stone/70 border border-line-strong rounded-sm " +
   "transition-colors duration-150 hover:border-stone " +
-  "focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-forest focus:border-forest " +
+  "focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-brand focus:border-brand " +
   "disabled:cursor-not-allowed disabled:bg-paper disabled:text-stone " +
   "aria-invalid:border-danger aria-invalid:focus-visible:outline-danger";
 

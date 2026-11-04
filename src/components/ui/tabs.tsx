@@ -48,7 +48,7 @@ export function Tabs({ items, defaultTab, className }: { items: TabItem[]; defau
               onKeyDown={(e) => onKeyDown(e, index)}
               className={cn(
                 "-mb-px border-b-2 py-3 text-small font-medium whitespace-nowrap transition-colors",
-                selected ? "border-forest text-ink" : "border-transparent text-stone hover:text-ink",
+                selected ? "border-brand text-ink" : "border-transparent text-stone hover:text-ink",
               )}
             >
               {item.label}

@@ -11,15 +11,17 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --color-paper: #f6f4ef;
-  --color-surface: #fcfbf8;
-  --color-ink: #1b1b19;
-  --color-stone: #6e6a62;
-  --color-line: #ddd8ce;
-  --color-line-strong: #bfb8aa;
-  --color-forest: #1f3a2e;
-  --color-forest-deep: #152820;
-  --color-forest-tint: #e6eae5;
+  /* Brand: light purple and white (owner decision 2026-11-04). */
+  --color-paper: #ffffff; /* page background */
+  --color-surface: #faf8fd; /* panels, inputs, admin surfaces (faint lavender) */
+  --color-ink: #2a1f45; /* headings and body text (very dark purple) */
+  --color-stone: #625b73; /* secondary text, AA on white and surface */
+  --color-line: #e7e1f1; /* hairlines */
+  --color-line-strong: #c9bfdc; /* input borders */
+  --color-brand: #6b4ba6; /* buttons, links, focus — AA with white text */
+  --color-brand-deep: #4e3480; /* hover / pressed, footer */
+  --color-brand-light: #c9b6ec; /* light purple accents: rules, highlights */
+  --color-brand-tint: #f1ebfa; /* selected rows, soft section backgrounds */
   --color-danger: #8e2a21;
   --color-danger-deep: #74221b;
   --color-danger-tint: #f4e6e3;
@@ -99,13 +101,13 @@
   }
 
   ::selection {
-    background-color: var(--color-forest);
+    background-color: var(--color-brand);
     color: var(--color-white);
   }
 
   /* Visible, consistent keyboard focus everywhere. */
   :focus-visible {
-    outline: 2px solid var(--color-forest);
+    outline: 2px solid var(--color-brand);
     outline-offset: 2px;
   }
 

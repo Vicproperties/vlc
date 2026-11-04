@@ -9,13 +9,13 @@ export type ButtonSize = "sm" | "md" | "lg";
 const base =
   "inline-flex items-center justify-center gap-2 font-sans font-medium whitespace-nowrap select-none " +
   "transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50 " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest";
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-forest text-white hover:bg-forest-deep rounded-sm",
+  primary: "bg-brand text-white hover:bg-brand-deep rounded-sm",
   secondary: "border border-ink text-ink bg-transparent hover:bg-ink hover:text-paper rounded-sm",
-  quiet: "text-ink bg-transparent hover:bg-forest-tint rounded-sm",
-  link: "text-forest underline decoration-1 underline-offset-4 hover:text-forest-deep hover:decoration-2 px-0! h-auto!",
+  quiet: "text-ink bg-transparent hover:bg-brand-tint rounded-sm",
+  link: "text-brand underline decoration-1 underline-offset-4 hover:text-brand-deep hover:decoration-2 px-0! h-auto!",
   danger: "bg-danger text-white hover:bg-danger-deep rounded-sm",
 };
 

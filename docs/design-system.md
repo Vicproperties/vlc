@@ -11,20 +11,24 @@ generous white space · one accent colour.
 
 ## Colour
 
-| Token         | Hex       | Use                                        |
-| ------------- | --------- | ------------------------------------------ |
-| `paper`       | `#F6F4EF` | Page background                            |
-| `surface`     | `#FCFBF8` | Raised areas (forms, tables, admin panels) |
-| `ink`         | `#1B1B19` | Primary text, primary buttons on light     |
-| `stone`       | `#6E6A62` | Secondary text (AA on paper and surface)   |
-| `line`        | `#DDD8CE` | Hairline borders and rules                 |
-| `line-strong` | `#BFB8AA` | Input borders, emphasised dividers         |
-| `forest`      | `#1F3A2E` | Accent: primary actions, links, focus      |
-| `forest-deep` | `#152820` | Accent hover/pressed                       |
-| `forest-tint` | `#E6EAE5` | Selected rows, subtle accent backgrounds   |
-| `danger`      | `#8E2A21` | Errors, destructive actions                |
-| `success`     | `#2F5D3F` | Success messages                           |
-| `warning`     | `#7A5A12` | Warnings                                   |
+Brand pairing: **light purple and white** (owner decision 2026-11-04, replacing the original
+beige/forest palette). Deeper purple shades carry text and buttons so contrast stays AA.
+
+| Token         | Hex       | Use                                                                        | Contrast         |
+| ------------- | --------- | -------------------------------------------------------------------------- | ---------------- |
+| `paper`       | `#FFFFFF` | Page background                                                            | —                |
+| `surface`     | `#FAF8FD` | Panels, inputs, admin surfaces                                             | —                |
+| `ink`         | `#2A1F45` | Headings and body text                                                     | 15.2:1 on white  |
+| `stone`       | `#625B73` | Secondary text                                                             | 6.4:1 on white   |
+| `line`        | `#E7E1F1` | Hairlines                                                                  | —                |
+| `line-strong` | `#C9BFDC` | Input borders                                                              | —                |
+| `brand`       | `#6B4BA6` | Buttons, links, focus, discount label                                      | 6.6:1 with white |
+| `brand-deep`  | `#4E3480` | Hover/pressed, footer background                                           | 9.9:1 with white |
+| `brand-light` | `#C9B6EC` | Light purple accents (rules, highlights) — decorative, never text on white | —                |
+| `brand-tint`  | `#F1EBFA` | Selected rows, soft section backgrounds                                    | —                |
+| `danger`      | `#8E2A21` | Errors, destructive actions                                                | —                |
+| `success`     | `#2F5D3F` | Success messages                                                           | —                |
+| `warning`     | `#7A5A12` | Warnings                                                                   | —                |
 
 Status text (dashboard) uses coloured text with a 6px square marker, never a pill.
 

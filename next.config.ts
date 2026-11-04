@@ -2,6 +2,17 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
+// Supabase project origin (public). Images are served from Storage; the browser client
+// (customer favourites, Stage 10) talks to the API and Realtime.
+const supabaseOrigin = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "";
+  } catch {
+    return "";
+  }
+})();
+const supabaseWs = supabaseOrigin.replace(/^https:/, "wss:");
+
 /**
  * Baseline Content Security Policy (static, so public pages stay cacheable).
  * Sources are added explicitly as integrations arrive:
@@ -14,9 +25,9 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data:",
+  `img-src 'self' blob: data:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",

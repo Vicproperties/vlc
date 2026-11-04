@@ -22,7 +22,7 @@ const ToastContext = createContext<ToastApi | null>(null);
 const toneStyles: Record<ToastTone, { icon: typeof Info; className: string }> = {
   success: { icon: CircleCheck, className: "text-success" },
   error: { icon: CircleAlert, className: "text-danger" },
-  info: { icon: Info, className: "text-forest" },
+  info: { icon: Info, className: "text-brand" },
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {

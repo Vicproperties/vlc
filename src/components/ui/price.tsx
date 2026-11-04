@@ -57,7 +57,7 @@ export function DiscountLabel({ percent, className }: { percent: number | null; 
   return (
     <span
       className={cn(
-        "inline-block bg-paper px-3 py-1.5 font-sans text-caption font-semibold tracking-[0.14em] text-forest uppercase",
+        "inline-block bg-brand px-3 py-1.5 font-sans text-caption font-semibold tracking-[0.14em] text-white uppercase",
         className,
       )}
     >

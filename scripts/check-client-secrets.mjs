@@ -3,7 +3,14 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const SERVER_ONLY = ["SUPABASE_SERVICE_ROLE_KEY", "RESEND_API_KEY", "ADMIN_OTP_HMAC_SECRET", "TURNSTILE_SECRET_KEY"];
+const SERVER_ONLY = [
+  "SUPABASE_SECRET_KEY",
+  "SUPABASE_DB_URL",
+  "SUPABASE_ACCESS_TOKEN",
+  "RESEND_API_KEY",
+  "ADMIN_OTP_HMAC_SECRET",
+  "TURNSTILE_SECRET_KEY",
+];
 
 const needles = [
   ...SERVER_ONLY,

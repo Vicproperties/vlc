@@ -1,34 +1,86 @@
 # Project Progress
 
 Read this first when resuming work. Then check `git status` / `git log`, verify the current
-implementation (`npm run typecheck && npm run lint && npm test && npm run test:e2e`), and continue
-from **Next task** below. Do not repeat completed work or overwrite working code.
+implementation (`npm run typecheck && npm run lint && npm test && npm run test:e2e && npm run test:rls`),
+and continue from **Next task** below. Do not repeat completed work or overwrite working code.
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                           |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 3 — Database and Security Foundation (planning)                                                                                                                           |
-| Stage status  | Stage 2 approved 2026-11-04; Stage 3 plan presented, awaiting approval                                                                                                          |
-| Last updated  | 2026-11-04                                                                                                                                                                      |
-| Next task     | Owner approves Stage 3 plan and creates the development Supabase project (credentials into `.env.local`); then implement Stage 3 task 1 (Supabase CLI + migration scaffolding). |
+| Item          | Value                                                                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 3 — Database and Security Foundation                                                                                                                                                            |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                |
+| Last updated  | 2026-11-04                                                                                                                                                                                            |
+| Next task     | Owner: reset dev DB password (risk R-009) and approve Stage 3. Then present the Stage 4 (Admin authentication & dashboard foundation) plan. Stage 4 needs a Resend account + verified sending domain. |
 
 ## Stage history
 
-| Stage                                            | Status      | Approved   |
-| ------------------------------------------------ | ----------- | ---------- |
-| 1. Planning & architecture                       | Complete    | 2026-11-03 |
-| 2. Setup & design system                         | Complete    | 2026-11-04 |
-| 3. Database & security foundation                | Not started | —          |
-| 4. Admin auth & dashboard shell                  | Not started | —          |
-| 5. Properties & estates                          | Not started | —          |
-| 6. Public website                                | Not started | —          |
-| 7. Inspections & enquiries                       | Not started | —          |
-| 8. Content management                            | Not started | —          |
-| 9. Blog                                          | Not started | —          |
-| 10. Customer accounts                            | Not started | —          |
-| 11. Marketing, announcements, analytics, consent | Not started | —          |
-| 12. Testing, security, deployment                | Not started | —          |
+| Stage                                            | Status                      | Approved   |
+| ------------------------------------------------ | --------------------------- | ---------- |
+| 1. Planning & architecture                       | Complete                    | 2026-11-03 |
+| 2. Setup & design system                         | Complete                    | 2026-11-04 |
+| 3. Database & security foundation                | Complete, awaiting approval | —          |
+| 4. Admin auth & dashboard shell                  | Not started                 | —          |
+| 5. Properties & estates                          | Not started                 | —          |
+| 6. Public website                                | Not started                 | —          |
+| 7. Inspections & enquiries                       | Not started                 | —          |
+| 8. Content management                            | Not started                 | —          |
+| 9. Blog                                          | Not started                 | —          |
+| 10. Customer accounts                            | Not started                 | —          |
+| 11. Marketing, announcements, analytics, consent | Not started                 | —          |
+| 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 3 — Database and Security Foundation
+
+### Completed
+
+- Supabase CLI 3.0 (dev dependency), `@supabase/supabase-js` 2.118, `@supabase/ssr` 0.12.7, `pg` (tests only).
+- 13 migrations applied to the dev project (`tcfpnbliwjlinwlgzmkc`): foundation, identity & security, properties, enquiries, blog, content & marketing, imports & analytics, access control (privileges + RLS on every table), storage, last-super-admin maintenance override, slug defaults, log actor retention, foreign-key indexes. Details: `docs/database.md`.
+- Private schema for sessions / OTP / rate limits (not reachable through the API).
+- Permission model in SQL: `is_verified_admin()` (active admin + OTP-verified session for this JWT), `has_admin_permission(module, action)`.
+- Database-enforced rules: publish permission, duplicate flagging/blocking, computed discount/effective price, kind-specific fields, inspection snapshots, immutable logs with retention purge, last-super-admin guard.
+- Storage buckets with MIME/size limits and permission-based upload policies.
+- Supabase clients: `server.ts` (user/RLS), `public.ts` (anon, cache-safe), `browser.ts`, `service.ts` (service role, server-only).
+- Generated types `src/types/database.ts`.
+- `scripts/with-env.mjs` (runs CLI with secrets redacted); npm scripts `db:push`, `db:push:dry`, `db:types`, `test:rls`.
+- Env var renamed `SUPABASE_SERVICE_ROLE_KEY` → `SUPABASE_SECRET_KEY`; CLI-only vars documented.
+- CSP allows the Supabase origin for images and API.
+- **Colour change at owner request:** light purple + white palette; tokens renamed `forest*` → `brand*` (see `docs/design-system.md`).
+
+### Database changes
+
+Migrations `20261104000001` … `20261104000013` (all applied to dev). Seeded data: `building_types` (10 types, owner-approved), singleton rows for `site_settings` and `cookie_settings` (empty values). No company content seeded.
+
+### Tests and results (2026-11-04)
+
+| Check                                        | Result                                                                         |
+| -------------------------------------------- | ------------------------------------------------------------------------------ |
+| `npm run test:rls` (live API, 7 actor types) | **33 / 33 pass**; cleanup verified (0 users / properties left)                 |
+| Supabase `db lint` (public, private)         | No errors                                                                      |
+| Supabase Security Advisor                    | 3 accepted findings (ADR-001 views, 2 self-checking RPCs); INFO only otherwise |
+| Supabase Performance Advisor                 | 20 unindexed FKs → fixed (migration 0013)                                      |
+| typecheck / lint / prettier                  | Pass                                                                           |
+| Unit tests                                   | 21 / 21 pass                                                                   |
+| E2E (production build)                       | 9 pass, 1 skipped (mobile-only)                                                |
+| Client bundle secret scan                    | Pass (now also checks DB URL and access token)                                 |
+| Visual review (new colours)                  | Home, `/design`, `/admin`, mobile — correct; contrast AA verified              |
+
+### Issues found and fixed during the stage
+
+- `is_service_role()` would have trusted every caller inside SECURITY DEFINER functions — rewritten.
+- Immutable logs blocked deleting any user with history — logs now keep actor id + email without FK (0012).
+- Log retention purge was impossible under immutability — dedicated purge function.
+- Last-super-admin guard prevented test cleanup — direct-DB-only override (0010).
+- Required `slug` in generated types — defaults added (0011).
+- Malformed `.env.local` (brackets, spaces) — normalised.
+
+### Outstanding issues
+
+- **R-009: owner must reset the development database password** (it was printed in a session log) and update `SUPABASE_DB_URL`.
+- Admin session idle-touch, OTP flow and pg_cron purge schedule are Stage 4 work.
+- Supabase project display name is the default ("website4vic@gmail.com's Project"); optionally rename to `vlc-dev`.
 
 ---
 

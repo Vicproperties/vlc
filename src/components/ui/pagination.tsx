@@ -35,7 +35,7 @@ export function Pagination({ page, totalPages, hrefFor, className }: PaginationP
   return (
     <nav aria-label="Pagination" className={cn("flex items-center justify-center gap-1", className)}>
       {prev ? (
-        <Link href={hrefFor(prev)} className={cn(itemBase, "gap-1 text-ink hover:bg-forest-tint")} rel="prev">
+        <Link href={hrefFor(prev)} className={cn(itemBase, "gap-1 text-ink hover:bg-brand-tint")} rel="prev">
           <ChevronLeft className="size-4" strokeWidth={1.5} aria-hidden="true" />
           Previous
         </Link>
@@ -59,8 +59,8 @@ export function Pagination({ page, totalPages, hrefFor, className }: PaginationP
                 className={cn(
                   itemBase,
                   p === page
-                    ? "border-b-2 border-forest font-medium text-ink"
-                    : "text-stone hover:bg-forest-tint hover:text-ink",
+                    ? "border-b-2 border-brand font-medium text-ink"
+                    : "text-stone hover:bg-brand-tint hover:text-ink",
                 )}
               >
                 {p}
@@ -73,7 +73,7 @@ export function Pagination({ page, totalPages, hrefFor, className }: PaginationP
         Page {page} of {totalPages}
       </span>
       {next ? (
-        <Link href={hrefFor(next)} className={cn(itemBase, "gap-1 text-ink hover:bg-forest-tint")} rel="next">
+        <Link href={hrefFor(next)} className={cn(itemBase, "gap-1 text-ink hover:bg-brand-tint")} rel="next">
           Next
           <ChevronRight className="size-4" strokeWidth={1.5} aria-hidden="true" />
         </Link>

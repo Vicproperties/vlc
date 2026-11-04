@@ -30,7 +30,7 @@ function NavList({ items, onNavigate }: { items: AdminNavItem[]; onNavigate?: ()
               className={cn(
                 "flex items-center gap-3 border-l-2 px-4 py-2.5 text-small transition-colors",
                 active
-                  ? "border-forest bg-forest-tint font-medium text-ink"
+                  ? "border-brand bg-brand-tint font-medium text-ink"
                   : "border-transparent text-stone hover:bg-paper hover:text-ink",
               )}
             >

@@ -9,7 +9,7 @@ import { z } from "zod";
  * (e.g. email before Stage 4) do not prevent the app from building.
  */
 const schema = z.object({
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_SECRET_KEY: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
   EMAIL_FROM: z.string().min(3),
   ADMIN_OTP_HMAC_SECRET: z.string().min(32, "ADMIN_OTP_HMAC_SECRET must be at least 32 characters"),

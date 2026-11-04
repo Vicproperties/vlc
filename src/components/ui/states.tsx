@@ -49,7 +49,7 @@ export type StatusTone = "neutral" | "accent" | "success" | "warning" | "danger"
 
 const toneText: Record<StatusTone, string> = {
   neutral: "text-stone",
-  accent: "text-forest",
+  accent: "text-brand",
   success: "text-success",
   warning: "text-warning",
   danger: "text-danger",

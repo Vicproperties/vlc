@@ -2,8 +2,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 const boxBase =
-  "size-[1.125rem] shrink-0 border border-line-strong bg-surface accent-forest cursor-pointer " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest " +
+  "size-[1.125rem] shrink-0 border border-line-strong bg-surface accent-brand cursor-pointer " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
 interface ChoiceProps extends Omit<ComponentProps<"input">, "type"> {

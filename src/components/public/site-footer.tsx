@@ -14,17 +14,17 @@ async function CopyrightYear() {
  */
 export function SiteFooter() {
   return (
-    <footer className="mt-auto bg-ink text-paper">
+    <footer className="mt-auto bg-brand-deep text-white">
       <div className="container-content grid gap-12 py-16 md:grid-cols-[2fr_1fr_1fr] md:py-20">
         <div className="flex flex-col gap-4">
           <p className="font-serif text-h3">{siteConfig.name}</p>
         </div>
         <nav aria-label="Footer">
-          <p className="mb-4 text-caption font-medium tracking-[0.14em] text-paper/60 uppercase">Explore</p>
+          <p className="mb-4 text-caption font-medium tracking-[0.14em] text-white/75 uppercase">Explore</p>
           <ul className="flex flex-col gap-3">
             {publicNav.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="text-small text-paper/85 transition-colors hover:text-white">
+                <Link href={item.href} className="text-small text-white/90 transition-colors hover:text-white">
                   {item.label}
                 </Link>
               </li>
@@ -32,11 +32,11 @@ export function SiteFooter() {
           </ul>
         </nav>
         <nav aria-label="Legal">
-          <p className="mb-4 text-caption font-medium tracking-[0.14em] text-paper/60 uppercase">Legal</p>
+          <p className="mb-4 text-caption font-medium tracking-[0.14em] text-white/75 uppercase">Legal</p>
           <ul className="flex flex-col gap-3">
             {legalNav.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="text-small text-paper/85 transition-colors hover:text-white">
+                <Link href={item.href} className="text-small text-white/90 transition-colors hover:text-white">
                   {item.label}
                 </Link>
               </li>
@@ -44,8 +44,8 @@ export function SiteFooter() {
           </ul>
         </nav>
       </div>
-      <div className="border-t border-paper/15">
-        <div className="container-content flex flex-col gap-2 py-6 text-caption text-paper/60 sm:flex-row sm:justify-between">
+      <div className="border-t border-white/15">
+        <div className="container-content flex flex-col gap-2 py-6 text-caption text-white/75 sm:flex-row sm:justify-between">
           <p>
             &copy; <CopyrightYear /> {siteConfig.name}. All rights reserved.
           </p>

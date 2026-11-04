@@ -18,9 +18,18 @@ test("security headers are present", async ({ request }) => {
 
 test("development-only pages are not available in production", async ({ request }) => {
   expect((await request.get("/design")).status()).toBe(404);
-  const admin = await request.get("/admin");
-  expect(admin.status()).toBe(404);
+});
+
+test("the dashboard requires sign-in and is never indexed or cached", async ({ request }) => {
+  const admin = await request.get("/admin", { maxRedirects: 0 });
+  expect(admin.status()).toBe(307);
+  expect(admin.headers()["location"]).toMatch(/\/admin\/login$/);
   expect(admin.headers()["x-robots-tag"]).toContain("noindex");
+
+  const login = await request.get("/admin/login");
+  expect(login.status()).toBe(200);
+  expect(login.headers()["x-robots-tag"]).toContain("noindex");
+  expect(login.headers()["cache-control"]).toContain("no-store");
 });
 
 test("unknown routes show the not-found page", async ({ page }) => {

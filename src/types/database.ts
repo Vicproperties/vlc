@@ -1709,6 +1709,32 @@ export type Database = {
       };
     };
     Functions: {
+      admin_otp_issue: {
+        Args: {
+          p_code_hash: string;
+          p_cooldown_seconds?: number;
+          p_max_per_session?: number;
+          p_session_id: string;
+          p_ttl_seconds?: number;
+        };
+        Returns: string;
+      };
+      admin_otp_verify: {
+        Args: { p_code_hash: string; p_session_id: string };
+        Returns: string;
+      };
+      admin_recovery_complete: {
+        Args: { p_admin_id: string; p_session_id: string };
+        Returns: boolean;
+      };
+      admin_recovery_is_valid: {
+        Args: { p_admin_id: string; p_session_id: string };
+        Returns: boolean;
+      };
+      admin_recovery_start: {
+        Args: { p_admin_id: string; p_session_id: string };
+        Returns: boolean;
+      };
       admin_session_create: {
         Args: {
           p_admin_id: string;
@@ -1727,6 +1753,7 @@ export type Database = {
         Args: { p_admin_id: string; p_session_id?: string };
         Returns: number;
       };
+      admin_session_status: { Args: never; Returns: string };
       admin_session_touch: {
         Args: { p_session_id: string };
         Returns: undefined;

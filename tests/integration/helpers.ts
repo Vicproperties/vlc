@@ -120,13 +120,32 @@ export async function makeAdmin(
  * Removes everything this run created. Uses a direct database connection so the
  * last-super-admin guard can be bypassed for test accounts only (migration 0010).
  */
-export async function cleanup(propertyIds: string[]) {
-  const client = new pg.Client({
+function dbClient() {
+  url(); // refuses anything but the development project
+  return new pg.Client({
     connectionString: env("SUPABASE_DB_URL"),
     // Development database only. The Supabase pooler presents a certificate not in Node's
     // default trust store; production tooling must pin the Supabase CA instead.
     ssl: { rejectUnauthorized: false },
   });
+}
+
+/** Runs SQL directly (e.g. to age a session or expire a code). Dev project only. */
+export async function sql<T extends pg.QueryResultRow = pg.QueryResultRow>(
+  text: string,
+  params: unknown[] = [],
+): Promise<T[]> {
+  const client = dbClient();
+  await client.connect();
+  try {
+    return (await client.query<T>(text, params)).rows;
+  } finally {
+    await client.end();
+  }
+}
+
+export async function cleanup(propertyIds: string[]) {
+  const client = dbClient();
   await client.connect();
   try {
     await client.query("begin");

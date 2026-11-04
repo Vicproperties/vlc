@@ -22,6 +22,15 @@
 - Read the bundled docs in `node_modules/next/dist/docs/` before using a Next.js API — this version (16.x) differs from older material.
 - No hardcoded production data (listings, company details, testimonials, statistics).
 
+## Authorization
+
+- Every dashboard page, Server Action and Route Handler calls `requireAdmin()` or
+  `requireAdminPermission(module, action)` from `src/features/auth/admin-session.ts` itself.
+  Layouts and `src/proxy.ts` are not an authorization boundary.
+- Use the RLS-scoped `createClient()` for admin data so the database enforces permissions again.
+  The service client is only for the audited cases listed in `src/lib/supabase/service.ts`.
+- Session reads sit behind `<Suspense>` (Cache Components) and are never cached across requests.
+
 ## Styling
 
 - Tailwind utilities backed by tokens in `src/app/globals.css`. Do not introduce raw hex colours in components.

@@ -1,4 +1,8 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+
+// Auth journeys use the DEVELOPMENT Supabase project (.env.local) for fixtures.
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 /**
  * End-to-end tests run against a production build (`next build && next start`)
@@ -9,10 +13,13 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   reporter: "list",
+  // Auth steps make several round trips to the remote development database.
+  expect: { timeout: 15_000 },
   use: { baseURL: "http://localhost:3100", trace: "on-first-retry" },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    // The auth journey creates accounts; run it once (desktop) rather than per device.
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testIgnore: /admin-auth/ },
   ],
   webServer: {
     command: "npm run start -- -p 3100",
@@ -20,5 +27,7 @@ export default defineConfig({
     // Always start a fresh server so tests never run against a stale build.
     reuseExistingServer: false,
     timeout: 120_000,
+    // Codes are injected by the tests; never send real email from automated runs.
+    env: { EMAIL_TRANSPORT: "disabled" },
   },
 });

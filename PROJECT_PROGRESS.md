@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 3 — Database and Security Foundation                                                                                                                                                            |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                |
-| Last updated  | 2026-11-04                                                                                                                                                                                            |
-| Next task     | Owner: reset dev DB password (risk R-009) and approve Stage 3. Then present the Stage 4 (Admin authentication & dashboard foundation) plan. Stage 4 needs a Resend account + verified sending domain. |
+| Item          | Value                                                                                                                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 4 — Admin Authentication & Dashboard Foundation                                                                                                                                                                                                                                                                |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                                                                                                                               |
+| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                           |
+| Next task     | Owner: run `npm run admin:bootstrap -- --email web4vic@gmail.com --name "<full name>"`, set the password via /admin/forgot-password, sign in with the emailed code (first real-inbox test), and approve Stage 4. Owner still to reset dev DB password (R-009). Then present the Stage 5 (Properties & Estates) plan. |
 
 ## Stage history
 
@@ -19,8 +19,8 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | ------------------------------------------------ | --------------------------- | ---------- |
 | 1. Planning & architecture                       | Complete                    | 2026-11-03 |
 | 2. Setup & design system                         | Complete                    | 2026-11-04 |
-| 3. Database & security foundation                | Complete, awaiting approval | —          |
-| 4. Admin auth & dashboard shell                  | Not started                 | —          |
+| 3. Database & security foundation                | Complete                    | 2026-11-04 |
+| 4. Admin auth & dashboard shell                  | Complete, awaiting approval | —          |
 | 5. Properties & estates                          | Not started                 | —          |
 | 6. Public website                                | Not started                 | —          |
 | 7. Inspections & enquiries                       | Not started                 | —          |
@@ -29,6 +29,87 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 10. Customer accounts                            | Not started                 | —          |
 | 11. Marketing, announcements, analytics, consent | Not started                 | —          |
 | 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 4 — Admin Authentication & Dashboard Foundation
+
+Owner decisions (2026-11-04): Stage 3 and the Stage 4 plan approved; first super admin email
+`web4vic@gmail.com` (the Resend account email); no sending domain yet, so email is sent from
+`onboarding@resend.dev`, which delivers only to the Resend account owner.
+
+### Completed
+
+- Sign-in with email and password, then a 6-digit emailed code, on every sign-in. Codes:
+  - only an HMAC bound to the session is stored;
+  - expire after 10 minutes; only the newest code works;
+  - can be resent after 60 seconds, up to 5 sends per login;
+  - **5 wrong codes in total revoke the login**;
+  - the code step must be completed within 30 minutes.
+- The same generic error for a wrong password, an unknown email, a non-admin or a deactivated admin.
+- Admin sessions last 12 hours at most and end after 30 minutes of inactivity (activity is recorded on each dashboard request). Sign-out revokes the session in the database.
+- Forgot password and reset:
+  - the response is the same for every email, and the look-up and email happen after the response;
+  - the link only works after a button press (so email scanners can't use it up);
+  - links are single-use, with a 15-minute marker;
+  - completing a reset revokes every admin session and signs the account out everywhere.
+- Password policy: 12 to 72 characters, not trivially repetitive.
+- Postgres rate limits on sign-in, code verification, code resend, forgot password and link confirmation. The limiter fails closed.
+- Security event and activity logging for every auth step. Email addresses and IPs are stored only as keyed hashes; no codes or passwords are logged.
+- `src/proxy.ts`: refreshes Supabase cookies on /admin, gives signed-out visitors an optimistic redirect, and sends `Cache-Control: private, no-store`.
+- `requireAdmin()` / `requireAdminPermission()` Data Access Layer (`src/features/auth/admin-session.ts`).
+- The dashboard is live in production: the menu is filtered by permissions, and it shows the admin's name and role and a sign-out button. The production 404 gate is removed.
+- Email through the Resend HTTP API, with branded and escaped templates (code; reset/invite link). The code is not put in the subject. `EMAIL_TRANSPORT=disabled` exists for tests only and is refused on Vercel production.
+- `npm run admin:bootstrap` creates the first super admin, with no password and only if none exists yet.
+- The daily pg_cron retention purge is scheduled (03:17 UTC).
+- **Decision (ADR-002):** a nonce CSP for /admin was rejected, because it is incompatible with Partial Prerendering; the static CSP is kept.
+
+### Files created / modified
+
+- Migration: `supabase/migrations/20261104000014_admin_auth.sql`; regenerated `src/types/database.ts`
+- Auth: `src/features/auth/{constants,schemas,redirects,otp-core,crypto,request-meta,security-log,otp-delivery,recovery,admin-session,actions}.ts`
+- Email: `src/lib/email/{send,templates}.ts`
+- Proxy: `src/proxy.ts`
+- Pages: `src/app/admin/(auth)/{layout.tsx, login/*, verify/*, forgot-password/*, reset-password/*, auth/confirm/*}`; `src/app/admin/(dashboard)/layout.tsx`, `page.tsx` (rewritten)
+- Components: `src/components/ui/notice.tsx`, `src/components/admin/auth-heading.tsx`
+- Script: `scripts/create-first-admin.mjs` (`npm run admin:bootstrap`)
+- Tests: `tests/unit/auth.test.ts`, `tests/integration/admin-auth.test.ts`, `tests/integration/helpers.ts` (`sql()` helper), `tests/e2e/admin-auth.spec.ts`, `tests/e2e/admin-fixtures.ts`, `tests/e2e/smoke.spec.ts` (admin now redirects), `playwright.config.ts` (env, disabled email transport, 15 s expect timeout)
+- Config/docs: `.env.example` (EMAIL_TRANSPORT, Resend test sender), `.env.local` (whitespace fixed; `ADMIN_OTP_HMAC_SECRET` generated), `package.json`, `src/lib/supabase/server.ts` (comment), `README.md`, `docs/database.md`, `docs/conventions.md`, `docs/security/admin-authentication.md` (new), `docs/security/risk-register.md` (R-002/004/008/012/013 updated; R-014–R-017 added), `docs/decisions/ADR-002-admin-csp.md` (new)
+
+### Database changes
+
+Migration `20261104000014_admin_auth` (applied to dev): table `private.admin_recovery_sessions`; functions `admin_otp_issue`, `admin_otp_verify`, `admin_session_status` (authenticated), `admin_recovery_start/is_valid/complete` (service role only); purge extended; `pg_cron` enabled with job `purge-expired-logs`.
+
+### Tests and results (2026-11-04)
+
+| Check                                              | Result                                                                                                                                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests                                         | 49 / 49 pass (28 new auth tests)                                                                                                                                                      |
+| `npm run test:rls` (live dev API)                  | 51 / 51 pass (33 access-control + 18 new auth tests)                                                                                                                                  |
+| Full `npm run test:e2e -- --retries=2` (final run) | 17 pass, 2 flaky, 1 skipped (mobile-only), 1 failed; every failed attempt was a DNS failure (`ENOTFOUND`) or a fail-closed response to one. The failed test passed when re-run alone. |
+| Lockout test after race fix                        | 3 / 3 first-attempt passes (single worker)                                                                                                                                            |
+| `npm run check:secrets`                            | Pass (32 client files)                                                                                                                                                                |
+| typecheck / lint / prettier                        | Pass                                                                                                                                                                                  |
+| Supabase Security Advisor                          | Same 3 accepted views (ADR-001); new WARN for `admin_session_status` accepted (R-013); private tables have no policies on purpose                                                     |
+| Supabase Performance Advisor                       | INFO only (unused indexes on a new database)                                                                                                                                          |
+| Resend key                                         | Verified: test send to `delivered@resend.dev` returned HTTP 200                                                                                                                       |
+| Real inbox delivery to web4vic@gmail.com           | **Not yet tested** (happens at owner bootstrap)                                                                                                                                       |
+
+### Issues found and fixed during the stage
+
+- `.env.local` had spaces around `=` (Resend key line, database URL): fixed without printing values.
+- Supabase's auth client reads the clock while starting, which Cache Components flagged during runtime prefetch: session reads now call `connection()` first.
+- Next.js's route announcer also has `role="alert"`: e2e locators are scoped to our messages.
+- The lockout e2e test sometimes typed the next code before React reset the form: it now waits for the reset. (Running `--repeat-each` in parallel also lets one worker's cleanup delete another worker's accounts; use `--workers=1` when repeating auth tests.)
+- The code was in the email subject (visible on lock screens): removed.
+
+### Outstanding issues
+
+- **R-009:** reset the development database password (still open from Stage 3).
+- **R-014:** only the Resend account owner can receive email until a domain is verified, so no further admins can be invited yet.
+- **R-017:** this development network has intermittent DNS failures to Supabase, so e2e runs need retries here.
+- Inviting and managing further admins (Admin Users module) is a later stage; the bootstrap script covers the first super admin.
+- `/admin/*` section pages (properties, blog, …) are built in Stages 5–11; links currently show 404 after sign-in.
 
 ---
 

@@ -22,12 +22,17 @@ cp .env.example .env.local   # fill in development values only
 npm run dev                  # http://localhost:3000
 ```
 
-Development-only pages:
+Pages:
 
-- `/design` — every design-system component and state
-- `/admin` — dashboard shell preview (until authentication lands in Stage 4)
+- `/design` — every design-system component and state (development only; 404 in production)
+- `/admin` — dashboard: password + emailed code (see `docs/security/admin-authentication.md`)
 
-Both return 404 in production builds.
+First super administrator (once per environment):
+
+```bash
+npm run admin:bootstrap -- --email you@example.com --name "Your Name"
+# then open /admin/forgot-password, enter the same email and set a password from the email
+```
 
 ## Scripts
 
@@ -41,6 +46,8 @@ Both return 404 in production builds.
 | `npm test`                    | Unit tests (Vitest)                                                       |
 | `npm run test:e2e`            | End-to-end tests (Playwright, against a production build)                 |
 | `npm run check:secrets`       | Scan the client bundle for server-only variable names (run after a build) |
+| `npm run test:rls`            | Database access-control and auth tests (development project only)         |
+| `npm run admin:bootstrap`     | Create the first super administrator                                      |
 
 ## Environments
 

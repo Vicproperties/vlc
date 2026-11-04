@@ -22,7 +22,7 @@ output. Never `source` `.env` files in a shell.
 
 - `public` — application tables, exposed through the Data API (every table has RLS).
 - `private` — helper functions and tables that must never be reachable by the API:
-  `admin_sessions`, `admin_otp_challenges`, `rate_limits`.
+  `admin_sessions`, `admin_otp_challenges`, `admin_recovery_sessions`, `rate_limits`.
 
 ## Roles and access
 
@@ -71,6 +71,17 @@ Public read views (see ADR-001): `property_listings`, `property_listing_images`,
   `private.purge_expired_logs()` deletes rows past retention (activity 2 years, security 1 year).
   Logs keep the actor id and email after the account is deleted.
 
+## Admin authentication RPCs (migration 0014)
+
+| Function                                     | Caller        | Purpose                                                                              |
+| -------------------------------------------- | ------------- | ------------------------------------------------------------------------------------ |
+| `admin_otp_issue(session, hash, …)`          | service role  | New code for a pending login: cooldown, max sends, only newest code valid            |
+| `admin_otp_verify(session, hash)`            | service role  | Atomic check; 5 wrong codes per login revoke the session                             |
+| `admin_session_status()`                     | authenticated | Caller's own session: none / pending_otp / verified / expired; records activity      |
+| `admin_recovery_start / is_valid / complete` | service role  | 15-minute single-use password recovery marker; completion revokes all admin sessions |
+
+See `docs/security/admin-authentication.md` for the full flow.
+
 ## Storage buckets
 
 | Bucket           | Public | Types                 | Max size | Write permission                              |
@@ -86,4 +97,5 @@ SVG is not accepted. Object names are restricted to `[a-z0-9/_.-]` with no trave
 
 Raw analytics 90 days (Stage 11 job) · security events 1 year · activity logs 2 years ·
 OTP challenges and rate-limit counters 1 day · expired admin sessions 30 days.
-Scheduling of `private.purge_expired_logs()` (pg_cron) is set up in Stage 4.
+`private.purge_expired_logs()` runs daily at 03:17 UTC (pg_cron job `purge-expired-logs`, migration 0014).
+Password recovery markers are purged after 1 day.

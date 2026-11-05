@@ -53,6 +53,7 @@ async function EditArticle({
     <>
       <AdminPageHeader
         title={post.title}
+        actions={can(admin, "blog", "delete") ? <DeleteArticle id={post.id} title={post.title} /> : undefined}
         description={
           <>
             {post.status === "published" && post.published_at ? `Published ${formatDate(post.published_at)}` : "Draft"}{" "}
@@ -99,7 +100,6 @@ async function EditArticle({
       ) : (
         <Notice tone="info">You can view this article but not edit it.</Notice>
       )}
-      {can(admin, "blog", "delete") && <DeleteArticle id={post.id} title={post.title} />}
     </>
   );
 }

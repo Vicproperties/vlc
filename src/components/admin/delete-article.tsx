@@ -13,8 +13,14 @@ export function DeleteArticle({ id, title }: { id: string; title: string }) {
   return (
     <>
       {result && !result.ok && <Notice tone="error">{result.message}</Notice>}
-      <Button size="sm" variant="quiet" className="self-start text-danger" onClick={() => setOpen(true)}>
-        Delete article
+      <Button
+        size="sm"
+        variant="quiet"
+        className="self-start text-danger"
+        aria-label={`Delete “${title}”`}
+        onClick={() => setOpen(true)}
+      >
+        Delete
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Delete this article?">
         <div className="flex flex-col gap-6">

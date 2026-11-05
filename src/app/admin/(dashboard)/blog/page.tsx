@@ -11,6 +11,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { Select } from "@/components/ui/select";
 import { EmptyState, Skeleton, StatusText } from "@/components/ui/states";
 import { Table, TBody, TD, TH, THead, TR } from "@/components/ui/table";
+import { DeleteArticle } from "@/components/admin/delete-article";
 import { can, requireAdmin } from "@/features/auth/admin-session";
 import { formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -119,6 +120,11 @@ async function BlogList({ searchParams }: { searchParams: PageProps<"/admin/blog
               <TH>Category</TH>
               <TH>Status</TH>
               <TH>Updated</TH>
+              {can(admin, "blog", "delete") && (
+                <TH>
+                  <span className="sr-only">Actions</span>
+                </TH>
+              )}
             </TR>
           </THead>
           <TBody>
@@ -140,6 +146,11 @@ async function BlogList({ searchParams }: { searchParams: PageProps<"/admin/blog
                   </StatusText>
                 </TD>
                 <TD className="whitespace-nowrap text-stone">{formatDate(post.updated_at)}</TD>
+                {can(admin, "blog", "delete") && (
+                  <TD className="text-right">
+                    <DeleteArticle id={post.id} title={post.title} />
+                  </TD>
+                )}
               </TR>
             ))}
           </TBody>

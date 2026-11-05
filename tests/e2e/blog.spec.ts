@@ -153,3 +153,19 @@ test("the FAQ lives on the About page and the old address redirects there", asyn
   expect(res.status()).toBe(308);
   expect(res.headers()["location"]).toBe("/about#faq");
 });
+
+test("articles can be deleted from the blog list", async ({ page }) => {
+  const victim = `Delete me ${token}`;
+  const { data } = await service.from("blog_posts").insert({ title: victim }).select("id").single();
+  await signInAsAdmin(page, admin);
+  await page.goto("/admin/blog", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: `Delete “${victim}”` }).click();
+  await page
+    .getByRole("dialog", { name: "Delete this article?" })
+    .getByRole("button", { name: "Delete permanently" })
+    .click();
+  await page.waitForURL(/\/admin\/blog\?deleted=1/);
+  await expect(message(page, "The article was deleted.")).toBeVisible();
+  const { count } = await service.from("blog_posts").select("id", { count: "exact", head: true }).eq("id", data!.id);
+  expect(count).toBe(0);
+});

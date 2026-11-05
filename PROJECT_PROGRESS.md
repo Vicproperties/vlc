@@ -6,29 +6,29 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                   |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 8 — Website Content Management                                                                                                                    |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                  |
-| Last updated  | 2026-11-04                                                                                                                                              |
-| Next task     | Owner: fill in content (Home, About, Team, FAQ), Website Settings, and review the privacy draft; approve Stage 8. Then present the Stage 9 (Blog) plan. |
+| Item          | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 9 — Blog                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Stage status  | In progress (started 2026-11-05)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Next task     | Stage 9 IN PROGRESS. Done: migration 0019 (content_text search, unique slugs); TipTap extensions pinned 3.32.2 + mammoth; src/lib/article-html.ts sanitiser (+6 unit tests); src/features/blog/{actions,tags}.ts. TODO: ArticleEditor (full TipTap: underline, strike, align, link, table, figure image+caption+alt upload, YouTube, undo/redo, DOCX import), admin pages /admin/blog (list, new, [id], categories, authors), public /blog + /blog/[slug] (featured, latest, categories, search, related, Article JSON-LD), homepage latest news + gap fixes (property categories, about preview, contact section), About: why-choose-us + FAQ section + CTA, /faq → /about#faq redirect, footer/sitemap, tests. |
 
 ## Stage history
 
-| Stage                                            | Status                      | Approved   |
-| ------------------------------------------------ | --------------------------- | ---------- |
-| 1. Planning & architecture                       | Complete                    | 2026-11-03 |
-| 2. Setup & design system                         | Complete                    | 2026-11-04 |
-| 3. Database & security foundation                | Complete                    | 2026-11-04 |
-| 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
-| 5. Properties & estates                          | Complete                    | 2026-11-04 |
-| 6. Public website                                | Complete                    | 2026-11-05 |
-| 7. Inspections & enquiries                       | Complete                    | 2026-11-05 |
-| 8. Content management                            | Complete, awaiting approval | —          |
-| 9. Blog                                          | Not started                 | —          |
-| 10. Customer accounts                            | Not started                 | —          |
-| 11. Marketing, announcements, analytics, consent | Not started                 | —          |
-| 12. Testing, security, deployment                | Not started                 | —          |
+| Stage                                            | Status      | Approved   |
+| ------------------------------------------------ | ----------- | ---------- |
+| 1. Planning & architecture                       | Complete    | 2026-11-03 |
+| 2. Setup & design system                         | Complete    | 2026-11-04 |
+| 3. Database & security foundation                | Complete    | 2026-11-04 |
+| 4. Admin auth & dashboard shell                  | Complete    | 2026-11-04 |
+| 5. Properties & estates                          | Complete    | 2026-11-04 |
+| 6. Public website                                | Complete    | 2026-11-05 |
+| 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
+| 8. Content management                            | Complete    | 2026-11-05 |
+| 9. Blog                                          | In progress | —          |
+| 10. Customer accounts                            | Not started | —          |
+| 11. Marketing, announcements, analytics, consent | Not started | —          |
+| 12. Testing, security, deployment                | Not started | —          |
 
 ---
 

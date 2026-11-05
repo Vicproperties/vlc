@@ -74,6 +74,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // The FAQ is a section of the About page (owner brief); the old address keeps working.
+  async redirects() {
+    return [{ source: "/faq", destination: "/about#faq", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

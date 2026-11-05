@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { UserRound } from "lucide-react";
-import { getCoreValues, getPageSections, getTeamMembers } from "@/features/content/queries";
+import { ChevronDown, UserRound } from "lucide-react";
+import { WhyChooseUs } from "@/components/public/home-sections";
+import { JsonLd } from "@/components/public/json-ld";
+import { ButtonLink } from "@/components/ui/button";
+import { getCoreValues, getFaqs, getPageSections, getTeamMembers } from "@/features/content/queries";
+import { homeSectionHeadingSchema, readSection } from "@/features/content/home-sections";
+import { getHomeSections } from "@/features/listings/queries";
 import { findSection, readContent } from "@/features/content/sections";
 import { publicStorageUrl } from "@/lib/images";
 import { sanitizeRichText } from "@/lib/rich-text";
@@ -21,7 +26,14 @@ const SOCIAL_LABELS: Record<string, string> = {
 
 /** About page. Every part comes from the dashboard; parts without content are left out. */
 export default async function AboutPage() {
-  const [sections, values, team] = await Promise.all([getPageSections("about"), getCoreValues(), getTeamMembers()]);
+  const [sections, values, team, faqs, homeSections] = await Promise.all([
+    getPageSections("about"),
+    getCoreValues(),
+    getTeamMembers(),
+    getFaqs(),
+    getHomeSections(),
+  ]);
+  const why = readSection(homeSectionHeadingSchema, homeSections.get("why_choose_us"));
   const read = (key: string) => readContent(findSection("about", key)!, sections[key]);
   const intro = read("intro");
   const mission = read("mission");
@@ -29,7 +41,7 @@ export default async function AboutPage() {
   const valuesHead = read("values");
   const teamHead = read("team");
   const body = intro.body ? sanitizeRichText(intro.body) : "";
-  const empty = !body && !mission.text && !vision.text && values.length === 0 && team.length === 0;
+  const empty = !body && !mission.text && !vision.text && values.length === 0 && team.length === 0 && faqs.length === 0;
 
   return (
     <div className="flex flex-col">
@@ -141,6 +153,59 @@ export default async function AboutPage() {
           </div>
         </section>
       )}
+
+      {/* Why choose us (same reasons as the homepage). */}
+      <WhyChooseUs heading={why?.heading} text={why?.text} />
+
+      {faqs.length > 0 && (
+        <section id="faq" className="scroll-mt-24 border-t border-line" aria-labelledby="faq-heading">
+          <JsonLd
+            data={{
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: faqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: { "@type": "Answer", text: faq.answer },
+              })),
+            }}
+          />
+          <div className="container-content flex flex-col gap-10 py-14 md:py-20">
+            <h2 id="faq-heading" className="text-h1">
+              Frequently asked questions
+            </h2>
+            <div className="max-w-3xl border-t border-line">
+              {faqs.map((faq) => (
+                <details key={faq.id} className="group border-b border-line">
+                  <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 font-serif text-h4 text-ink [&::-webkit-details-marker]:hidden">
+                    {faq.question}
+                    <ChevronDown
+                      className="mt-1 size-5 shrink-0 text-stone transition-transform group-open:rotate-180"
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                    />
+                  </summary>
+                  <p className="pb-6 text-body whitespace-pre-line text-ink">{faq.answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="border-t border-line bg-brand-tint" aria-labelledby="about-cta-heading">
+        <div className="container-content flex flex-col gap-6 py-14 md:flex-row md:items-center md:justify-between md:py-16">
+          <h2 id="about-cta-heading" className="max-w-xl text-h2">
+            Looking for land or a building?
+          </h2>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink href="/properties">View properties</ButtonLink>
+            <ButtonLink href="/contact" variant="secondary">
+              Contact us
+            </ButtonLink>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

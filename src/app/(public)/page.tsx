@@ -4,6 +4,13 @@ import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import { JsonLd } from "@/components/public/json-ld";
 import { PropertyGrid } from "@/components/public/property-card";
+import {
+  AboutPreview,
+  ContactSection,
+  LatestNews,
+  PropertyCategories,
+  WhyChooseUs,
+} from "@/components/public/home-sections";
 import { PropertySearchForm } from "@/components/public/property-search-form";
 import { ButtonLink } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/states";
@@ -12,12 +19,7 @@ import { homeSectionHeadingSchema, readSection } from "@/features/content/home-s
 import { findSection, readContent } from "@/features/content/sections";
 import { cn } from "@/lib/cn";
 import { publicStorageUrl } from "@/lib/images";
-import {
-  getFeaturedListings,
-  getHomeSections,
-  getLatestListings,
-  getWhyChooseUsItems,
-} from "@/features/listings/queries";
+import { getFeaturedListings, getHomeSections, getLatestListings } from "@/features/listings/queries";
 import { publicEnv } from "@/lib/env/client";
 
 export const metadata: Metadata = {
@@ -76,6 +78,13 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <Suspense fallback={null}>
+        <PropertyCategories />
+      </Suspense>
+      <Suspense fallback={null}>
+        <AboutPreview />
+      </Suspense>
+
       <section className="container-content flex flex-col gap-10 py-16 md:py-24" aria-labelledby="featured-heading">
         <Suspense fallback={<GridSkeleton />}>
           <FeaturedListings heading={featured?.heading} text={featured?.text} />
@@ -84,6 +93,13 @@ export default async function HomePage() {
 
       <Suspense fallback={null}>
         <WhyChooseUs heading={why?.heading} text={why?.text} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <LatestNews />
+      </Suspense>
+      {/* Newsletter subscription: Stage 11. */}
+      <Suspense fallback={null}>
+        <ContactSection />
       </Suspense>
     </>
   );
@@ -119,31 +135,6 @@ async function FeaturedListings({ heading, text }: { heading?: string; text?: st
         <p className="border-t border-line pt-8 text-body text-stone">New listings will appear here soon.</p>
       )}
     </>
-  );
-}
-
-async function WhyChooseUs({ heading, text }: { heading?: string; text?: string }) {
-  const items = await getWhyChooseUsItems();
-  if (!items.length) return null;
-  return (
-    <section className="border-t border-line bg-surface" aria-labelledby="why-heading">
-      <div className="container-content flex flex-col gap-12 py-16 md:py-24">
-        <div className="flex max-w-2xl flex-col gap-3">
-          <h2 id="why-heading" className="text-h1">
-            {heading ?? "Why choose us"}
-          </h2>
-          {text && <p className="text-body text-stone">{text}</p>}
-        </div>
-        <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <li key={item.id} className="flex flex-col gap-3 border-t border-brand-light pt-6">
-              <h3 className="font-serif text-h4 text-ink">{item.title}</h3>
-              {item.description && <p className="text-small text-stone">{item.description}</p>}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
   );
 }
 

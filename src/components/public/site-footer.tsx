@@ -20,7 +20,7 @@ export async function SiteFooter() {
   const phone = details.phonePrimary ? parsePhone(details.phonePrimary) : null;
   const whatsapp = details.whatsapp?.replace(/\D/g, "");
   const social = SOCIAL_NETWORKS.filter((n) => details.social[n.key]);
-  const explore = [...publicNav, { label: "FAQ", href: "/faq" }];
+  const explore = [...publicNav, { label: "FAQ", href: "/about#faq" }];
   const hasContact = Boolean((phone && phone.ok) || details.email || whatsapp || details.address);
 
   return (

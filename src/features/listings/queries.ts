@@ -170,3 +170,24 @@ export async function getPublicSiteSettings() {
     .maybeSingle();
   return data;
 }
+
+/** Published listings grouped by type and purpose (only groups that have listings). */
+export async function getListingCategories() {
+  "use cache";
+  cacheTag(LISTINGS_TAG);
+  cacheLife("hours");
+  const { data } = await createPublicClient()
+    .from("property_listings")
+    .select("kind, purpose")
+    .eq("status", "published")
+    .limit(10000);
+  const counts = new Map<string, { kind: "land" | "building"; purpose: "sale" | "rent" | "lease"; count: number }>();
+  for (const row of data ?? []) {
+    if (!row.kind || !row.purpose) continue;
+    const key = `${row.kind}:${row.purpose}`;
+    const entry = counts.get(key) ?? { kind: row.kind, purpose: row.purpose, count: 0 };
+    entry.count += 1;
+    counts.set(key, entry);
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count);
+}

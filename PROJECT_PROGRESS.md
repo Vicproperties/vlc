@@ -329,7 +329,7 @@ Owner decisions (2026-11-04): Stage 4 approved; Stage 5 plan approved.
 ## Stage 4 — Admin Authentication & Dashboard Foundation
 
 Owner decisions (2026-11-04): Stage 3 and the Stage 4 plan approved; first super admin email
-`web4vic@gmail.com` (the Resend account email); no sending domain yet, so email is sent from
+`website4vic@gmail.com` (the Resend account email); no sending domain yet, so email is sent from
 `onboarding@resend.dev`, which delivers only to the Resend account owner.
 
 ### Completed
@@ -387,7 +387,7 @@ Migration `20261104000014_admin_auth` (applied to dev): table `private.admin_rec
 | Supabase Security Advisor                          | Same 3 accepted views (ADR-001); new WARN for `admin_session_status` accepted (R-013); private tables have no policies on purpose                                                     |
 | Supabase Performance Advisor                       | INFO only (unused indexes on a new database)                                                                                                                                          |
 | Resend key                                         | Verified: test send to `delivered@resend.dev` returned HTTP 200                                                                                                                       |
-| Real inbox delivery to web4vic@gmail.com           | **Not yet tested** (happens at owner bootstrap)                                                                                                                                       |
+| Real inbox delivery to website4vic@gmail.com           | **Not yet tested** (happens at owner bootstrap)                                                                                                                                       |
 
 ### Issues found and fixed during the stage
 

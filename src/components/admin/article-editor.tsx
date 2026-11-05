@@ -103,7 +103,7 @@ export function ArticleEditor({
   const [dialog, setDialog] = useState<Dialogs>(null);
   const [linkUrl, setLinkUrl] = useState("");
   const [videoUrl, setVideoUrl] = useState("");
-  const [imageText, setImageText] = useState({ alt: "", caption: "" });
+  const [imageText, setImageText] = useState({ src: "", alt: "", caption: "" });
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: "info" | "error" | "success"; lines: string[] } | null>(null);
   const imageInput = useRef<HTMLInputElement>(null);
@@ -242,6 +242,26 @@ export function ArticleEditor({
       ]
     : [];
 
+  /** Updates (or removes, with null) the image with this address, wherever the cursor is. */
+  function updateFigure(src: string, attrs: { alt: string; caption: string } | null) {
+    if (!editor || !src) return;
+    editor
+      .chain()
+      .focus()
+      .command(({ tr, state: editorState }) => {
+        let found = false;
+        editorState.doc.descendants((node, pos) => {
+          if (found || node.type.name !== "figure" || node.attrs.src !== src) return !found;
+          found = true;
+          if (attrs) tr.setNodeMarkup(pos, undefined, { ...node.attrs, ...attrs });
+          else tr.delete(pos, pos + node.nodeSize);
+          return false;
+        });
+        return found;
+      })
+      .run();
+  }
+
   async function insertImage(file: File | undefined) {
     if (!file || !editor) return;
     setBusy("Uploading image…");
@@ -258,9 +278,10 @@ export function ArticleEditor({
       editor
         .chain()
         .focus()
-        .insertContent({ type: "figure", attrs: { src: result.url, alt: "", caption: "" } })
+        // A paragraph after the image moves the cursor off it, so the next insert cannot replace it.
+        .insertContent([{ type: "figure", attrs: { src: result.url, alt: "", caption: "" } }, { type: "paragraph" }])
         .run();
-      setImageText({ alt: "", caption: "" });
+      setImageText({ src: result.url, alt: "", caption: "" });
       setDialog("image");
     } catch (error) {
       setNotice({
@@ -342,8 +363,8 @@ export function ArticleEditor({
               size="sm"
               variant="quiet"
               onClick={() => {
-                const attrs = editor.getAttributes("figure") as { alt?: string; caption?: string };
-                setImageText({ alt: attrs.alt ?? "", caption: attrs.caption ?? "" });
+                const attrs = editor.getAttributes("figure") as { src?: string; alt?: string; caption?: string };
+                setImageText({ src: attrs.src ?? "", alt: attrs.alt ?? "", caption: attrs.caption ?? "" });
                 setDialog("image");
               }}
             >
@@ -471,7 +492,7 @@ export function ArticleEditor({
             <Button
               variant="danger"
               onClick={() => {
-                chain().deleteSelection().run();
+                updateFigure(imageText.src, null);
                 setDialog(null);
               }}
             >
@@ -479,9 +500,7 @@ export function ArticleEditor({
             </Button>
             <Button
               onClick={() => {
-                chain()
-                  .updateAttributes("figure", { alt: imageText.alt.trim(), caption: imageText.caption.trim() })
-                  .run();
+                updateFigure(imageText.src, { alt: imageText.alt.trim(), caption: imageText.caption.trim() });
                 setDialog(null);
               }}
             >

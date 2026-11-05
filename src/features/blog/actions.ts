@@ -104,7 +104,11 @@ export async function saveArticleAction(
 
   const supabase = await createClient();
   const { data: current } = id
-    ? await supabase.from("blog_posts").select("featured_image_path, status, is_featured").eq("id", id).maybeSingle()
+    ? await supabase
+        .from("blog_posts")
+        .select("featured_image_path, status, is_featured, content_html")
+        .eq("id", id)
+        .maybeSingle()
     : { data: null };
   if (id && !current) return { status: "error", message: "This article no longer exists." };
 
@@ -153,6 +157,11 @@ export async function saveArticleAction(
       await supabase.storage.from("blog-media").remove([featuredPath]);
     }
     return { status: "error", message: dbErrorMessage(error) };
+  }
+  // Images taken out of the article are deleted from storage too.
+  if (current?.content_html) {
+    const kept = new Set(articleImagePaths(html));
+    for (const path of articleImagePaths(current.content_html)) if (!kept.has(path)) replaced.push(path);
   }
   if (replaced.length) await supabase.storage.from("blog-media").remove(replaced);
   await supabase.rpc("log_activity", {

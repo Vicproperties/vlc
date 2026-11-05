@@ -31,7 +31,8 @@ describe("article sanitising", () => {
   });
 
   it("allows only privacy-enhanced YouTube embeds", () => {
-    const ok = '<div data-youtube-video=""><iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"></iframe></div>';
+    const ok =
+      '<div data-youtube-video=""><iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"></iframe></div>';
     expect(sanitize(ok)).toContain('src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"');
     expect(sanitize('<iframe src="https://evil.example/embed/x"></iframe>')).toBe("");
     expect(sanitize('<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"></iframe>')).toBe("");
@@ -51,6 +52,8 @@ describe("article sanitising", () => {
   });
 
   it("lists the storage paths of embedded images", () => {
-    expect(paths(`<p>x</p><img src="${img}" alt="" /><img src="https://other.example/y.webp" />`)).toEqual(["articles/a.webp"]);
+    expect(paths(`<p>x</p><img src="${img}" alt="" /><img src="https://other.example/y.webp" />`)).toEqual([
+      "articles/a.webp",
+    ]);
   });
 });

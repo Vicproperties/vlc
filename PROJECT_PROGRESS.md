@@ -6,29 +6,119 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 9 — Blog                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| Stage status  | In progress (started 2026-11-05)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Next task     | Stage 9 IN PROGRESS. Done: migration 0019; article sanitiser; blog actions; ArticleEditor (full TipTap + Word import); admin /admin/blog (list, new, [id], categories+authors); public /blog + /blog/[slug] (featured, categories, search, related, Article JSON-LD); article CSS. TODO: homepage latest news + gap fixes (property categories, about preview, contact section), About: why-choose-us + FAQ section + CTA, /faq → /about#faq redirect, footer/sitemap (blog, remove /faq), build, unit/integration/e2e tests, docs, commit, report. |
+| Item          | Value                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 9 — Blog                                                                                                                                                                                                       |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                               |
+| Last updated  | 2026-11-04                                                                                                                                                                                                           |
+| Next task     | Owner: try the blog (write, import from Word, publish) and the new homepage/About sections; approve Stage 9. Then present the Stage 10 (Customer accounts: Google sign-in, favourites, my inspection requests) plan. |
 
 ## Stage history
 
-| Stage                                            | Status      | Approved   |
-| ------------------------------------------------ | ----------- | ---------- |
-| 1. Planning & architecture                       | Complete    | 2026-11-03 |
-| 2. Setup & design system                         | Complete    | 2026-11-04 |
-| 3. Database & security foundation                | Complete    | 2026-11-04 |
-| 4. Admin auth & dashboard shell                  | Complete    | 2026-11-04 |
-| 5. Properties & estates                          | Complete    | 2026-11-04 |
-| 6. Public website                                | Complete    | 2026-11-05 |
-| 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
-| 8. Content management                            | Complete    | 2026-11-05 |
-| 9. Blog                                          | In progress | —          |
-| 10. Customer accounts                            | Not started | —          |
-| 11. Marketing, announcements, analytics, consent | Not started | —          |
-| 12. Testing, security, deployment                | Not started | —          |
+| Stage                                            | Status                      | Approved   |
+| ------------------------------------------------ | --------------------------- | ---------- |
+| 1. Planning & architecture                       | Complete                    | 2026-11-03 |
+| 2. Setup & design system                         | Complete                    | 2026-11-04 |
+| 3. Database & security foundation                | Complete                    | 2026-11-04 |
+| 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
+| 5. Properties & estates                          | Complete                    | 2026-11-04 |
+| 6. Public website                                | Complete                    | 2026-11-05 |
+| 7. Inspections & enquiries                       | Complete                    | 2026-11-05 |
+| 8. Content management                            | Complete                    | 2026-11-05 |
+| 9. Blog                                          | Complete, awaiting approval | —          |
+| 10. Customer accounts                            | Not started                 | —          |
+| 11. Marketing, announcements, analytics, consent | Not started                 | —          |
+| 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 9 — Blog (+ gaps found against the original brief)
+
+Owner (2026-11-05): Stage 8 approved, "start stage 9 now". The scope was agreed in Stage 1. Re-reading the original brief also found gaps from earlier stages, which are fixed here:
+
+- the FAQ belongs on the About page, not a separate page;
+- the About page needs "Why choose us" and a call-to-action;
+- the homepage needs property categories, an About preview, latest news and a contact section.
+
+### Completed
+
+- **Article editor** (TipTap 3.32.2, versions pinned):
+  - formatting: paragraph, H2/H3/H4, bold, italic, underline, strikethrough, left/centre/right/justify, bullet and numbered lists, quote;
+  - insertions: links (http, https and mailto only), tables (add or delete rows, columns and the table), images uploaded straight into the article as a figure with alt text and a caption, YouTube (privacy-enhanced embed);
+  - undo and redo.
+  - Images are resized in the browser and re-encoded to WebP on the server with metadata removed.
+  - The content is stored as TipTap JSON (for editing) plus sanitised HTML and plain text (for search).
+- **Word import (.docx, mammoth):**
+  - text, bold, italic, headings, lists and tables come through; images are uploaded like editor images; a leading Title paragraph fills the article title;
+  - a fidelity notice is shown;
+  - **nothing is saved or published automatically**;
+  - size limit 3.5 MB (server request limit), at most 20 images.
+- **Articles:**
+  - fields: title, web address (auto, unique), summary, category, author, featured image and alt text, SEO title and description;
+  - Draft or Published. Publish and unpublish need blog:publish (checked in the action and by a database trigger); writers save drafts;
+  - one featured article, which replaces the previous one;
+  - delete removes the article's images; images taken out of an article are deleted when it is saved.
+- **Categories** (add, edit, delete; articles keep their content) and **authors** (name, role, biography, photo, active).
+- **Dashboard list:** search (title, summary and body), status filter, pagination.
+- **Public blog** (`/blog`):
+  - hero; featured article (first page, unfiltered); latest articles; categories shown only when they have articles; search; pagination;
+  - filtered pages are noindex.
+- **Article page** (`/blog/[slug]`):
+  - breadcrumb, title, summary, author and date, featured image;
+  - sanitised content (again on render), share links, author box, related articles (same category first);
+  - Article and BreadcrumbList structured data, Open Graph; recent articles are prerendered.
+- **Sanitiser** (`src/lib/article-html.ts`): images only from our blog-media bucket; iframes only youtube-nocookie embeds; links forced to `rel="noopener noreferrer nofollow"`, and unsafe links become plain text; only `text-align` styles are kept.
+- **Homepage** (brief order):
+  - hero → **property categories** (type and purpose groups that have listings) → **About preview** (from the About text) → featured → why choose us → **latest property news** → contact section. Newsletter: Stage 11.
+- **About page:** added **why choose us**, an **FAQ section** (`#faq`, FAQPage data) and a **CTA** (View properties / Contact us). `/faq` now permanently redirects to `/about#faq`; the footer and sitemap are updated (blog and articles added).
+
+### Database changes
+
+**0019** `blog_search_slugs`:
+
+- `content_text` column;
+- `search_vector` now includes the body;
+- the rules trigger makes slugs unique (-2, -3, …) and is SECURITY DEFINER so it can see every slug.
+
+### Files created / modified
+
+- Migration: `supabase/migrations/20261105000019_blog_search_slugs.sql`; types regenerated
+- Features: `src/features/blog/{actions,admin,queries,tags}.ts`; `src/lib/article-html.ts`; `src/features/listings/queries.ts` (listing categories)
+- Components:
+  - `src/components/admin/{article-editor,article-form,blog-taxonomy,delete-article}.tsx`;
+  - `src/components/public/{article-card,home-sections}.tsx`
+- Pages:
+  - `src/app/admin/(dashboard)/blog/{page,new/page,[id]/page,categories/page}.tsx`;
+  - `src/app/(public)/blog/{page,[slug]/page}.tsx`;
+  - `src/app/(public)/page.tsx`, `about/page.tsx`; removed `src/app/(public)/faq/`
+- Config: `next.config.ts` (`/faq` redirect), `src/app/sitemap.ts`, `src/app/globals.css` (article styles), `package.json` (TipTap extensions pinned to 3.32.2, mammoth)
+- Tests: `tests/unit/article-html.test.ts`, `tests/integration/blog.test.ts`, `tests/e2e/blog.spec.ts`, `playwright.config.ts`
+
+### Tests and results (2026-11-05)
+
+| Check                                          | Result                                                                                                                                                                                                                            |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests                                     | 118 / 118 pass (6 new: article sanitiser)                                                                                                                                                                                         |
+| Integration (per file, `--retry=2`)            | access-control 34, admin-auth 18, properties 8, enquiries 8, content 6, blog 6 (new): **80 / 80**                                                                                                                                 |
+| Blog journeys (4 new)                          | Pass: article with bold, image (alt + caption) and table published and rendered with Article data; blog list, category, search, homepage latest news; Word import fills the editor and saves nothing; `/faq` → `/about#faq` (308) |
+| Regression e2e (per file, retries)             | smoke 5, public 6 (incl. axe), content 6, enquiries 4, properties 4, admin-auth 9: all pass. Only network flakes; the settings test re-run alone passed first attempt.                                                            |
+| `npm run check:secrets`                        | Pass (55 client files)                                                                                                                                                                                                            |
+| typecheck / lint / prettier / production build | Pass                                                                                                                                                                                                                              |
+
+### Issues found and fixed during the stage
+
+- **Editor bug:** after an image was inserted it stayed selected, so the next insertion (e.g. a table) replaced it. Now the cursor moves below the image, and the caption and alt dialog targets the image by address.
+- A dangerous link (javascript:) was removed together with its text: unsafe links now become plain text.
+- The TipTap extensions resolved to a newer patch than the core, causing a peer conflict: all TipTap packages are pinned to 3.32.2.
+- The "refs during render" lint error in the toolbar was fixed.
+- Original-brief gaps (FAQ placement, About and homepage sections), listed above.
+
+### Outstanding issues
+
+- Images uploaded into an article that is never saved stay in storage (small; a clean-up job could be added in Stage 12).
+- Newsletter subscription on the homepage and blog: Stage 11.
+- **R-014:** no email domain. **R-021:** real Turnstile keys before launch.
+- 3 unused test images are still in storage (owner to approve deletion).
 
 ---
 

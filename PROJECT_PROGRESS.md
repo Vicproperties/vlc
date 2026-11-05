@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 8 — Website Content Management                                                                                                                                                                  |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                |
-| Last updated  | 2026-11-04                                                                                                                                                                                            |
-| Next task     | Owner: fill in content (Home, About, Team, FAQ), Website Settings, and review the privacy draft; approve Stage 8. Owner still to reset dev DB password (R-009). Then present the Stage 9 (Blog) plan. |
+| Item          | Value                                                                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 8 — Website Content Management                                                                                                                    |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                  |
+| Last updated  | 2026-11-04                                                                                                                                              |
+| Next task     | Owner: fill in content (Home, About, Team, FAQ), Website Settings, and review the privacy draft; approve Stage 8. Then present the Stage 9 (Blog) plan. |
 
 ## Stage history
 
@@ -106,7 +106,7 @@ None. The Stage 3 tables and policies were used as designed. Data change: the ow
   - write the website text (Home, About, mission, vision, values, team, FAQs);
   - complete Website Settings;
   - complete the privacy policy placeholders and have a lawyer review the privacy policy and terms before publishing them.
-- **R-009:** reset the development database password.
+- ~~R-009~~ closed 2026-11-05: owner reset the development database password (verified).
 - **R-014:** no email domain yet.
 - **R-021:** real Turnstile keys before launch.
 - Cookie consent and analytics descriptions: Stage 11. The blog (header link still not found): Stage 9.

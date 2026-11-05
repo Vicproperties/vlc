@@ -177,3 +177,12 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Legal documents: main headings. */
+.rich-text h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  line-height: 1.25;
+  color: var(--color-ink);
+  margin-top: 1.75em;
+}

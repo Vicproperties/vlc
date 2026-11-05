@@ -2,7 +2,7 @@
 
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Bold, Heading3, Italic, List, ListOrdered, type LucideIcon } from "lucide-react";
+import { Bold, Heading2, Heading3, Italic, List, ListOrdered, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 
@@ -18,6 +18,7 @@ export function RichTextEditor({
   invalid,
   describedBy,
   labelledBy,
+  document = false,
 }: {
   id: string;
   name: string;
@@ -25,6 +26,8 @@ export function RichTextEditor({
   invalid?: boolean;
   describedBy?: string;
   labelledBy: string;
+  /** Longer documents (legal pages) also get a main heading level. */
+  document?: boolean;
 }) {
   const [html, setHtml] = useState(defaultValue ?? "");
 
@@ -32,7 +35,7 @@ export function RichTextEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [3] },
+        heading: { levels: document ? [2, 3] : [3] },
         blockquote: false,
         code: false,
         codeBlock: false,
@@ -63,6 +66,7 @@ export function RichTextEditor({
       bold: instance?.isActive("bold") ?? false,
       italic: instance?.isActive("italic") ?? false,
       heading: instance?.isActive("heading", { level: 3 }) ?? false,
+      heading2: instance?.isActive("heading", { level: 2 }) ?? false,
       bullet: instance?.isActive("bulletList") ?? false,
       ordered: instance?.isActive("orderedList") ?? false,
     }),
@@ -77,6 +81,16 @@ export function RichTextEditor({
           pressed: !!active?.italic,
           run: () => editor.chain().focus().toggleItalic().run(),
         },
+        ...(document
+          ? [
+              {
+                label: "Heading",
+                icon: Heading2,
+                pressed: !!active?.heading2,
+                run: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+              },
+            ]
+          : []),
         {
           label: "Sub-heading",
           icon: Heading3,

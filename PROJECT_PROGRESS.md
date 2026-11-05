@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                         |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 7 — Inspections & Enquiries                                                                                                                                                                                                             |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                                                        |
-| Last updated  | 2026-11-04                                                                                                                                                                                                                                    |
-| Next task     | Owner: try an inspection request on a published property and the /contact form, then handle them in the dashboard; approve Stage 7. Owner still to reset dev DB password (R-009). Then present the Stage 8 (Website content management) plan. |
+| Item          | Value                                                                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 8 — Website Content Management                                                                                                                                                                  |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                |
+| Last updated  | 2026-11-04                                                                                                                                                                                            |
+| Next task     | Owner: fill in content (Home, About, Team, FAQ), Website Settings, and review the privacy draft; approve Stage 8. Owner still to reset dev DB password (R-009). Then present the Stage 9 (Blog) plan. |
 
 ## Stage history
 
@@ -23,12 +23,93 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
 | 5. Properties & estates                          | Complete                    | 2026-11-04 |
 | 6. Public website                                | Complete                    | 2026-11-05 |
-| 7. Inspections & enquiries                       | Complete, awaiting approval | —          |
-| 8. Content management                            | Not started                 | —          |
+| 7. Inspections & enquiries                       | Complete                    | 2026-11-05 |
+| 8. Content management                            | Complete, awaiting approval | —          |
 | 9. Blog                                          | Not started                 | —          |
 | 10. Customer accounts                            | Not started                 | —          |
 | 11. Marketing, announcements, analytics, consent | Not started                 | —          |
 | 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 8 — Website Content Management
+
+Owner (2026-11-05): Stage 7 approved; "start 8 immediately". The scope was agreed in Stage 1, so no new decisions were needed. The owner's admin email was corrected from web4vic@ to **website4vic@gmail.com** (bootstrap typo; all earlier reset emails had been refused by Resend). Email sending now retries temporary failures.
+
+### Completed
+
+- **Section editors** (one definition drives the editor, validation and public pages: `src/features/content/sections.ts`):
+  - **Home:** hero, featured heading, "why choose us" heading.
+  - **About:** about text (formatted), mission, vision, values heading, team heading.
+  - **Contact:** introduction.
+  - Each section has a "show on website" switch. Defaults are neutral, with no company claims.
+- **List managers** (add, edit, reorder with arrow buttons, show or hide, delete): reasons to choose you (Home), core values (About), FAQs.
+- **Team:**
+  - name, position, department, biography, photo and profile links (LinkedIn, X, Instagram, Facebook; HTTPS only);
+  - reorder, show or hide, delete;
+  - photos are resized in the browser, then re-encoded to WebP on the server with metadata removed (shared `src/lib/images.ts`), stored in `site-media/team/`, and the old photo is deleted on replacement.
+- **Privacy Policy and Terms editors:**
+  - the editor has a document mode with main headings;
+  - published switch; "needs legal review" flag (unticking records `last_reviewed_at`); version number;
+  - "Insert the starter draft" button for the privacy policy. The draft (`src/features/content/legal-drafts.ts`) describes only what the site does and starts with **DRAFT FOR LEGAL REVIEW**, with [placeholders] for the owner.
+- **Website Settings:**
+  - registered name, short description, address;
+  - main and second phone, WhatsApp (international format, checked on the server), email, opening hours (one per line);
+  - Google Maps embed link (validated); social links for Facebook, Instagram, X, LinkedIn, YouTube and TikTok (HTTPS, expected hosts only);
+  - default SEO title and description.
+- **Public pages:** `/about` (text, mission and vision, values, team with photos), `/faq` (native accordion and FAQPage structured data), `/privacy-policy`, `/terms-and-conditions` (unpublished pages show "being prepared" with a contact link).
+  - `/contact` now shows the intro, phones, email, WhatsApp, address, hours, social links and the optional map.
+  - The footer shows the description, social links, contact column and an FAQ link.
+  - Empty parts are always hidden.
+- **Caching:** every content or settings change clears the `site-content` cache tag, so the website updates immediately. Pages are cached for up to an hour.
+- **Security:** every action checks the module permission (content view/create/edit/delete; settings edit), and RLS enforces it again. Rich text is sanitised on save and on render. The CSP allows `www.google.com` frames for the map embed.
+- **Activity log entries** for every content and settings change.
+
+### Files created / modified
+
+- Features:
+  - `src/features/content/{sections,actions,queries,legal-drafts}.ts`;
+  - `src/features/settings/{actions,networks}.ts`;
+  - `src/lib/images.ts`; `src/lib/rich-text.ts` (document mode); `src/lib/email/send.ts` (retries, idempotency key)
+- Admin components: `src/components/admin/{section-editor,content-sections,list-manager,team-manager,legal-editor,legal-page-admin,settings-form}.tsx`; `rich-text-editor.tsx` (document mode)
+- Admin pages: `src/app/admin/(dashboard)/content/{page,home,about,contact,faq,team,privacy-policy,terms}/…`, `src/app/admin/(dashboard)/settings/page.tsx`
+- Public: `src/app/(public)/{about,faq,privacy-policy,terms-and-conditions}/page.tsx`, `contact/page.tsx` (rewritten), `src/components/public/{legal-page,site-footer}.tsx`
+- Config: `next.config.ts` (map embed frame), `src/app/globals.css` (document headings), `src/app/sitemap.ts`
+- Tests: `tests/unit/content.test.ts`, `tests/integration/content.test.ts`, `tests/e2e/content.spec.ts`, `playwright.config.ts`
+
+### Database changes
+
+None. The Stage 3 tables and policies were used as designed. Data change: the owner's admin email was corrected (recorded as `admin_email_corrected` in `security_events`).
+
+### Tests and results (2026-11-05)
+
+| Check                                          | Result                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests                                     | 112 / 112 pass (7 new)                                                                                                                                                                                                                                                                   |
+| Integration (per file, `--retry=2`)            | access-control 34 / 34, admin-auth 18 / 18, properties 8 / 8, enquiries 8 / 8, content 6 / 6 (new)                                                                                                                                                                                       |
+| Content journeys (5 new)                       | Pass: homepage headline; FAQ + structured data; team member with photo; privacy draft published; settings in footer and contact page. Originals restored afterwards (verified).                                                                                                          |
+| Full `npm run test:e2e -- --retries=2`         | Network extremely unstable: one build failed on DNS, and the next run had 18 passed, 7 flaky, 2 failed, 6 not run. Every failure was DNS, a Turnstile load failure or a fail-closed response. Re-run per file: public 6 / 6 first attempt (incl. axe), enquiries 4 / 4, properties pass. |
+| `npm run check:secrets`                        | Pass (50 client files)                                                                                                                                                                                                                                                                   |
+| typecheck / lint / prettier / production build | Pass                                                                                                                                                                                                                                                                                     |
+
+### Issues found and fixed during the stage
+
+- The owner's admin email had a typo, so Resend refused every message: corrected in Auth and `admin_users` and logged.
+- One temporary network failure lost a password email: sending now retries up to 3 times with an idempotency key (no duplicates).
+- A merged error-object type in the team form, and a private helper in a `"use server"` file: fixed.
+- The editor toolbar change didn't apply on the first attempt (formatting mismatch): applied with an exact edit.
+- e2e: optional fields' accessible names include "(optional)", so the tests match the label start.
+
+### Outstanding issues
+
+- **Owner:**
+  - write the website text (Home, About, mission, vision, values, team, FAQs);
+  - complete Website Settings;
+  - complete the privacy policy placeholders and have a lawyer review the privacy policy and terms before publishing them.
+- **R-009:** reset the development database password.
+- **R-014:** no email domain yet.
+- **R-021:** real Turnstile keys before launch.
+- Cookie consent and analytics descriptions: Stage 11. The blog (header link still not found): Stage 9.
 
 ---
 
@@ -387,7 +468,7 @@ Migration `20261104000014_admin_auth` (applied to dev): table `private.admin_rec
 | Supabase Security Advisor                          | Same 3 accepted views (ADR-001); new WARN for `admin_session_status` accepted (R-013); private tables have no policies on purpose                                                     |
 | Supabase Performance Advisor                       | INFO only (unused indexes on a new database)                                                                                                                                          |
 | Resend key                                         | Verified: test send to `delivered@resend.dev` returned HTTP 200                                                                                                                       |
-| Real inbox delivery to website4vic@gmail.com           | **Not yet tested** (happens at owner bootstrap)                                                                                                                                       |
+| Real inbox delivery to website4vic@gmail.com       | **Not yet tested** (happens at owner bootstrap)                                                                                                                                       |
 
 ### Issues found and fixed during the stage
 

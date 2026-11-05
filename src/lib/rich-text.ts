@@ -9,13 +9,18 @@ import sanitizeHtml from "sanitize-html";
  */
 const ALLOWED_TAGS = ["p", "br", "strong", "em", "h3", "ul", "ol", "li"];
 
-export function sanitizeRichText(html: string): string {
+/**
+ * `document: true` (legal pages) additionally keeps main headings (h2), so long documents
+ * can be structured. Everything else stays the same.
+ */
+export function sanitizeRichText(html: string, options: { document?: boolean } = {}): string {
+  const top = options.document ? "h2" : "h3";
   const clean = sanitizeHtml(html, {
-    allowedTags: ALLOWED_TAGS,
+    allowedTags: options.document ? [...ALLOWED_TAGS, "h2"] : ALLOWED_TAGS,
     allowedAttributes: {},
     disallowedTagsMode: "discard",
     // Map editor output variants onto the allowed set.
-    transformTags: { b: "strong", i: "em", h1: "h3", h2: "h3", h4: "h3", h5: "h3", h6: "h3", div: "p" },
+    transformTags: { b: "strong", i: "em", h1: top, h2: top, h4: "h3", h5: "h3", h6: "h3", div: "p" },
     exclusiveFilter: (frame) => frame.tag === "p" && !frame.text.trim() && !frame.mediaChildren.length,
   }).trim();
   return clean === "<p></p>" ? "" : clean;

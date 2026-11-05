@@ -28,7 +28,7 @@ const csp = [
   `img-src 'self' blob: data: https://i.ytimg.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,
-  "frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com",
+  "frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com https://www.google.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

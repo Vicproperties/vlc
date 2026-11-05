@@ -36,6 +36,16 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  // Remove hero images uploaded by this run (keep the original one, if there was one).
+  const keep = (originalHero?.content as { image_path?: string } | undefined)?.image_path;
+  const { data: current } = await service
+    .from("page_sections")
+    .select("content")
+    .eq("page_key", "home")
+    .eq("section_key", "hero")
+    .maybeSingle();
+  const uploaded = (current?.content as { image_path?: string } | undefined)?.image_path;
+  if (uploaded && uploaded !== keep) await service.storage.from("site-media").remove([uploaded]);
   if (originalHero)
     await service.from("page_sections").upsert({ page_key: "home", section_key: "hero", ...originalHero } as never);
   else await service.from("page_sections").delete().eq("page_key", "home").eq("section_key", "hero");
@@ -64,6 +74,42 @@ test("homepage headline edited in the dashboard appears on the website", async (
 
   await page.goto("/", { waitUntil: "load" });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(`Land you can trust ${token}`);
+});
+
+test("hero background image: upload, show behind readable text, then remove", async ({ page }) => {
+  await signInAsAdmin(page, admin);
+  await page.goto("/admin/content/home", { waitUntil: "networkidle" });
+  const hero = page.locator("form").filter({ has: page.getByRole("button", { name: "Save hero" }) });
+  const photo = await sharp({ create: { width: 3000, height: 1600, channels: 3, background: "#ffffff" } })
+    .jpeg()
+    .toBuffer();
+  await hero.getByLabel(/Background image/).setInputFiles({ name: "hero.jpg", mimeType: "image/jpeg", buffer: photo });
+  await hero.getByRole("button", { name: "Save hero" }).click();
+  await expect(message(page, "Saved. The website is updated.")).toBeVisible({ timeout: 60_000 });
+
+  const { data } = await service
+    .from("page_sections")
+    .select("content")
+    .eq("page_key", "home")
+    .eq("section_key", "hero")
+    .single();
+  const path = (data?.content as { image_path?: string }).image_path;
+  expect(path).toMatch(/^sections\/home-hero-[0-9a-f-]+\.webp$/);
+  const stored = await service.storage.from("site-media").download(path!);
+  const meta = await sharp(Buffer.from(await stored.data!.arrayBuffer())).metadata();
+  expect(meta).toMatchObject({ format: "webp", width: 2400 });
+
+  await page.goto("/", { waitUntil: "load" });
+  const heroSection = page.locator("section").first();
+  await expect(heroSection.locator("img")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(255, 255, 255)");
+
+  await page.goto("/admin/content/home", { waitUntil: "networkidle" });
+  await hero.getByLabel("Remove the current image").check();
+  await hero.getByRole("button", { name: "Save hero" }).click();
+  await expect(message(page, "Saved. The website is updated.")).toBeVisible();
+  const removed = await service.storage.from("site-media").list("sections");
+  expect((removed.data ?? []).some((file) => path!.endsWith(file.name))).toBe(false);
 });
 
 test("FAQ added in the dashboard appears on the FAQ page", async ({ page }) => {

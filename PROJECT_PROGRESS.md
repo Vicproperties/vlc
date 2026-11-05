@@ -77,9 +77,18 @@ Owner (2026-11-05): Stage 7 approved; "start 8 immediately". The scope was agree
 - Config: `next.config.ts` (map embed frame), `src/app/globals.css` (document headings), `src/app/sitemap.ts`
 - Tests: `tests/unit/content.test.ts`, `tests/integration/content.test.ts`, `tests/e2e/content.spec.ts`, `playwright.config.ts`
 
+### Owner request: hero background image (2026-11-05)
+
+- Home → Hero now has an optional **background image**:
+  - upload (resized in the browser; re-encoded on the server to WebP, max 2400 px, metadata removed), preview, "remove image";
+  - stored in `site-media/sections/`; the replaced file is deleted;
+  - the server trusts only the stored path, never a path from the browser.
+- The homepage shows it behind a flat 55% ink tint (no gradient) with white text; it falls back to the previous design when there is no image.
+- **Bug found and fixed (migration 0018):** deleting media through the Storage API silently did nothing, because media buckets had no SELECT policy for admins. Deleted or replaced property photos and team images therefore stayed in storage. Admins who manage a bucket can now read and delete its objects; content, marketing and settings editors can delete website images. Covered by new integration tests (property and site media).
+
 ### Database changes
 
-None. The Stage 3 tables and policies were used as designed. Data change: the owner's admin email was corrected (recorded as `admin_email_corrected` in `security_events`).
+**0018** `storage_media_delete`: SELECT policy for media admins; `can_delete_bucket_object` extended for site-media. Otherwise the Stage 3 tables and policies were used as designed. Data change: the owner's admin email was corrected (recorded as `admin_email_corrected` in `security_events`).
 
 ### Tests and results (2026-11-05)
 

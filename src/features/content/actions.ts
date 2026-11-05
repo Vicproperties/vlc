@@ -9,7 +9,7 @@ import { ACCEPTED_IMAGE_TYPES, reencodePhoto } from "@/lib/images";
 import { richTextToPlain, sanitizeRichText } from "@/lib/rich-text";
 import { dbErrorMessage } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
-import { findSection, sectionSchema } from "./sections";
+import { findSection, readContent, sectionSchema } from "./sections";
 
 /** Website content (module "content"). Every change clears the public content cache. */
 export interface ContentFormState {
@@ -58,8 +58,50 @@ export async function saveSectionAction(
   const parsed = sectionSchema(def).safeParse(raw);
   if (!parsed.success) return { status: "error", fieldErrors: errorsOf(parsed.error) };
 
+  const supabase = await createClient();
+  const { data: current } = await supabase
+    .from("page_sections")
+    .select("content")
+    .eq("page_key", def.page)
+    .eq("section_key", def.key)
+    .maybeSingle();
+  const stored = readContent(def, current?.content);
+
   const content: Record<string, string> = {};
+  const uploaded: string[] = [];
+  const replaced: string[] = [];
   for (const field of def.fields) {
+    if (field.type === "image") {
+      // The stored path comes from the database, never from the browser.
+      const file = formData.get(field.key);
+      const remove = formData.get(`${field.key}_remove`) === "on";
+      if (file instanceof File && file.size > 0) {
+        if (file.size > 3.5 * 1024 * 1024)
+          return { status: "error", fieldErrors: { [field.key]: "This image is too large." } };
+        if (!(ACCEPTED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
+          return { status: "error", fieldErrors: { [field.key]: "Use a JPEG, PNG or WebP image." } };
+        }
+        const encoded = await reencodePhoto(file, 2400);
+        if (!encoded)
+          return { status: "error", fieldErrors: { [field.key]: "This file could not be read as an image." } };
+        const path = `sections/${def.page}-${def.key}-${randomUUID()}.webp`;
+        const upload = await supabase.storage
+          .from("site-media")
+          .upload(path, encoded.data, { contentType: "image/webp", upsert: false, cacheControl: "31536000" });
+        if (upload.error) {
+          if (uploaded.length) await supabase.storage.from("site-media").remove(uploaded);
+          return { status: "error", message: "The image could not be stored. Please try again." };
+        }
+        uploaded.push(path);
+        content[field.key] = path;
+        if (stored[field.key]) replaced.push(stored[field.key]);
+      } else if (remove) {
+        if (stored[field.key]) replaced.push(stored[field.key]);
+      } else if (stored[field.key]) {
+        content[field.key] = stored[field.key];
+      }
+      continue;
+    }
     let value = parsed.data[field.key] ?? "";
     if (field.type === "rich") {
       value = sanitizeRichText(value);
@@ -70,14 +112,17 @@ export async function saveSectionAction(
     if (value) content[field.key] = value;
   }
 
-  const supabase = await createClient();
   const { error } = await supabase.from("page_sections").upsert({
     page_key: def.page,
     section_key: def.key,
     content,
     is_visible: formData.get("is_visible") === "on",
   });
-  if (error) return { status: "error", message: dbErrorMessage(error) };
+  if (error) {
+    if (uploaded.length) await supabase.storage.from("site-media").remove(uploaded);
+    return { status: "error", message: dbErrorMessage(error) };
+  }
+  if (replaced.length) await supabase.storage.from("site-media").remove(replaced);
   await supabase.rpc("log_activity", {
     p_action: "content.section_saved",
     p_entity_type: "page_section",

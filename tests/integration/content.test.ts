@@ -149,6 +149,14 @@ describe("site media", () => {
     const ok = await editor.client.storage.from("site-media").upload(path, png, { contentType: "image/webp" });
     expect(ok.error).toBeNull();
     storagePaths.push(path);
+    // Editors can also delete website images (migration 0018); customers cannot even list them.
+    const listedByCustomer = await customer.client.storage.from("site-media").list("team");
+    expect((listedByCustomer.data ?? []).some((file) => path.endsWith(file.name))).toBe(false);
+    const removed = await editor.client.storage.from("site-media").remove([path]);
+    expect(removed.error).toBeNull();
+    expect(removed.data?.map((file) => file.name)).toEqual([path]);
+    storagePaths.splice(storagePaths.indexOf(path), 1);
+
     const denied = await customer.client.storage
       .from("site-media")
       .upload(`team/${randomUUID()}.webp`, png, { contentType: "image/webp" });

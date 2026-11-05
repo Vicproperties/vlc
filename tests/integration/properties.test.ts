@@ -163,6 +163,13 @@ describe("photos", () => {
     expect(ok.error).toBeNull();
     storagePaths.push(path);
 
+    // Editors can delete photos they manage; customers can neither delete nor list them.
+    const customerRemove = await customer.client.storage.from("property-media").remove([path]);
+    expect(customerRemove.data ?? []).toEqual([]);
+    const removed = await editor.client.storage.from("property-media").remove([path]);
+    expect(removed.data?.map((file) => file.name)).toEqual([path]);
+    storagePaths.splice(storagePaths.indexOf(path), 1);
+
     const customerUpload = await customer.client.storage
       .from("property-media")
       .upload(`${id}/${randomUUID()}.webp`, png, { contentType: "image/webp" });

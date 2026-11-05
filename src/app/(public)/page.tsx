@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Suspense } from "react";
 import { ArrowRight } from "lucide-react";
 import { JsonLd } from "@/components/public/json-ld";
@@ -7,7 +8,10 @@ import { PropertySearchForm } from "@/components/public/property-search-form";
 import { ButtonLink } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/states";
 import { siteConfig } from "@/config/site";
-import { homeHeroSchema, homeSectionHeadingSchema, readSection } from "@/features/content/home-sections";
+import { homeSectionHeadingSchema, readSection } from "@/features/content/home-sections";
+import { findSection, readContent } from "@/features/content/sections";
+import { cn } from "@/lib/cn";
+import { publicStorageUrl } from "@/lib/images";
 import {
   getFeaturedListings,
   getHomeSections,
@@ -26,7 +30,9 @@ export const metadata: Metadata = {
  */
 export default async function HomePage() {
   const sections = await getHomeSections();
-  const hero = readSection(homeHeroSchema, sections.get("hero"));
+  const heroDef = findSection("home", "hero");
+  const hero = heroDef ? readContent(heroDef, sections.get("hero")) : {};
+  const heroImage = hero.image_path ? publicStorageUrl("site-media", hero.image_path) : null;
   const featured = readSection(homeSectionHeadingSchema, sections.get("featured"));
   const why = readSection(homeSectionHeadingSchema, sections.get("why_choose_us"));
   const siteUrl = publicEnv().NEXT_PUBLIC_SITE_URL;
@@ -47,15 +53,23 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="border-b border-line bg-surface">
-        <div className="container-content flex flex-col gap-10 py-16 md:py-24">
+      <section className={cn("relative isolate border-b border-line", heroImage ? "bg-ink" : "bg-surface")}>
+        {heroImage && (
+          <>
+            {/* Decorative background chosen in the dashboard. A flat 55% ink tint (no gradient)
+                keeps the white text readable on typical photos while the image stays visible. */}
+            <Image src={heroImage} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/55" />
+          </>
+        )}
+        <div className={cn("container-content flex flex-col gap-10 py-16 md:py-24", heroImage && "md:py-32")}>
           <div className="flex max-w-3xl flex-col gap-5">
-            <p className="eyebrow">{siteConfig.name}</p>
-            <h1 className="text-h1 md:text-display">
-              {hero?.heading ?? "Find land and buildings for sale, rent and lease."}
+            <p className={cn("eyebrow", heroImage && "text-white/85")}>{siteConfig.name}</p>
+            <h1 className={cn("text-h1 md:text-display", heroImage && "text-white")}>
+              {hero.heading ?? "Find land and buildings for sale, rent and lease."}
             </h1>
-            <p className="max-w-2xl text-h4 font-normal text-stone">
-              {hero?.text ?? "Search by location, property type and price, and see full details for every listing."}
+            <p className={cn("max-w-2xl text-h4 font-normal", heroImage ? "text-white/90" : "text-stone")}>
+              {hero.text ?? "Search by location, property type and price, and see full details for every listing."}
             </p>
           </div>
           <PropertySearchForm />

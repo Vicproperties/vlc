@@ -8,17 +8,11 @@ import { z } from "zod";
  */
 const text = (max: number) => z.string().trim().min(1).max(max);
 
-export const homeHeroSchema = z.object({
-  heading: text(120).optional(),
-  text: text(400).optional(),
-});
-
 export const homeSectionHeadingSchema = z.object({
   heading: text(120).optional(),
   text: text(400).optional(),
 });
 
-export type HomeHero = z.infer<typeof homeHeroSchema>;
 export type HomeSectionHeading = z.infer<typeof homeSectionHeadingSchema>;
 
 export function readSection<T>(schema: z.ZodType<T>, value: unknown): T | null {

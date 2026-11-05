@@ -6,7 +6,8 @@ import { z } from "zod";
  * company claims: until the owner writes them, pages show neutral wording or omit a section.
  */
 export type PageKey = "home" | "about" | "contact";
-export type FieldType = "text" | "textarea" | "rich";
+/** "image" stores a site-media path; the file itself is uploaded and processed on the server. */
+export type FieldType = "text" | "textarea" | "rich" | "image";
 
 export interface SectionField {
   key: string;
@@ -39,7 +40,17 @@ export const SECTIONS: SectionDef[] = [
     key: "hero",
     title: "Hero",
     description: "The large headline and text at the top of the homepage, above the search.",
-    fields: [heading("Leave empty to use the neutral default headline."), intro()],
+    fields: [
+      heading("Leave empty to use the neutral default headline."),
+      intro(),
+      {
+        key: "image_path",
+        label: "Background image",
+        type: "image",
+        max: 500,
+        hint: "Optional. A wide landscape photo works best (at least 1600 px wide). A dark tint is added so the text stays readable.",
+      },
+    ],
   },
   {
     page: "home",
@@ -111,6 +122,7 @@ export function findSection(page: string, key: string): SectionDef | undefined {
 export function sectionSchema(def: SectionDef) {
   const shape: Record<string, z.ZodType<string>> = {};
   for (const field of def.fields) {
+    if (field.type === "image") continue; // handled as a file upload
     shape[field.key] = z
       .string()
       .trim()
@@ -128,8 +140,10 @@ export function readContent(def: SectionDef, value: unknown): Record<string, str
   const source = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
   for (const field of def.fields) {
     const raw = source[field.key];
-    if (typeof raw === "string" && raw.trim())
-      out[field.key] = raw.slice(0, field.type === "rich" ? field.max * 3 : field.max);
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    // Image fields must be a safe path inside the sections folder of site-media.
+    if (field.type === "image" && !/^sections\/[a-z0-9-]+\.webp$/.test(raw)) continue;
+    out[field.key] = raw.slice(0, field.type === "rich" ? field.max * 3 : field.max);
   }
   return out;
 }

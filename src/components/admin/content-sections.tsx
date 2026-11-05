@@ -1,5 +1,6 @@
 import { saveSectionAction } from "@/features/content/actions";
 import { readContent, sectionsFor, type PageKey } from "@/features/content/sections";
+import { publicStorageUrl } from "@/lib/images";
 import { createClient } from "@/lib/supabase/server";
 import { SectionEditor } from "./section-editor";
 
@@ -13,11 +14,18 @@ export async function ContentSections({ page, canEdit }: { page: PageKey; canEdi
     <div className="flex flex-col gap-8">
       {sectionsFor(page).map((def) => {
         const row = rows.get(def.key);
+        const content = readContent(def, row?.content);
+        const imageUrls = Object.fromEntries(
+          def.fields
+            .filter((field) => field.type === "image" && content[field.key])
+            .map((field) => [field.key, publicStorageUrl("site-media", content[field.key])]),
+        );
         return (
           <SectionEditor
             key={def.key}
             def={def}
-            content={readContent(def, row?.content)}
+            content={content}
+            imageUrls={imageUrls}
             isVisible={row?.is_visible ?? true}
             action={saveSectionAction.bind(null, def.page, def.key)}
             canEdit={canEdit}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, MessageCircle } from "lucide-react";
+import { InspectionForm } from "@/components/public/inspection-form";
 import { JsonLd } from "@/components/public/json-ld";
 import { listingPlace } from "@/components/public/property-card";
 import { PropertyGallery } from "@/components/public/property-gallery";
@@ -59,8 +60,13 @@ export async function generateStaticParams() {
 export default async function PropertyPage({ params }: PageProps<"/properties/[slug]">) {
   const { slug } = await params;
   const [listing, settings] = await Promise.all([getListingBySlug(slug), getPublicSiteSettings()]);
-  if (!listing || !listing.title || !listing.slug) notFound();
-  return <PropertyDetail listing={{ ...listing, title: listing.title, slug: listing.slug }} settings={settings} />;
+  if (!listing || !listing.id || !listing.title || !listing.slug) notFound();
+  return (
+    <PropertyDetail
+      listing={{ ...listing, id: listing.id, title: listing.title, slug: listing.slug }}
+      settings={settings}
+    />
+  );
 }
 
 function facts(listing: ListingDetail): Array<[string, string]> {
@@ -87,7 +93,7 @@ function PropertyDetail({
   listing,
   settings,
 }: {
-  listing: ListingDetail & { title: string; slug: string };
+  listing: ListingDetail & { id: string; title: string; slug: string };
   settings: Awaited<ReturnType<typeof getPublicSiteSettings>>;
 }) {
   const siteUrl = publicEnv().NEXT_PUBLIC_SITE_URL;
@@ -300,8 +306,14 @@ function PropertyDetail({
                 <span className="sr-only">(opens in a new tab)</span>
               </a>
             )}
-            {/* Inspection request form: Stage 7. */}
           </div>
+          {unavailable ? (
+            <p className="text-small text-stone">Inspection requests are closed while this property is unavailable.</p>
+          ) : (
+            <div className="border border-line p-6">
+              <InspectionForm propertyId={listing.id} />
+            </div>
+          )}
           <div className="flex flex-col gap-3">
             <h2 className="text-small font-medium text-ink">Share this property</h2>
             <ShareButtons url={url} title={listing.title} />

@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Current stage | Stage 6 — Public Website                                                                                                                                                                         |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                           |
-| Last updated  | 2026-11-04                                                                                                                                                                                       |
-| Next task     | Owner: review the public site (/, /properties, a published property) and approve Stage 6. Owner still to reset dev DB password (R-009). Then present the Stage 7 (Inspections & enquiries) plan. |
+| Item          | Value                                                                                                                                                                                                                                         |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 7 — Inspections & Enquiries                                                                                                                                                                                                             |
+| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                                                        |
+| Last updated  | 2026-11-04                                                                                                                                                                                                                                    |
+| Next task     | Owner: try an inspection request on a published property and the /contact form, then handle them in the dashboard; approve Stage 7. Owner still to reset dev DB password (R-009). Then present the Stage 8 (Website content management) plan. |
 
 ## Stage history
 
@@ -22,13 +22,99 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 3. Database & security foundation                | Complete                    | 2026-11-04 |
 | 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
 | 5. Properties & estates                          | Complete                    | 2026-11-04 |
-| 6. Public website                                | Complete, awaiting approval | —          |
-| 7. Inspections & enquiries                       | Not started                 | —          |
+| 6. Public website                                | Complete                    | 2026-11-05 |
+| 7. Inspections & enquiries                       | Complete, awaiting approval | —          |
 | 8. Content management                            | Not started                 | —          |
 | 9. Blog                                          | Not started                 | —          |
 | 10. Customer accounts                            | Not started                 | —          |
 | 11. Marketing, announcements, analytics, consent | Not started                 | —          |
 | 12. Testing, security, deployment                | Not started                 | —          |
+
+---
+
+## Stage 7 — Inspections & Enquiries
+
+Owner decisions (2026-11-05):
+
+- The owner asked to continue after reviewing Stage 6, so Stage 6 is treated as approved.
+- **No email alerts** for new requests.
+- WhatsApp number supplied by the owner: +2348133322772. It is set in the dev `site_settings` and must also be set in production (an editor arrives in Stage 8).
+
+### Completed
+
+- **Inspection request form** on every listed property page (hidden while the property is unavailable):
+  - fields: full name, phone (international, Nigeria default; checked on the server with full metadata), optional email;
+  - preferred date (today up to 6 months ahead, Lagos time) and time of day, plus a message;
+  - an explicit consent checkbox linking to the privacy policy.
+- **Confirmation** with a reference number (first 8 characters of the request id) and a "Chat with us on WhatsApp" button, pre-filled with the reference and property, shown when a number is configured. It is remembered on the device for 30 days, so the visitor can reopen the chat; "Make another request" clears it.
+- **Contact page** (`/contact`) with a contact form (name, email, optional phone, subject, message, consent). Company phone, email and WhatsApp show only once they are entered in Stage 8.
+- **Spam and abuse protection:**
+  - honeypot field (bots get a normal-looking reply and nothing is saved);
+  - Cloudflare Turnstile (development test keys; the server refuses test keys on production);
+  - Postgres rate limits: 5 per hour per connection; 2 per day per phone per property; 3 per hour per email for contact.
+  - Rate-limit keys use hashed identifiers.
+  - Inserts go through server code only; the tables still have no public INSERT policy.
+- **Database rules** (from Stage 3, verified again): the property snapshot is attached by the database, unlisted properties are refused, status always starts as pending, and visitor details can't be changed afterwards.
+- **Inspection request handling** (dashboard → Inspections & Enquiries):
+  - list with search (name or phone), status filter (open by default) and pagination;
+  - detail page with call, WhatsApp and email links; the property as it was when requested; preferred date and time; consent time; whether a customer account is linked;
+  - status change with an optional note, recorded in the history timeline with the staff name;
+  - staff notes, and delete (needs the delete permission).
+- **Contact inbox:**
+  - inbox and archive, unread messages in bold, search;
+  - opening a message marks it read; reply by email or phone;
+  - archive or restore, mark unread, delete.
+- **Dashboard overview:** real counts of pending inspection requests and unread messages, limited to what each admin can see.
+- **Activity log entries** for status changes and deletions.
+
+### Files created / modified
+
+- Migration: `supabase/migrations/20261105000017_enquiry_workflow.sql`; regenerated types
+- Features: `src/features/enquiries/{schemas,server,public-actions,admin,admin-actions}.ts`; `src/features/auth/{otp-core,crypto}.ts` (phone hash)
+- Components: `src/components/public/{inspection-form,contact-form,turnstile}.tsx`; `src/components/admin/{enquiry-controls,enquiry-tabs}.tsx`
+- Pages:
+  - `src/app/(public)/contact/page.tsx`; `src/app/(public)/properties/[slug]/page.tsx` (form);
+  - `src/app/admin/(dashboard)/inspections/{page,[id]/page,messages/page,messages/[id]/page}.tsx`;
+  - `src/app/admin/(dashboard)/page.tsx` (overview counts);
+  - `src/app/sitemap.ts`
+- Config: `next.config.ts` (CSP for challenges.cloudflare.com), `.env.local` (Turnstile test keys)
+- Tests: `tests/unit/enquiries.test.ts`, `tests/integration/enquiries.test.ts`, `tests/e2e/enquiries.spec.ts`, `tests/e2e/public.spec.ts` (load waits), `tests/e2e/admin-fixtures.ts`, `playwright.config.ts`
+- Docs: `docs/security/risk-register.md` (R-021 to R-023)
+
+### Database changes
+
+**0017** (applied to dev):
+
+- `consent_at` on `inspection_requests` and `contact_submissions`;
+- status-history notes through `change_inspection_status(id, status, note)`, which runs with the caller's permissions (RLS: inspections:edit);
+- an inbox index.
+
+### Tests and results (2026-11-05)
+
+| Check                                                                     | Result                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit tests                                                                | 105 / 105 pass (9 new)                                                                                                                                                                                                                     |
+| `npm run test:rls -- --retry=2`                                           | 67 / 68 in the full run; the one failure was DNS (`ENOTFOUND`) inside the test, and it then passed 3 / 3 alone. 8 new enquiry tests pass.                                                                                                  |
+| Full `npm run test:e2e -- --retries=2` (final run, very unstable network) | 24 passed, 3 flaky, 1 failed, 2 skipped. Every failed attempt was DNS `ENOTFOUND` or a fail-closed response to it (Turnstile verify / rate-limit check could not reach the network).                                                       |
+| Enquiry journeys re-run alone                                             | All 4 pass: inspection request + reopenable confirmation; honeypot saves nothing; staff status change with note in history; contact message to inbox, read on open, archive. The contact journey passed first attempt in its final re-run. |
+| `npm run check:secrets`                                                   | Pass (44 client files)                                                                                                                                                                                                                     |
+| typecheck / lint / prettier / production build                            | Pass                                                                                                                                                                                                                                       |
+
+### Issues found and fixed during the stage
+
+- Rate-limit keys would have held raw phone numbers and emails: they are now keyed hashes.
+- A clock read during rendering (lint): the confirmation is now saved in an effect.
+- The Turnstile widget keeps the network busy, so e2e waits now use page load plus the element under test.
+- Shared constants exported from a page file: moved into the enquiries module.
+- e2e retries were blocked by the real 5-per-hour form limit: tests now reset the enquiry rate limits first.
+
+### Outstanding issues
+
+- **R-021:** real Turnstile keys before launch.
+- **R-009:** reset the development database password.
+- **R-014:** no email domain yet.
+- Customers' own request history appears with customer accounts (Stage 10).
+- The privacy policy page linked from the forms is written in Stage 8, flagged for legal review.
 
 ---
 

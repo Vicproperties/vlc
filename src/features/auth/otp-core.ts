@@ -22,6 +22,6 @@ export function hashOtp(secret: string, sessionId: string, code: string): string
 }
 
 /** Keyed hash for identifiers stored in security logs and rate-limit keys (emails, IPs). */
-export function hashIdentifier(secret: string, kind: "email" | "ip", value: string): string {
+export function hashIdentifier(secret: string, kind: "email" | "ip" | "phone", value: string): string {
   return createHmac("sha256", secret).update(`${kind}:${value.trim().toLowerCase()}`).digest("hex").slice(0, 32);
 }

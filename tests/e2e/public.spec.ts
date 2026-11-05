@@ -140,7 +140,8 @@ test("filters live in the URL, can be removed, and unmatched filters show an emp
 });
 
 test("property page shows details, price, gallery, video and structured data", async ({ page }) => {
-  await page.goto(`/properties/${land.slug}`, { waitUntil: "networkidle" });
+  // Property pages hold the Turnstile widget, which keeps the network busy: wait for load.
+  await page.goto(`/properties/${land.slug}`, { waitUntil: "load" });
   await expect(page.getByRole("heading", { level: 1, name: land.title })).toBeVisible();
   await expect(page.getByText("20% off").first()).toBeVisible();
   await expect(page.getByText("₦8,000,000").first()).toBeVisible();
@@ -178,7 +179,7 @@ test("drafts are not public; unavailable listings stay visible and marked", asyn
   await page.getByRole("button", { name: "Mark as unavailable" }).click();
   await expect(message(page, "Status changed to unavailable.")).toBeVisible();
 
-  await page.goto(`/properties/${building.slug}`, { waitUntil: "networkidle" });
+  await page.goto(`/properties/${building.slug}`, { waitUntil: "load" });
   await expect(page.getByText("This property is currently unavailable.")).toBeVisible();
   await page.goto("/properties?availability=available&state=Lagos", { waitUntil: "networkidle" });
   await expect(page.getByRole("link", { name: building.title })).toHaveCount(0);
@@ -194,7 +195,8 @@ test("sitemap and robots", async ({ request }) => {
 
 test("public pages have no serious accessibility problems", async ({ page }) => {
   for (const path of ["/", "/properties", `/properties/${land.slug}`]) {
-    await page.goto(path, { waitUntil: "networkidle" });
+    await page.goto(path, { waitUntil: "load" });
+    await page.getByRole("heading", { level: 1 }).waitFor();
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
     expect(serious.map((v) => `${path}: ${v.id} (${v.nodes.length})`)).toEqual([]);

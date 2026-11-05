@@ -16,7 +16,7 @@ export interface TestAdmin {
   name: string;
 }
 
-type Module = "properties" | "estates" | "blog" | "admins";
+type Module = "properties" | "estates" | "inspections" | "enquiries" | "blog" | "admins";
 type Flags = Partial<Record<"can_view" | "can_create" | "can_edit" | "can_publish" | "can_delete", boolean>>;
 
 export async function createTestAdmin(
@@ -75,6 +75,11 @@ export async function setKnownCode(adminId: string, code = "246810"): Promise<st
 
 export async function resetAdminRateLimits() {
   await sql("delete from private.rate_limits where key like 'admin-%'");
+}
+
+/** Public form limits (5/hour per connection) would block repeated local test runs. */
+export async function resetEnquiryRateLimits() {
+  await sql("delete from private.rate_limits where key like 'inspection:%' or key like 'contact:%'");
 }
 
 export async function ageAdminSessions(adminId: string, minutes: number) {

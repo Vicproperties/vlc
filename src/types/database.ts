@@ -510,6 +510,7 @@ export type Database = {
       contact_submissions: {
         Row: {
           archived_at: string | null;
+          consent_at: string | null;
           created_at: string;
           email: string;
           handled_by: string | null;
@@ -522,6 +523,7 @@ export type Database = {
         };
         Insert: {
           archived_at?: string | null;
+          consent_at?: string | null;
           created_at?: string;
           email: string;
           handled_by?: string | null;
@@ -534,6 +536,7 @@ export type Database = {
         };
         Update: {
           archived_at?: string | null;
+          consent_at?: string | null;
           created_at?: string;
           email?: string;
           handled_by?: string | null;
@@ -880,6 +883,7 @@ export type Database = {
       inspection_requests: {
         Row: {
           admin_notes: string | null;
+          consent_at: string | null;
           created_at: string;
           customer_id: string | null;
           email: string | null;
@@ -897,6 +901,7 @@ export type Database = {
         };
         Insert: {
           admin_notes?: string | null;
+          consent_at?: string | null;
           created_at?: string;
           customer_id?: string | null;
           email?: string | null;
@@ -914,6 +919,7 @@ export type Database = {
         };
         Update: {
           admin_notes?: string | null;
+          consent_at?: string | null;
           created_at?: string;
           customer_id?: string | null;
           email?: string | null;
@@ -1761,6 +1767,14 @@ export type Database = {
       admin_session_touch: {
         Args: { p_session_id: string };
         Returns: undefined;
+      };
+      change_inspection_status: {
+        Args: {
+          p_note?: string;
+          p_request_id: string;
+          p_status: Database["public"]["Enums"]["inspection_status"];
+        };
+        Returns: Database["public"]["Enums"]["inspection_status"];
       };
       check_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };

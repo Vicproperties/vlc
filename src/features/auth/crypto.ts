@@ -15,3 +15,7 @@ export function emailHash(email: string): string {
 export function ipHash(ip: string): string {
   return hashIdentifier(serverEnv("ADMIN_OTP_HMAC_SECRET"), "ip", ip);
 }
+
+export function phoneHash(phone: string): string {
+  return hashIdentifier(serverEnv("ADMIN_OTP_HMAC_SECRET"), "phone", phone);
+}

@@ -17,18 +17,18 @@ const supabaseWs = supabaseOrigin.replace(/^https:/, "wss:");
  * Baseline Content Security Policy (static, so public pages stay cacheable).
  * Sources are added explicitly as integrations arrive:
  *   - Supabase (connect/img) in Stage 3
- *   - Cloudflare Turnstile (script/frame) in Stage 7
+ *   - Cloudflare Turnstile (script/frame) in Stage 7 — added
  *   - YouTube embeds (frame: youtube-nocookie.com) in Stage 6
  * A nonce-based policy for the dynamic admin area is evaluated in Stage 4 (risk R-002).
  */
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' blob: data: https://i.ytimg.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,
-  "frame-src https://www.youtube-nocookie.com",
+  "frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

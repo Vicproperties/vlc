@@ -68,6 +68,9 @@ async function BlogList({ searchParams }: { searchParams: PageProps<"/admin/blog
         description={`${total} article${total === 1 ? "" : "s"}.`}
         actions={
           <>
+            <ButtonLink href="/admin/blog/comments" variant="secondary">
+              Comments
+            </ButtonLink>
             <ButtonLink href="/admin/blog/categories" variant="secondary">
               Categories & authors
             </ButtonLink>

@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Design tokens — Direction A "Editorial Heritage".
+ * Design tokens. Modern direction (owner request 2026-11-06): bold sans headings, rounded
+ * cards and controls, soft shadows; purple and white palette unchanged.
  * See docs/design-system.md. Components must use these tokens, not raw hex values.
  */
 @theme {
@@ -31,7 +32,8 @@
   --color-warning-tint: #f3ecdc;
 
   /* Typography */
-  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  /* "serif" is the display face token; it is now the same modern sans as body text. */
+  --font-serif: var(--font-hanken), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans: var(--font-hanken), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --text-caption: 0.75rem;
@@ -53,12 +55,14 @@
   --text-display: clamp(3.5rem, 2.4rem + 4.4vw, 5rem);
   --text-display--line-height: 1.02;
 
-  /* Shape — deliberately restrained */
-  --radius-xs: 1px;
-  --radius-sm: 2px;
+  /* Shape */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
 
-  /* Elevation — overlays only */
-  --shadow-overlay: 0 1px 2px rgb(27 27 25 / 0.06), 0 12px 32px rgb(27 27 25 / 0.12);
+  /* Elevation */
+  --shadow-overlay: 0 1px 2px rgb(42 31 69 / 0.06), 0 16px 40px rgb(42 31 69 / 0.14);
+  --shadow-card: 0 1px 2px rgb(42 31 69 / 0.04), 0 8px 24px rgb(42 31 69 / 0.07);
+  --shadow-card-hover: 0 2px 4px rgb(42 31 69 / 0.06), 0 16px 36px rgb(42 31 69 / 0.12);
 
   /* Motion */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -91,8 +95,8 @@
   h2,
   h3 {
     font-family: var(--font-serif);
-    font-weight: 400;
-    letter-spacing: -0.015em;
+    font-weight: 700;
+    letter-spacing: -0.025em;
     text-wrap: balance;
   }
 

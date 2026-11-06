@@ -96,7 +96,7 @@ export default async function ContactPage() {
             </ul>
           )}
         </div>
-        <div className="border border-line p-6 sm:p-8">
+        <div className="rounded-3xl border border-line/70 bg-white p-6 shadow-card sm:p-8">
           <ContactForm />
         </div>
       </div>
@@ -107,7 +107,7 @@ export default async function ContactPage() {
           title="Map showing our office"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          className="aspect-[16/7] w-full border border-line"
+          className="aspect-[16/7] w-full rounded-2xl border border-line"
         />
       )}
     </div>

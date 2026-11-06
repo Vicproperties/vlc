@@ -237,7 +237,7 @@ function MemberForm({ member, onDone }: { member: TeamMember | null; onDone?: ()
           name="photo"
           type="file"
           accept="image/jpeg,image/png,image/webp,image/avif"
-          className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-sm file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
+          className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-xl file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
         />
       </FormField>
       <fieldset className="grid gap-4 sm:grid-cols-2">
@@ -286,7 +286,7 @@ function Icon({
       aria-label={label}
       title={label}
       className={cn(
-        "flex size-9 items-center justify-center rounded-sm text-ink transition-colors hover:bg-brand-tint disabled:opacity-40",
+        "flex size-9 items-center justify-center rounded-xl text-ink transition-colors hover:bg-brand-tint disabled:opacity-40",
         className,
       )}
       {...props}

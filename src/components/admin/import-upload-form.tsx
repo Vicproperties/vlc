@@ -38,7 +38,7 @@ export function ImportUploadForm() {
           type="file"
           accept=".csv,text/csv"
           required
-          className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-sm file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink hover:file:bg-ink hover:file:text-paper"
+          className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-xl file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink hover:file:bg-ink hover:file:text-paper"
         />
         <p className="text-caption text-stone">
           Up to 500 rows and 2 MB. Nothing is saved until you confirm the preview.

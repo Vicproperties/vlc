@@ -297,7 +297,7 @@ function IconButton({
       type="button"
       aria-label={label}
       title={label}
-      className={`flex size-9 items-center justify-center rounded-sm text-ink transition-colors hover:bg-brand-tint ${className}`}
+      className={`flex size-9 items-center justify-center rounded-xl text-ink transition-colors hover:bg-brand-tint ${className}`}
       {...props}
     >
       {children}

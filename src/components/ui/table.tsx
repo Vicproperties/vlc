@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 /** Data table primitives for the admin dashboard. Horizontal scroll on narrow screens. */
 export function Table({ className, ...props }: ComponentProps<"table">) {
   return (
-    <div className="w-full overflow-x-auto border border-line bg-surface">
+    <div className="w-full overflow-x-auto rounded-2xl border border-line bg-white">
       <table className={cn("w-full border-collapse text-left text-small", className)} {...props} />
     </div>
   );

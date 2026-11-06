@@ -2,15 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache, Suspense } from "react";
 import { ArticleGrid } from "@/components/public/article-card";
+import { Comments, LikeButton, type PublicComment } from "@/components/public/blog-engagement";
 import { JsonLd } from "@/components/public/json-ld";
 import { ShareButtons } from "@/components/public/share-buttons";
+import { Skeleton } from "@/components/ui/states";
 import { siteConfig } from "@/config/site";
 import { getArticle, getArticleSitemapEntries, getRelatedArticles } from "@/features/blog/queries";
+import { getCustomer } from "@/features/customers/session";
 import { sanitizeArticleHtml } from "@/lib/article-html";
 import { publicEnv } from "@/lib/env/client";
 import { formatDate } from "@/lib/format";
 import { publicStorageUrl } from "@/lib/images";
+import { createClient } from "@/lib/supabase/server";
 
 /** Recent articles are prerendered; a placeholder is needed while none exist (Cache Components). */
 export async function generateStaticParams() {
@@ -41,7 +46,31 @@ export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): P
   };
 }
 
-export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">) {
+/**
+ * The address is read inside Suspense so the page frame never depends on it and background
+ * rebuilds after an article changes succeed (see ADR-003). Likes and comments are per visitor
+ * and stream in separately.
+ */
+export default function ArticlePage({ params }: PageProps<"/blog/[slug]">) {
+  return (
+    <Suspense fallback={<ArticleSkeleton />}>
+      <ArticleContent params={params} />
+    </Suspense>
+  );
+}
+
+function ArticleSkeleton() {
+  return (
+    <div className="container-content flex max-w-4xl flex-col gap-6 py-12" aria-busy="true">
+      <p className="sr-only">Loading article</p>
+      <Skeleton className="h-12 w-3/4" />
+      <Skeleton className="aspect-[16/9] w-full" />
+      <Skeleton className="h-60" />
+    </div>
+  );
+}
+
+async function ArticleContent({ params }: { params: PageProps<"/blog/[slug]">["params"] }) {
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) notFound();
@@ -136,6 +165,9 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
 
       <div className="container-content flex max-w-3xl flex-col gap-10 py-10 md:py-14">
         {html && <div className="rich-text article text-body text-ink" dangerouslySetInnerHTML={{ __html: html }} />}
+        <Suspense fallback={<Skeleton className="h-11 w-32 rounded-full" />}>
+          <ArticleLike postId={article.id} slug={article.slug} />
+        </Suspense>
         <div className="flex flex-col gap-3 border-t border-line pt-6">
           <h2 className="text-small font-medium text-ink">Share this article</h2>
           <ShareButtons url={url} title={article.title} />
@@ -158,6 +190,11 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
             </div>
           </aside>
         )}
+        <div className="border-t border-line pt-10">
+          <Suspense fallback={<Skeleton className="h-40" />}>
+            <ArticleComments postId={article.id} slug={article.slug} />
+          </Suspense>
+        </div>
       </div>
 
       {related.length > 0 && (
@@ -171,5 +208,47 @@ export default async function ArticlePage({ params }: PageProps<"/blog/[slug]">)
         </section>
       )}
     </article>
+  );
+}
+
+interface Engagement {
+  likes: number;
+  liked: boolean;
+  comments: PublicComment[];
+}
+
+/** Per-visitor data: like count, whether this visitor liked it, and comments. */
+const loadEngagement = cache(async (postId: string) => {
+  const supabase = await createClient();
+  const [{ data }, customer] = await Promise.all([
+    supabase.rpc("blog_post_engagement", { p_post_id: postId }),
+    getCustomer(),
+  ]);
+  const engagement = (data as Engagement | null) ?? { likes: 0, liked: false, comments: [] };
+  return { engagement, customer };
+});
+
+async function ArticleLike({ postId, slug }: { postId: string; slug: string }) {
+  const { engagement } = await loadEngagement(postId);
+  return (
+    <LikeButton
+      postId={postId}
+      liked={engagement.liked}
+      count={engagement.likes}
+      signInHref={`/account/login?next=${encodeURIComponent(`/blog/${slug}`)}`}
+    />
+  );
+}
+
+async function ArticleComments({ postId, slug }: { postId: string; slug: string }) {
+  const { engagement, customer } = await loadEngagement(postId);
+  return (
+    <Comments
+      postId={postId}
+      comments={engagement.comments}
+      signedIn={customer !== null}
+      isCustomer={Boolean(customer && !customer.isStaff && customer.profile)}
+      signInHref={`/account/login?next=${encodeURIComponent(`/blog/${slug}`)}`}
+    />
   );
 }

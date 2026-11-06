@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { NoAccess } from "@/components/admin/no-access";
 import { AdminPageHeader } from "@/components/admin/page-header";
+import { BrandingForm } from "@/components/admin/branding-form";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { Notice } from "@/components/ui/notice";
 import { Skeleton } from "@/components/ui/states";
 import { can, requireAdmin } from "@/features/auth/admin-session";
 import { SOCIAL_NETWORKS } from "@/features/settings/networks";
+import { publicStorageUrl } from "@/lib/images";
 import { parsePhone } from "@/lib/phone";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,7 +29,7 @@ async function Settings() {
   const { data } = await supabase
     .from("site_settings")
     .select(
-      "company_name, tagline, phone_primary, phone_secondary, whatsapp_number, email_primary, address, map_embed_url, business_hours, social_links, default_seo_title, default_seo_description",
+      "company_name, tagline, phone_primary, phone_secondary, whatsapp_number, email_primary, address, map_embed_url, business_hours, social_links, default_seo_title, default_seo_description, logo_path, favicon_path",
     )
     .eq("id", 1)
     .maybeSingle();
@@ -57,6 +59,12 @@ async function Settings() {
   return (
     <>
       <AdminPageHeader title="Website settings" description="Company details used across the website." />
+      {can(admin, "settings", "edit") && (
+        <BrandingForm
+          logoUrl={data?.logo_path ? publicStorageUrl("site-media", data.logo_path) : null}
+          faviconUrl={data?.favicon_path ? publicStorageUrl("site-media", data.favicon_path) : null}
+        />
+      )}
       {can(admin, "settings", "edit") ? (
         <SettingsForm initial={initial} />
       ) : (

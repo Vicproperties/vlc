@@ -729,6 +729,34 @@ export type Database = {
         };
         Relationships: [];
       };
+      blog_comments: {
+        Row: { body: string; created_at: string; customer_id: string; id: string; post_id: string };
+        Insert: { body: string; created_at?: string; customer_id: string; id?: string; post_id: string };
+        Update: { body?: string; created_at?: string; customer_id?: string; id?: string; post_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      blog_post_likes: {
+        Row: { created_at: string; customer_id: string; post_id: string };
+        Insert: { created_at?: string; customer_id: string; post_id: string };
+        Update: { created_at?: string; customer_id?: string; post_id?: string };
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_likes_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "blog_posts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       favourites: {
         Row: {
           created_at: string;
@@ -1421,6 +1449,8 @@ export type Database = {
       };
       site_settings: {
         Row: {
+          favicon_path: string | null;
+          logo_path: string | null;
           address: string | null;
           business_hours: Json;
           company_name: string | null;
@@ -1439,6 +1469,8 @@ export type Database = {
           whatsapp_number: string | null;
         };
         Insert: {
+          favicon_path?: string | null;
+          logo_path?: string | null;
           address?: string | null;
           business_hours?: Json;
           company_name?: string | null;
@@ -1457,6 +1489,8 @@ export type Database = {
           whatsapp_number?: string | null;
         };
         Update: {
+          favicon_path?: string | null;
+          logo_path?: string | null;
           address?: string | null;
           business_hours?: Json;
           company_name?: string | null;
@@ -1767,6 +1801,7 @@ export type Database = {
         Returns: number;
       };
       admin_session_status: { Args: never; Returns: string };
+      blog_post_engagement: { Args: { p_post_id: string }; Returns: Json };
       admin_session_touch: {
         Args: { p_session_id: string };
         Returns: undefined;

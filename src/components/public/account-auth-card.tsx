@@ -15,7 +15,7 @@ export function AccountAuthCard({
 }) {
   return (
     <div className="container-content flex justify-center py-16 md:py-24">
-      <div className="flex w-full max-w-md flex-col gap-8 border border-line p-6 sm:p-10">
+      <div className="flex w-full max-w-md flex-col gap-8 rounded-3xl border border-line/70 bg-white p-6 shadow-card sm:p-10">
         <div className="flex flex-col gap-3">
           <h1 className="font-serif text-h2 text-ink">{title}</h1>
           {intro && <p className="text-small text-stone">{intro}</p>}

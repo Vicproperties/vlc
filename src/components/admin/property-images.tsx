@@ -270,7 +270,7 @@ function IconButton({
       aria-label={label}
       title={label}
       className={cn(
-        "flex size-9 items-center justify-center rounded-sm text-ink transition-colors hover:bg-brand-tint disabled:opacity-40",
+        "flex size-9 items-center justify-center rounded-xl text-ink transition-colors hover:bg-brand-tint disabled:opacity-40",
         className,
       )}
       {...props}

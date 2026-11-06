@@ -348,7 +348,7 @@ export function ArticleEditor({
                   aria-label={tool.label}
                   title={tool.label}
                   className={cn(
-                    "flex size-9 items-center justify-center rounded-sm text-ink transition-colors hover:bg-brand-tint disabled:opacity-35",
+                    "flex size-9 items-center justify-center rounded-xl text-ink transition-colors hover:bg-brand-tint disabled:opacity-35",
                     tool.on && "bg-brand-tint text-brand-deep",
                   )}
                 >

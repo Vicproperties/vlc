@@ -306,7 +306,7 @@ function PropertyDetail({
         </div>
 
         <aside className="flex flex-col gap-8 lg:sticky lg:top-24 lg:self-start">
-          <div className="flex flex-col gap-5 border border-line p-6">
+          <div className="flex flex-col gap-5 rounded-3xl border border-line/70 bg-white p-6 shadow-card">
             <Price
               size="lg"
               showInstalment
@@ -324,7 +324,7 @@ function PropertyDetail({
                 href={whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-brand px-6 text-small font-medium tracking-[0.02em] text-white transition-colors hover:bg-brand-deep"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-6 text-small font-medium tracking-[0.02em] text-white transition-colors hover:bg-brand-deep"
               >
                 <MessageCircle className="size-4" aria-hidden="true" />
                 Enquire on WhatsApp
@@ -335,7 +335,7 @@ function PropertyDetail({
           {unavailable ? (
             <p className="text-small text-stone">Inspection requests are closed while this property is unavailable.</p>
           ) : (
-            <div className="border border-line p-6">
+            <div className="rounded-3xl border border-line/70 bg-white p-6 shadow-card">
               <InspectionForm propertyId={listing.id} />
             </div>
           )}

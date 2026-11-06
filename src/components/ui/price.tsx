@@ -25,7 +25,9 @@ export function Price({
     <div className={cn("flex flex-col gap-1.5", className)}>
       {display.mainPrice !== null && (
         <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span className={cn("font-serif text-ink", mainSize)}>{formatNaira(display.mainPrice)}</span>
+          <span className={cn("font-bold tracking-[-0.02em] text-ink", mainSize)}>
+            {formatNaira(display.mainPrice)}
+          </span>
           {display.pricePeriod && (
             <span className="text-small text-stone">{formatPricePeriod(display.pricePeriod)}</span>
           )}
@@ -48,16 +50,13 @@ export function Price({
   );
 }
 
-/**
- * Discount label shown over a property image. A flat typographic strip with square corners,
- * rendered only when a valid active promotion exists.
- */
+/** Discount label shown over a property image, only when a valid active promotion exists. */
 export function DiscountLabel({ percent, className }: { percent: number | null; className?: string }) {
   if (percent === null) return null;
   return (
     <span
       className={cn(
-        "inline-block bg-brand px-3 py-1.5 font-sans text-caption font-semibold tracking-[0.14em] text-white uppercase",
+        "inline-block rounded-full bg-brand px-3 py-1 font-sans text-caption font-semibold text-white",
         className,
       )}
     >

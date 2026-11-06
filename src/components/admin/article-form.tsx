@@ -156,7 +156,7 @@ export function ArticleForm({
             {...a11y("featured_image", true)}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/avif"
-            className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-sm file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
+            className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-xl file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
           />
         </FormField>
         {initial.featuredImageUrl && (

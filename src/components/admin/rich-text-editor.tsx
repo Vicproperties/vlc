@@ -115,7 +115,7 @@ export function RichTextEditor({
   return (
     <div
       className={cn(
-        "rounded-sm border border-line-strong bg-surface focus-within:border-brand focus-within:outline-2 focus-within:outline-brand",
+        "rounded-xl border border-line-strong bg-surface focus-within:border-brand focus-within:outline-2 focus-within:outline-brand",
         invalid && "border-danger",
       )}
     >
@@ -134,7 +134,7 @@ export function RichTextEditor({
             aria-label={tool.label}
             title={tool.label}
             className={cn(
-              "flex size-9 items-center justify-center rounded-sm text-ink transition-colors hover:bg-brand-tint",
+              "flex size-9 items-center justify-center rounded-xl text-ink transition-colors hover:bg-brand-tint",
               tool.pressed && "bg-brand-tint text-brand-deep",
             )}
           >

@@ -17,8 +17,17 @@ interface StateProps {
 
 export function EmptyState({ icon: Icon, title, description, action, className }: StateProps) {
   return (
-    <div className={cn("flex flex-col items-center gap-4 border border-line px-6 py-16 text-center", className)}>
-      {Icon && <Icon className="size-6 text-stone" strokeWidth={1.25} aria-hidden="true" />}
+    <div
+      className={cn(
+        "flex flex-col items-center gap-4 rounded-2xl border border-line bg-white px-6 py-16 text-center",
+        className,
+      )}
+    >
+      {Icon && (
+        <span className="flex size-14 items-center justify-center rounded-full bg-brand-tint text-brand">
+          <Icon className="size-6" strokeWidth={1.5} aria-hidden="true" />
+        </span>
+      )}
       <div className="flex max-w-md flex-col gap-2">
         <h3 className="font-serif text-h3">{title}</h3>
         {description && <p className="text-small text-stone">{description}</p>}

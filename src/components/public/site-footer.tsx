@@ -6,6 +6,7 @@ import { SOCIAL_NETWORKS } from "@/features/settings/networks";
 import { parsePhone } from "@/lib/phone";
 import { CookieSettingsLink } from "./cookie-consent";
 import { NewsletterSignup } from "./marketing";
+import { SiteLogo } from "./site-header";
 
 async function CopyrightYear() {
   "use cache";
@@ -26,11 +27,11 @@ export async function SiteFooter() {
   const hasContact = Boolean((phone && phone.ok) || details.email || whatsapp || details.address);
 
   return (
-    <footer className="mt-auto bg-brand-deep text-white">
+    <footer className="mt-auto rounded-t-[2rem] bg-brand-deep text-white">
       <div className="border-b border-white/15">
         <div className="container-content grid gap-6 py-10 md:grid-cols-[1fr_1fr] md:items-center">
           <div>
-            <p className="font-serif text-h3">Stay informed</p>
+            <p className="text-h3 font-bold">Stay informed</p>
             <p className="text-small text-white/80">New listings, price changes and property news.</p>
           </div>
           <NewsletterSignup />
@@ -38,7 +39,7 @@ export async function SiteFooter() {
       </div>
       <div className="container-content grid gap-12 py-16 md:grid-cols-[2fr_1fr_1fr_1fr] md:py-20">
         <div className="flex flex-col gap-4">
-          <p className="font-serif text-h3">{siteConfig.name}</p>
+          <SiteLogo variant="light" />
           {details.tagline && <p className="max-w-sm text-small text-white/80">{details.tagline}</p>}
           {social.length > 0 && (
             <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-2" aria-label="Social media">

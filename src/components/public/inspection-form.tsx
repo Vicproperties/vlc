@@ -102,7 +102,7 @@ export function InspectionForm({ propertyId }: { propertyId: string }) {
             href={confirmation.whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-brand px-6 text-small font-medium text-white transition-colors hover:bg-brand-deep"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-6 text-small font-medium text-white transition-colors hover:bg-brand-deep"
           >
             <MessageCircle className="size-4" aria-hidden="true" />
             Chat with us on WhatsApp

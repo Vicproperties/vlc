@@ -110,7 +110,7 @@ export function SectionEditor({
                     disabled={!canEdit}
                     aria-invalid={error ? true : undefined}
                     aria-describedby={fieldDescribedBy(fieldId, { hint: field.hint, error })}
-                    className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-sm file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
+                    className="text-small text-ink file:mr-4 file:h-10 file:cursor-pointer file:rounded-xl file:border file:border-ink file:bg-transparent file:px-4 file:text-small file:text-ink"
                   />
                   {current && (
                     <Checkbox

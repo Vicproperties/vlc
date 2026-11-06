@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Suspense } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarDays } from "lucide-react";
 import { JsonLd } from "@/components/public/json-ld";
 import { PropertyGrid } from "@/components/public/property-card";
 import {
@@ -55,24 +55,54 @@ export default async function HomePage() {
         }}
       />
 
-      <section className={cn("relative isolate border-b border-line", heroImage ? "bg-ink" : "bg-surface")}>
+      {/* Hero: full-width photo behind the floating header, headline left, search card right. */}
+      <section
+        className={cn(
+          "relative isolate -mt-[4.75rem] overflow-hidden md:-mt-[5.25rem]",
+          heroImage ? "bg-ink" : "bg-brand-tint",
+        )}
+      >
         {heroImage && (
           <>
-            {/* Decorative background chosen in the dashboard. A flat 55% ink tint (no gradient)
+            {/* Decorative background chosen in the dashboard. A flat ink tint (no gradient)
                 keeps the white text readable on typical photos while the image stays visible. */}
             <Image src={heroImage} alt="" fill priority sizes="100vw" className="-z-20 object-cover" />
-            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/55" />
+            <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/50" />
           </>
         )}
-        <div className={cn("container-content flex flex-col gap-10 py-16 md:py-24", heroImage && "md:py-32")}>
-          <div className="flex max-w-3xl flex-col gap-5">
-            <p className={cn("eyebrow", heroImage && "text-white/85")}>{siteConfig.name}</p>
-            <h1 className={cn("text-h1 md:text-display", heroImage && "text-white")}>
+        <div className="container-content grid items-center gap-10 pt-32 pb-24 md:pt-40 md:pb-32 lg:grid-cols-[1.15fr_0.85fr] lg:gap-16">
+          <div className="flex flex-col gap-6">
+            <p
+              className={cn(
+                "self-start rounded-full px-4 py-1.5 text-caption font-semibold",
+                heroImage ? "bg-white/15 text-white backdrop-blur-sm" : "bg-white text-brand",
+              )}
+            >
+              {siteConfig.name}
+            </p>
+            <h1 className={cn("text-h1 leading-[1.05] md:text-display", heroImage ? "text-white" : "text-ink")}>
               {hero.heading ?? "Find land and buildings for sale, rent and lease."}
             </h1>
-            <p className={cn("max-w-2xl text-h4 font-normal", heroImage ? "text-white/90" : "text-stone")}>
+            <p className={cn("max-w-xl text-body-lg", heroImage ? "text-white/90" : "text-stone")}>
               {hero.text ?? "Search by location, property type and price, and see full details for every listing."}
             </p>
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink
+                href="/properties"
+                size="lg"
+                trailingIcon={<ArrowRight className="size-4" aria-hidden="true" />}
+              >
+                Browse properties
+              </ButtonLink>
+              <ButtonLink
+                href="/contact"
+                size="lg"
+                variant="secondary"
+                leadingIcon={<CalendarDays className="size-4" aria-hidden="true" />}
+              >
+                Book an inspection
+              </ButtonLink>
+            </div>
           </div>
           <PropertySearchForm />
         </div>
@@ -85,7 +115,7 @@ export default async function HomePage() {
         <AboutPreview />
       </Suspense>
 
-      <section className="container-content flex flex-col gap-10 py-16 md:py-24" aria-labelledby="featured-heading">
+      <section className="container-content flex flex-col gap-10 py-16 md:py-20" aria-labelledby="featured-heading">
         <Suspense fallback={<GridSkeleton />}>
           <FeaturedListings heading={featured?.heading} text={featured?.text} />
         </Suspense>
@@ -97,7 +127,6 @@ export default async function HomePage() {
       <Suspense fallback={null}>
         <LatestNews />
       </Suspense>
-      {/* Newsletter subscription: Stage 11. */}
       <Suspense fallback={null}>
         <ContactSection />
       </Suspense>
@@ -112,27 +141,29 @@ async function FeaturedListings({ heading, text }: { heading?: string; text?: st
 
   return (
     <>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex max-w-2xl flex-col gap-3">
-          <h2 id="featured-heading" className="text-h1">
-            {title}
-          </h2>
-          {text && <p className="text-body text-stone">{text}</p>}
-        </div>
-        {listings.length > 0 && (
-          <ButtonLink
-            href="/properties"
-            variant="link"
-            trailingIcon={<ArrowRight className="size-4" strokeWidth={1.5} aria-hidden="true" />}
-          >
-            View all properties
-          </ButtonLink>
-        )}
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-3 text-center">
+        <h2 id="featured-heading" className="text-h2">
+          {title}
+        </h2>
+        <p className="text-body text-stone">{text ?? "Handpicked listings, with full details and photos."}</p>
       </div>
       {listings.length ? (
-        <PropertyGrid listings={listings} priorityCount={1} />
+        <>
+          <PropertyGrid listings={listings} priorityCount={1} columns={4} />
+          <div className="flex justify-center">
+            <ButtonLink
+              href="/properties"
+              variant="secondary"
+              trailingIcon={<ArrowRight className="size-4" aria-hidden="true" />}
+            >
+              View all properties
+            </ButtonLink>
+          </div>
+        </>
       ) : (
-        <p className="border-t border-line pt-8 text-body text-stone">New listings will appear here soon.</p>
+        <p className="rounded-2xl border border-line bg-surface p-8 text-center text-body text-stone">
+          New listings will appear here soon.
+        </p>
       )}
     </>
   );
@@ -140,10 +171,10 @@ async function FeaturedListings({ heading, text }: { heading?: string; text?: st
 
 function GridSkeleton() {
   return (
-    <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
-      {Array.from({ length: 3 }, (_, i) => (
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4" aria-hidden="true">
+      {Array.from({ length: 4 }, (_, i) => (
         <div key={i} className="flex flex-col gap-4">
-          <Skeleton className="aspect-[4/3]" />
+          <Skeleton className="aspect-[4/3] rounded-2xl" />
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
         </div>

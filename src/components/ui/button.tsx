@@ -12,17 +12,17 @@ const base =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white hover:bg-brand-deep rounded-sm",
-  secondary: "border border-ink text-ink bg-transparent hover:bg-ink hover:text-paper rounded-sm",
-  quiet: "text-ink bg-transparent hover:bg-brand-tint rounded-sm",
+  primary: "bg-brand text-white shadow-[0_6px_16px_rgb(107_75_166/0.28)] hover:bg-brand-deep rounded-xl",
+  secondary: "border border-line-strong text-ink bg-white hover:border-brand hover:text-brand rounded-xl",
+  quiet: "text-ink bg-transparent hover:bg-brand-tint rounded-xl",
   link: "text-brand underline decoration-1 underline-offset-4 hover:text-brand-deep hover:decoration-2 px-0! h-auto!",
-  danger: "bg-danger text-white hover:bg-danger-deep rounded-sm",
+  danger: "bg-danger text-white hover:bg-danger-deep rounded-xl",
 };
 
 const sizes: Record<ButtonSize, string> = {
   sm: "h-9 px-4 text-small",
-  md: "h-11 px-6 text-small tracking-[0.02em]",
-  lg: "h-13 px-8 text-body tracking-[0.02em]",
+  md: "h-11 px-5 text-small font-semibold",
+  lg: "h-13 px-7 text-body font-semibold",
 };
 
 export function buttonClasses(variant: ButtonVariant = "primary", size: ButtonSize = "md", className?: string) {

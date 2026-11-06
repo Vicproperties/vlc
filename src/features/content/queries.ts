@@ -1,6 +1,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import { CONTENT_TAG } from "@/features/listings/tags";
+import { publicStorageUrl } from "@/lib/images";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { PageKey } from "./sections";
 
@@ -96,5 +97,21 @@ export async function getContactDetails() {
       string,
       string
     >,
+  };
+}
+
+/** Uploaded logo and browser-tab icon (Website Settings). Null when not uploaded. */
+export async function getBranding(): Promise<{ logoUrl: string | null; faviconUrl: string | null }> {
+  "use cache";
+  cacheTag(CONTENT_TAG);
+  cacheLife("hours");
+  const { data } = await createPublicClient()
+    .from("site_settings")
+    .select("logo_path, favicon_path")
+    .eq("id", 1)
+    .maybeSingle();
+  return {
+    logoUrl: data?.logo_path ? publicStorageUrl("site-media", data.logo_path) : null,
+    faviconUrl: data?.favicon_path ? publicStorageUrl("site-media", data.favicon_path) : null,
   };
 }

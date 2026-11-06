@@ -157,13 +157,13 @@ export function NewsletterSignup({ source = "footer" }: { source?: string }) {
           maxLength={254}
           autoComplete="email"
           placeholder="Your email address"
-          className="h-11 min-w-0 flex-1 border border-white/40 bg-white/10 px-3 text-small text-white placeholder:text-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="h-11 min-w-0 flex-1 rounded-xl border border-white/40 bg-white/10 px-3 text-small text-white placeholder:text-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           aria-describedby={state.status === "error" ? "newsletter-error" : undefined}
         />
         <button
           type="submit"
           disabled={pending}
-          className="h-11 shrink-0 bg-white px-4 text-small font-semibold text-brand-deep hover:bg-brand-tint disabled:opacity-60"
+          className="h-11 shrink-0 rounded-xl bg-white px-5 text-small font-semibold text-brand-deep hover:bg-brand-tint disabled:opacity-60"
         >
           {pending ? "Sending" : "Subscribe"}
         </button>

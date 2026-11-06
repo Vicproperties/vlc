@@ -72,8 +72,8 @@ export function Dialog({
         if (dismissible && e.target === e.currentTarget) onClose();
       }}
       className={cn(
-        "flex-col bg-surface p-0 text-ink shadow-overlay backdrop:bg-ink/40 open:flex",
-        variant === "center" && "rounded-sm",
+        "flex-col bg-white p-0 text-ink shadow-overlay backdrop:bg-ink/40 open:flex",
+        variant === "center" && "rounded-2xl",
         variantClasses[variant],
         className,
       )}

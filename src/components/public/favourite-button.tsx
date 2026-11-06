@@ -53,8 +53,8 @@ export function FavouriteButton({
         className={cn(
           "relative z-10 flex items-center justify-center gap-2 transition-colors",
           variant === "overlay"
-            ? "size-10 bg-paper/90 text-ink hover:bg-paper"
-            : "h-11 border border-line-strong px-4 text-small text-ink hover:border-ink",
+            ? "size-10 rounded-full bg-white/95 text-ink shadow-card hover:bg-white hover:text-brand"
+            : "h-11 rounded-xl border border-line-strong bg-white px-4 text-small font-semibold text-ink hover:border-brand hover:text-brand",
         )}
       >
         <Heart className={cn("size-5", saved && "fill-brand text-brand")} strokeWidth={1.75} aria-hidden="true" />

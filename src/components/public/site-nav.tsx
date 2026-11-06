@@ -23,7 +23,7 @@ export function DesktopNav({ items }: { items: NavItem[] }) {
 export function DesktopNavLinks({ items, pathname }: { items: NavItem[]; pathname: string }) {
   return (
     <nav aria-label="Main" className="hidden md:block">
-      <ul className="flex items-center gap-9">
+      <ul className="flex items-center gap-1 lg:gap-2">
         {items.map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -32,11 +32,9 @@ export function DesktopNavLinks({ items, pathname }: { items: NavItem[]; pathnam
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative py-2 text-small tracking-[0.02em] transition-colors",
-                  "after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:bg-brand after:transition-transform after:duration-200",
-                  active
-                    ? "text-ink after:scale-x-100"
-                    : "text-stone after:scale-x-0 hover:text-ink hover:after:scale-x-100",
+                  "relative rounded-lg px-3 py-2 text-small font-medium transition-colors",
+                  "after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:transition-transform after:duration-200",
+                  active ? "text-brand after:scale-x-100" : "text-stone after:scale-x-0 hover:text-ink",
                 )}
               >
                 {item.label}
@@ -63,12 +61,13 @@ export function MobileNavMenu({ items, pathname }: { items: NavItem[]; pathname:
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="-mr-2 flex size-11 items-center justify-center text-ink"
+        className="-mr-1 flex size-10 items-center justify-center rounded-xl text-ink hover:bg-brand-tint"
       >
         <Menu className="size-6" strokeWidth={1.5} aria-hidden="true" />
       </button>
       <Dialog open={open} onClose={() => setOpen(false)} title="Menu" variant="drawer-right">
         <nav aria-label="Main">
+          {/* Account and search links are in the menu on small screens. */}
           <ul className="flex flex-col">
             {items.map((item) => {
               const active = isActive(pathname, item.href);
@@ -78,13 +77,22 @@ export function MobileNavMenu({ items, pathname }: { items: NavItem[]; pathname:
                     href={item.href}
                     onClick={() => setOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={cn("block py-4 font-serif text-h3", active ? "text-brand" : "text-ink")}
+                    className={cn("block py-4 text-h4 font-semibold", active ? "text-brand" : "text-ink")}
                   >
                     {item.label}
                   </Link>
                 </li>
               );
             })}
+            <li className="border-b border-line">
+              <Link
+                href="/account"
+                onClick={() => setOpen(false)}
+                className="block py-4 text-h4 font-semibold text-ink"
+              >
+                My account
+              </Link>
+            </li>
           </ul>
         </nav>
       </Dialog>

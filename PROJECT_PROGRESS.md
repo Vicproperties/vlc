@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                     |
-| Stage status  | Complete, awaiting approval                                                                                                                      |
-| Last updated  | 2026-11-06                                                                                                                                       |
-| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: optionally add DMARC record; decide on blog likes/comments. Then Stage 11. |
+| Item          | Value                                                                                                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                   |
+| Stage status  | Complete, awaiting approval                                                                                                                                                                    |
+| Last updated  | 2026-11-06                                                                                                                                                                                     |
+| Next task     | Stage 10 approved by owner (2026-11-06, "i need to go to the next stage"). Live site fixed (Vercel env). Next: Stage 11 plan for owner approval. Owner: real Turnstile keys for the live site. |
 
 ## Stage history
 
@@ -29,6 +29,15 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 10. Customer accounts                            | Complete    | —          |
 | 11. Marketing, announcements, analytics, consent | Not started | —          |
 | 12. Testing, security, deployment                | Not started | —          |
+
+---
+
+## Live site on Vercel (owner deployed, 2026-11-06)
+
+- Owner connected viclandandproperty.com and deployed to Vercel project vlc-land-and-property (GitHub main auto-deploys). The Supabase Vercel integration supplied the Supabase keys; it points at the **development** project (tcfpnbliwjlinwlgzmkc). A separate production project remains a Stage 12 task.
+- Admin sign-in returned HTTP 500: ADMIN_OTP_HMAC_SECRET and other server settings were missing. Added via Vercel CLI (values never printed): ADMIN_OTP_HMAC_SECRET, RESEND_API_KEY, EMAIL_FROM, TURNSTILE_SECRET_KEY, NEXT_PUBLIC_TURNSTILE_SITE_KEY (public config), NEXT_PUBLIC_SITE_URL=https://viclandandproperty.com, NEXT_PUBLIC_ADMIN_BASE_URL=https://viclandandproperty.com/admin. Redeployed commit 2d11b7b.
+- Verified: live /admin/login with an unknown account now answers "The email or password is incorrect." (HTTP 200, was 500).
+- **Open:** Turnstile still uses test keys, which the server refuses on production (R-021), so customer registration, contact and inspection forms will fail on the live site until real keys are set.
 
 ---
 

@@ -25,7 +25,10 @@ const MAX_BYTES = 3 * 1024 * 1024;
 
 async function encode(file: File, kind: Kind): Promise<Buffer | null> {
   try {
-    const input = sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 40_000_000, failOn: "error" }).rotate();
+    const input = sharp(Buffer.from(await file.arrayBuffer()), {
+      limitInputPixels: 40_000_000,
+      failOn: "error",
+    }).rotate();
     if (kind === "logo") {
       return await input
         .resize({ width: 800, height: 320, fit: "inside", withoutEnlargement: true })
@@ -49,7 +52,11 @@ function patch(kind: Kind, value: string | null) {
   return kind === "logo" ? { logo_path: value } : { favicon_path: value };
 }
 
-export async function uploadBrandingAction(kind: Kind, _prev: BrandingState, formData: FormData): Promise<BrandingState> {
+export async function uploadBrandingAction(
+  kind: Kind,
+  _prev: BrandingState,
+  formData: FormData,
+): Promise<BrandingState> {
   if (kind !== "logo" && kind !== "favicon") throw new Error("Invalid kind.");
   await requireAdminPermission("settings", "edit");
   const file = formData.get("file");

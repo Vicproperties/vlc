@@ -22,7 +22,9 @@ export async function reencodePhoto(
       .webp({ quality: 82 })
       .toBuffer({ resolveWithObject: true });
     return { data, width: info.width, height: info.height };
-  } catch {
+  } catch (error) {
+    // Logged (no file contents) so a failure on the server is visible in the hosting logs.
+    console.error(`[images] re-encode failed: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 }

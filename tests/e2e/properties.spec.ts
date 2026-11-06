@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import sharp from "sharp";
+import sharp, { type Exif } from "sharp";
 import { anonClient, cleanup, serviceClient, uniqueText } from "../integration/helpers";
 import { createTestAdmin, resetAdminRateLimits, type TestAdmin } from "./admin-fixtures";
 import { message, signInAsAdmin } from "./session";
@@ -65,7 +65,7 @@ async function photoWithGps(): Promise<Buffer> {
       .withExifMerge({
         IFD0: { Copyright: "Owner" },
         GPS: { GPSLatitudeRef: "N", GPSLatitude: "6/1 26/1 0/1" },
-      } as unknown as sharp.Exif)
+      } as unknown as Exif)
       .toBuffer()
   );
 }

@@ -89,6 +89,7 @@ export async function saveSectionAction(
           .from("site-media")
           .upload(path, encoded.data, { contentType: "image/webp", upsert: false, cacheControl: "31536000" });
         if (upload.error) {
+          console.error(`[content] section image upload failed: ${upload.error.message}`);
           if (uploaded.length) await supabase.storage.from("site-media").remove(uploaded);
           return { status: "error", message: "The image could not be stored. Please try again." };
         }

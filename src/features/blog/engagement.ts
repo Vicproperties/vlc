@@ -13,7 +13,8 @@ import { createClient } from "@/lib/supabase/server";
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export type EngagementResult = { ok: true; message?: string } | { ok: false; reason: "sign_in" | "staff" | "error"; message: string };
+export type EngagementResult =
+  { ok: true; message?: string } | { ok: false; reason: "sign_in" | "staff" | "error"; message: string };
 
 const SIGN_IN = "Sign in to your customer account to like and comment.";
 const STAFF = "Dashboard accounts cannot like or comment. Use a customer account.";
@@ -57,7 +58,12 @@ export async function addCommentAction(
 ): Promise<CommentFormState> {
   if (!UUID.test(postId)) return { status: "error", message: "Something went wrong." };
   const who = await customerOrReason();
-  if (!("userId" in who)) return { status: "error", message: who.ok ? "" : who.message, reason: who.ok ? undefined : (who.reason as "sign_in" | "staff") };
+  if (!("userId" in who))
+    return {
+      status: "error",
+      message: who.ok ? "" : who.message,
+      reason: who.ok ? undefined : (who.reason as "sign_in" | "staff"),
+    };
   const raw = formData.get("body");
   const body = typeof raw === "string" ? raw.replace(/\r\n/g, "\n").trim() : "";
   if (body.length < 2) return { status: "error", message: "Write a comment first." };
@@ -85,7 +91,11 @@ export async function deleteCommentAction(commentId: string): Promise<Engagement
   const { data, error } = await supabase.from("blog_comments").delete().eq("id", commentId).select("id");
   if (error || !data?.length) return { ok: false, reason: "error", message: "This comment could not be deleted." };
   if (isModerator) {
-    await supabase.rpc("log_activity", { p_action: "blog.comment_deleted", p_entity_type: "blog_comment", p_entity_id: commentId });
+    await supabase.rpc("log_activity", {
+      p_action: "blog.comment_deleted",
+      p_entity_type: "blog_comment",
+      p_entity_id: commentId,
+    });
   }
   refresh();
   return { ok: true, message: "Comment deleted." };

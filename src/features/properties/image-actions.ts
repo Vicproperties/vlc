@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { refresh, updateTag } from "next/cache";
-import sharp from "sharp";
+import sharp, { type OutputInfo } from "sharp";
 import { requireAdminPermission } from "@/features/auth/admin-session";
 import { dbErrorMessage } from "@/lib/supabase/errors";
 import { createClient } from "@/lib/supabase/server";
@@ -50,7 +50,7 @@ export async function uploadPropertyImageAction(propertyId: string, formData: Fo
     return { ok: false, message: `A property can have at most ${MAX_PHOTOS_PER_PROPERTY} photos.` };
   }
 
-  let output: { data: Buffer; info: sharp.OutputInfo };
+  let output: { data: Buffer; info: OutputInfo };
   try {
     output = await sharp(Buffer.from(await file.arrayBuffer()), { limitInputPixels: 60_000_000, failOn: "error" })
       .rotate() // apply the camera orientation before metadata is dropped

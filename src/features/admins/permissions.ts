@@ -5,8 +5,7 @@ import type { Database } from "@/types/database";
  * section actually uses. Shared by the form (client) and the server actions, so a tick the
  * form does not show can never be saved. Super admins have every permission implicitly.
  *
- * "admins" is deliberately absent: only super admins manage administrators. Sections not
- * built yet (marketing, media, analytics, cookies, activity logs) are added when they are.
+ * "admins" is deliberately absent: only super admins manage administrators.
  */
 export type AdminModuleName = Database["public"]["Enums"]["admin_module"];
 export type PermissionAction = "view" | "create" | "edit" | "publish" | "delete";
@@ -63,11 +62,37 @@ export const MANAGED_MODULES: ReadonlyArray<{
     actions: ["view", "edit", "delete"],
   },
   {
+    module: "marketing",
+    label: "Marketing",
+    hint: "Top banner, announcement pop-up and property promotions.",
+    actions: ["view", "create", "edit", "delete"],
+  },
+  {
+    module: "newsletter",
+    label: "Newsletter subscribers",
+    hint: "View and download subscribers; delete removes an address permanently.",
+    actions: ["view", "delete"],
+  },
+  {
     module: "settings",
     label: "Website settings",
     hint: "Company details, phone numbers and social links.",
     actions: ["view", "edit"],
   },
+  { module: "media", label: "Media library", hint: "Browse all uploaded images.", actions: ["view"] },
+  {
+    module: "analytics",
+    label: "Visitor analytics",
+    hint: "Visit statistics (only visitors who accepted).",
+    actions: ["view"],
+  },
+  {
+    module: "cookies",
+    label: "Cookie management",
+    hint: "Cookie notice text and whether statistics are collected.",
+    actions: ["view", "edit"],
+  },
+  { module: "activity_logs", label: "Activity logs", hint: "Who did what in the dashboard.", actions: ["view"] },
 ];
 
 /** Starting point for a new sub-admin: runs website content and the blog, including publishing. */

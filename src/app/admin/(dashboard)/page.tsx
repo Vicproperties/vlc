@@ -4,7 +4,9 @@ import { LayoutDashboard } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/page-header";
 import { EmptyState, Skeleton } from "@/components/ui/states";
 import { can, requireAdmin } from "@/features/auth/admin-session";
+import { visitorsLastWeek } from "@/features/analytics/summary";
 import { enquiryCounts } from "@/features/enquiries/admin";
+import { createClient } from "@/lib/supabase/server";
 
 export default function AdminOverviewPage() {
   return (
@@ -14,12 +16,27 @@ export default function AdminOverviewPage() {
   );
 }
 
-/** Real counts only, for the sections this admin may see. More figures arrive in later stages. */
+/** Real counts only, for the sections this admin may see. */
 async function Overview() {
   const admin = await requireAdmin();
   const firstName = admin.fullName.split(/\s+/)[0];
   const permissions = { inspections: can(admin, "inspections", "view"), enquiries: can(admin, "enquiries", "view") };
-  const counts = await enquiryCounts(permissions);
+  const show = {
+    properties: can(admin, "properties", "view"),
+    blog: can(admin, "blog", "view"),
+    analytics: can(admin, "analytics", "view"),
+    newsletter: can(admin, "newsletter", "view"),
+  };
+  const supabase = await createClient();
+  const head = { count: "exact", head: true } as const;
+  const [counts, published, drafts, articles, subscribers, visitors] = await Promise.all([
+    enquiryCounts(permissions),
+    show.properties ? supabase.from("properties").select("id", head).eq("status", "published") : null,
+    show.properties ? supabase.from("properties").select("id", head).eq("status", "draft") : null,
+    show.blog ? supabase.from("blog_posts").select("id", head).eq("status", "published") : null,
+    show.newsletter ? supabase.from("newsletter_subscribers").select("id", head).eq("status", "active") : null,
+    show.analytics ? visitorsLastWeek() : null,
+  ]);
 
   const tiles = [
     permissions.inspections && {
@@ -31,6 +48,19 @@ async function Overview() {
       label: "Unread contact messages",
       value: counts.unreadMessages ?? 0,
       href: "/admin/inspections/messages",
+    },
+    show.properties && {
+      label: "Published properties",
+      value: published?.count ?? 0,
+      href: "/admin/properties?status=published",
+    },
+    show.properties && { label: "Draft properties", value: drafts?.count ?? 0, href: "/admin/properties?status=draft" },
+    show.blog && { label: "Published articles", value: articles?.count ?? 0, href: "/admin/blog" },
+    show.analytics && { label: "Visitors in the last 7 days", value: visitors ?? 0, href: "/admin/analytics?days=7" },
+    show.newsletter && {
+      label: "Newsletter subscribers",
+      value: subscribers?.count ?? 0,
+      href: "/admin/marketing/newsletter",
     },
   ].filter(Boolean) as Array<{ label: string; value: number; href: string }>;
 

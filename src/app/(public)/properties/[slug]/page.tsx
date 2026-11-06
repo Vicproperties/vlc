@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { MapPin, MessageCircle } from "lucide-react";
 import { FavouriteButton } from "@/components/public/favourite-button";
 import { InspectionForm } from "@/components/public/inspection-form";
@@ -10,6 +11,7 @@ import { PropertyGallery } from "@/components/public/property-gallery";
 import { ShareButtons } from "@/components/public/share-buttons";
 import { YouTubeEmbed } from "@/components/public/youtube-embed";
 import { DiscountLabel, Price } from "@/components/ui/price";
+import { Skeleton } from "@/components/ui/states";
 import {
   getListingBySlug,
   getListingSitemapEntries,
@@ -55,10 +57,32 @@ export async function generateStaticParams() {
 }
 
 /**
- * The listing is looked up before anything is streamed, so a missing, draft or archived
- * property gets a real 404 status (not a 200 page with "not found" content).
+ * The address is read inside Suspense, so the page frame (header, footer) never depends on it
+ * and Next.js can always rebuild the route in the background after a listing changes. Reading
+ * it outside made those rebuilds fail ("blocking prerender") and could leave visitors on an
+ * outdated page. Prebuilt listings still render in full at build time; missing, draft or
+ * archived properties render the not-found content with noindex (ADR-003).
  */
-export default async function PropertyPage({ params }: PageProps<"/properties/[slug]">) {
+export default function PropertyPage({ params }: PageProps<"/properties/[slug]">) {
+  return (
+    <Suspense fallback={<PropertySkeleton />}>
+      <PropertyContent params={params} />
+    </Suspense>
+  );
+}
+
+function PropertySkeleton() {
+  return (
+    <div className="container-content flex flex-col gap-6 py-12" aria-busy="true">
+      <p className="sr-only">Loading property</p>
+      <Skeleton className="h-10 w-2/3" />
+      <Skeleton className="aspect-[16/9] w-full" />
+      <Skeleton className="h-40" />
+    </div>
+  );
+}
+
+async function PropertyContent({ params }: { params: PageProps<"/properties/[slug]">["params"] }) {
   const { slug } = await params;
   const [listing, settings] = await Promise.all([getListingBySlug(slug), getPublicSiteSettings()]);
   if (!listing || !listing.id || !listing.title || !listing.slug) notFound();

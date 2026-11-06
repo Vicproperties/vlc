@@ -75,3 +75,8 @@ const dateFormatter = new Intl.DateTimeFormat("en-NG", {
 export function formatDate(value: Date | string): string {
   return dateFormatter.format(typeof value === "string" ? new Date(value) : value);
 }
+
+/** ISO timestamp `days` days before now (for "last N days" queries). */
+export function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString();
+}

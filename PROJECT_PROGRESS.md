@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                          |
-| Stage status  | Complete, awaiting approval                                                                                                                                                                           |
-| Last updated  | 2026-11-06                                                                                                                                                                                            |
-| Next task     | Stage 10 approved by owner (2026-11-06, "i need to go to the next stage"). Live site fixed (Vercel env). Next: Stage 11 plan for owner approval. Owner: test live registration with a personal email. |
+| Item          | Value                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Current stage | Stage 11 — Marketing, announcements, analytics, consent                                                                                          |
+| Stage status  | Complete, awaiting approval                                                                                                                      |
+| Last updated  | 2026-11-06                                                                                                                                       |
+| Next task     | Stage 11 COMPLETE, awaiting owner approval. Owner: add CRON_SECRET in Vercel (daily clean-up), have cookie/privacy text reviewed. Then Stage 12. |
 
 ## Stage history
 
@@ -26,9 +26,66 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
 | 8. Content management                            | Complete    | 2026-11-05 |
 | 9. Blog                                          | Complete    | 2026-11-05 |
-| 10. Customer accounts                            | Complete    | —          |
-| 11. Marketing, announcements, analytics, consent | Not started | —          |
+| 10. Customer accounts                            | Complete    | 2026-11-06 |
+| 11. Marketing, announcements, analytics, consent | Complete    | —          |
 | 12. Testing, security, deployment                | Not started | —          |
+
+---
+
+## Stage 11 — Marketing, announcements, analytics, consent
+
+Owner (2026-11-06): "proceed with stage 11 and be quick about it". No database migration: every table already existed from Stage 3.
+
+**Part 1: Marketing** (module "marketing"; newsletter list uses module "newsletter")
+
+- **Top banner** (/admin/marketing/banner): message, style (information, promotion, notice), optional link and link text, start and end time (Nigeria time). One banner at a time: switching one on switches the others off. On the website: a strip above the menu; closing it hides it for that visit.
+- **Announcement pop-up** (/admin/marketing/announcements): heading, message, optional image (re-encoded to WebP, description required), button, how often (once per visitor, once per visit, again after N days), priority, schedule. Saving bumps the version, so visitors who closed the old one see the new one. Shown 1.5 s after arrival.
+- **Property promotions** (/admin/marketing/promotions): properties with both prices; start/end a promotion (only when the sales price is lower). Changes only promotion_active, with the service role after the marketing permission check, so marketing staff need no property rights.
+- **Newsletter** (footer on every page): double opt-in. Confirmation link (48 h, token stored as SHA-256 hash, click-to-confirm page), unsubscribe link signed with the server secret (no stored token). Same answer whether or not the address exists; honeypot; limits 10/hour per connection and 3/day per address. Dashboard: list by status with counts, delete, CSV export of confirmed addresses (formula-safe cells, export logged). Sending newsletters is not built: export to an email tool.
+- Public reads are cached for minutes (tag "marketing"), cleared on every change.
+
+**Part 2: Cookies and analytics**
+
+- **Cookie notice**: fixed bar with "Essential only" / "Accept statistics", privacy policy link, "Cookie settings" in the footer reopens it. Choice in first-party cookie vl_consent (policy version, yes/no, random id; 6 months). Choices recorded anonymously (cookie_consents; no IP). No bar when statistics are switched off (only essential cookies then).
+- **Visit statistics** (/api/analytics): only when the visitor's cookie says yes for the current policy version AND statistics are on; the server checks this itself. Page views, property views, WhatsApp and phone clicks; device type, browser, country/region/city from Vercel headers, source (direct, search, social, referral, campaign/UTM). No IP, name or email stored. Bots skipped; 300 hits per 10 minutes per connection.
+- **Visitor analytics** (/admin/analytics): last 7/30/90 days: visitors, page views, property views, WhatsApp and phone clicks, on the site now; most viewed pages and properties, sources, devices, countries, referring websites, day by day. Computed from raw rows (up to 50,000; a notice shows if exceeded).
+- **Cookie management** (/admin/cookies): notice text, statistics description, statistics on/off, "ask every visitor again" (bumps the policy version); choices in the last 30 days.
+- **Clean-up**: daily Vercel Cron (vercel.json, 02:30 UTC) at /api/cron/purge-analytics deletes visit records older than 90 days and cookie choices older than 1 year. Needs CRON_SECRET in Vercel (refuses to run without it).
+
+**Part 3: Media, activity, overview**
+
+- **Media library** (/admin/media): every uploaded image by library (property photos grouped by property title, blog images, website images). Read-only by design: images are added and removed where they are used.
+- **Activity logs** (/admin/activity): newest first, 50 per page, filter by area, plain-language descriptions and the admin's name.
+- **Overview**: published and draft properties, published articles, visitors in the last 7 days, newsletter subscribers, plus the existing enquiry figures, each only for admins who may see that section.
+- **Menu**: all items now lead to real pages. Admin Users permissions now include marketing, newsletter, media, analytics, cookies and activity logs.
+
+Files (new): src/features/marketing/{actions,queries}.ts, src/features/newsletter/{actions,server}.ts, src/features/cookies/{consent,queries,actions}.ts, src/features/analytics/summary.ts, src/components/public/{marketing,cookie-consent}.tsx, src/components/admin/{marketing-manager,cookie-settings-form}.tsx, src/app/(public)/newsletter/{confirm,unsubscribe}/page.tsx, src/app/admin/(dashboard)/{marketing/*,analytics,cookies,media,activity}/..., src/app/api/analytics/route.ts, src/app/api/cron/purge-analytics/route.ts, vercel.json, tests/e2e/{marketing,cookies-analytics}.spec.ts. Changed: public layout and footer, dashboard layout and overview, admin permissions list, email templates (newsletter confirmation), listings tags, lib/format (isoDaysAgo), playwright.config (test visitors carry an "essential only" cookie so the bar never covers buttons).
+
+Tests:
+
+- Typecheck, lint, check:secrets, production build: OK. Unit: 148/148 (new: cookie value, admin permission form).
+- e2e cookies-analytics.spec 3/3 first attempt: "essential only" remembered, no statistics sent, footer link reopens the choice; "accept" records the visit (landing page, device, source) and the property view; dashboard analytics shows the property, cookie settings save, activity log shows the change with the admin's name, media library, all menu items present, overview tile.
+- e2e marketing.spec 3/3 (passed on retry; earlier attempts failed on network EAI_AGAIN/ENOTFOUND): banner and pop-up created and shown to a new visitor, pop-up once per visit, banner closes, switching off removes them; newsletter sign-up, confirm link (reuse refused), dashboard list, CSV export, tampered unsubscribe refused, unsubscribe works; promotion on shows "20% off" on an already-built property page, then off.
+- e2e public.spec + smoke 11/11 first attempt (property page, drafts hidden, axe accessibility incl. cookie bar and footer form).
+- Run note: marketing.spec switches a site-wide banner/pop-up on, so it runs in its own Playwright project after all others ("desktop-marketing", dependencies desktop + mobile). To run a single file use --no-deps.
+- **Not tested:** real delivery of the newsletter confirmation email (sending is disabled in tests); the Vercel cron (needs CRON_SECRET and runs only on Vercel); country/city (Vercel headers are absent locally).
+- **Pre-existing bug found and fixed:** property pages read the address outside Suspense, so after a listing changed Next.js could not rebuild the page in the background (NEXT_STATIC_GEN_BAILOUT) and visitors could see an outdated page. Fixed (ADR-003 updated).
+- e2e admin-users.spec 3/3 first attempt (permission list now includes the Stage 11 sections).
+
+Issues found and fixed during testing:
+
+- The banner and pop-up forms closed before showing "added/saved": the list now shows the confirmation.
+- A pop-up left switched on by an interrupted test run sat in the shared database (the live site did not yet have this code, so nobody saw it). Removed; the test now switches its pop-up off itself and runs after all other tests.
+- The cookie bar reads the page address; outside Suspense this broke prerendering of property pages. It now sits inside Suspense.
+- Property pages (pre-existing, Stage 6): the background rebuild after a listing change failed, so visitors could see outdated content. Fixed by reading the address inside Suspense (ADR-003 updated).
+- Tests waited for "network idle" on property pages, which never happens (Turnstile stays connected); they now wait for "load".
+
+Outstanding / owner:
+
+- **CRON_SECRET** must be added in Vercel (Settings, Environment Variables, Production): my attempt was blocked by the safety check for writing secrets. Until then the daily clean-up refuses to run (nothing breaks).
+- Have the cookie notice and privacy policy reviewed together (NDPA 2023). The privacy policy should mention the statistics and the newsletter.
+- **Tests and the live site share the development database** (R-027): test properties, banners and pop-ups can appear on the live site for a few minutes while tests run. Fixed by the separate production database in Stage 12.
+- Newsletter sending is not built (export to an email tool). Blog likes/comments still undecided.
 
 ---
 

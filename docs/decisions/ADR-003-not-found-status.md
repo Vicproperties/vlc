@@ -29,3 +29,13 @@ Keep the cached pages. When a property does not exist or is not listed:
 - Verified by `tests/e2e/public.spec.ts`: drafts are never visible, and the not-found page
   carries noindex.
 - Re-evaluate if Next.js adds status control for this case, or if SEO tooling flags soft 404s.
+
+## Update (Stage 11, 2026-11-06)
+
+The page read the address (`params`) outside `<Suspense>`. First visits worked, but after a
+listing changed (cache tag cleared) Next.js could not rebuild the route in the background
+("blocking prerender", `NEXT_STATIC_GEN_BAILOUT`), so visitors could keep seeing an outdated
+page, for example without a new promotion price. The address is now read inside
+`<Suspense>` with a loading placeholder. The not-found behaviour above is unchanged and
+still covered by `public.spec.ts`; `marketing.spec.ts` covers "change a listing after its
+page was built, then view it".

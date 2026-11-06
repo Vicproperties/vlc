@@ -176,3 +176,38 @@ export function customerResetEmail({ name, link }: { name: string | null; link: 
   ].join("\n");
   return { subject, html, text };
 }
+
+/** Newsletter double opt-in: nothing is sent to the address until this link is used. */
+export function newsletterConfirmEmail({
+  link,
+  unsubscribeLink,
+}: {
+  link: string;
+  unsubscribeLink: string;
+}): EmailContent {
+  const subject = `Confirm your ${siteConfig.name} newsletter subscription`;
+  const intro = "Someone, hopefully you, asked to receive property news and offers by email. Confirm to start:";
+  const html = layout(
+    subject,
+    [
+      p("Hello,"),
+      p(escapeHtml(intro)),
+      linkButton(link, "Confirm subscription"),
+      p("The link expires in 48 hours. If you did not ask for this, ignore this email and you will not be subscribed."),
+      p(
+        `You can unsubscribe at any time: <a href="${escapeHtml(unsubscribeLink)}" style="color:${colors.brand};">unsubscribe</a>.`,
+      ),
+    ].join("\n"),
+    "customer",
+  );
+  const text = [
+    "Hello,",
+    "",
+    intro,
+    link,
+    "",
+    "The link expires in 48 hours. If you did not ask for this, ignore this email and you will not be subscribed.",
+    `Unsubscribe at any time: ${unsubscribeLink}`,
+  ].join("\n");
+  return { subject, html, text };
+}

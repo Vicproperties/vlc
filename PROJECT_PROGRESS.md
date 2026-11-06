@@ -11,7 +11,7 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                         |
 | Stage status  | Complete, awaiting approval                                                                                                                                                                                          |
 | Last updated  | 2026-11-06                                                                                                                                                                                                           |
-| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: optionally add DMARC record; turn off public sign-up in Supabase and rerun the registration e2e; decide on blog likes/comments. Then Stage 11. |
+| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: optionally add DMARC record; decide on blog likes/comments. Then Stage 11. |
 
 ## Stage history
 
@@ -103,7 +103,7 @@ Tables, relationships and RLS are unchanged.
 ### Owner actions
 
 - **Supabase → Authentication → Sign In / Providers → Email:** keep "Confirm email" on. It is on, checked 2026-11-06.
-- **Supabase → Authentication → Settings:** turn off "Allow new users to sign up" (R-026). Website registration should keep working, because it uses the admin API, not the public sign-up endpoint. **Not yet verified with the setting off:** rerun the registration e2e test after the switch.
+- **Supabase → Authentication → Settings:** "Allow new users to sign up" turned off on the dev project 2026-11-06 (R-026). Verified: the public sign-up API returns 422 signup_disabled, and account.spec passes 5/5 with it off. Repeat on the production project in Stage 12.
 - **Domain:** done 2026-11-06. viclandandproperty.com uses Vercel DNS and is verified in Resend; EMAIL_FROM switched to no-reply@viclandandproperty.com in .env.local; Resend accepted a test email. Recommended: add a DMARC TXT record.
 
 ### Outstanding issues

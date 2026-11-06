@@ -21,7 +21,11 @@ export function escapeHtml(value: string): string {
 
 const colors = { ink: "#2a1f45", stone: "#625b73", brand: "#6b4ba6", line: "#e7e1f1", surface: "#faf8fd" };
 
-function layout(title: string, body: string): string {
+function layout(title: string, body: string, audience: "admin" | "customer" = "admin"): string {
+  const footer =
+    audience === "admin"
+      ? `This is an automated security message from the ${escapeHtml(siteConfig.name)} administration system. Do not forward it.`
+      : `This is an automated message from ${escapeHtml(siteConfig.name)}. If you did not expect it, you can ignore it.`;
   return `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title></head>
@@ -30,7 +34,7 @@ function layout(title: string, body: string): string {
 <p style="margin:0 0 32px;font-family:Georgia,'Times New Roman',serif;font-size:20px;color:${colors.ink};">${escapeHtml(siteConfig.name)}</p>
 ${body}
 <p style="margin:40px 0 0;padding-top:20px;border-top:1px solid ${colors.line};font-size:12px;line-height:1.6;color:${colors.stone};">
-This is an automated security message from the ${escapeHtml(siteConfig.name)} administration system. Do not forward it.
+${footer}
 </p>
 </div>
 </body>
@@ -103,6 +107,72 @@ export function passwordLinkEmail({
     "",
     "The link expires in 1 hour and can only be used once.",
     kind === "reset" ? "If you did not ask for this, ignore this email. Your password will not change." : "",
+  ].join("\n");
+  return { subject, html, text };
+}
+
+function linkButton(link: string, label: string): string {
+  const safeLink = escapeHtml(link);
+  return [
+    `<p style="margin:0 0 24px;"><a href="${safeLink}" style="display:inline-block;padding:12px 24px;background:${colors.brand};color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;border-radius:2px;">${escapeHtml(label)}</a></p>`,
+    p(
+      `Or copy this address into your browser:<br><span style="word-break:break-all;color:${colors.stone};font-size:13px;">${safeLink}</span>`,
+    ),
+  ].join("\n");
+}
+
+/** Customer email verification (registration and "resend"). */
+export function customerVerifyEmail({ name, link }: { name: string | null; link: string }): EmailContent {
+  const subject = `Activate your ${siteConfig.name} account`;
+  const hello = name ? `Hello ${name},` : "Hello,";
+  const intro = "Thank you for creating an account. Confirm your email address to activate it:";
+  const html = layout(
+    subject,
+    [
+      p(escapeHtml(hello)),
+      p(intro),
+      linkButton(link, "Activate account"),
+      p("The link expires in 1 hour and can only be used once."),
+      p("If you did not create an account, ignore this email and no account will be activated."),
+    ].join("\n"),
+    "customer",
+  );
+  const text = [
+    hello,
+    "",
+    intro,
+    link,
+    "",
+    "The link expires in 1 hour and can only be used once.",
+    "If you did not create an account, ignore this email and no account will be activated.",
+  ].join("\n");
+  return { subject, html, text };
+}
+
+/** Customer password reset. */
+export function customerResetEmail({ name, link }: { name: string | null; link: string }): EmailContent {
+  const subject = "Reset your password";
+  const hello = name ? `Hello ${name},` : "Hello,";
+  const intro = `We received a request to reset the password of your ${siteConfig.name} account. Choose a new password here:`;
+  const html = layout(
+    subject,
+    [
+      p(escapeHtml(hello)),
+      p(escapeHtml(intro)),
+      linkButton(link, "Reset password"),
+      p("The link expires in 1 hour and can only be used once."),
+      p("If you did not ask for this, ignore this email. Your password will not change."),
+    ].join("\n"),
+    "customer",
+  );
+  const text = [
+    hello,
+    "",
+    intro,
+    link,
+    "",
+    "The link expires in 1 hour and can only be used once.",
+    "If you did not ask for this, ignore this email. Your password will not change.",
   ].join("\n");
   return { subject, html, text };
 }

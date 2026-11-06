@@ -18,7 +18,18 @@ export type SecurityEventType =
   | "admin_password_reset_rate_limited"
   | "admin_password_reset_link_invalid"
   | "admin_password_reset_completed"
-  | "email_send_failed";
+  | "email_send_failed"
+  | "customer_registered"
+  | "customer_register_rate_limited"
+  | "customer_email_verified"
+  | "customer_verify_link_invalid"
+  | "customer_login_failed"
+  | "customer_login_denied"
+  | "customer_login_rate_limited"
+  | "customer_password_reset_requested"
+  | "customer_password_reset_link_invalid"
+  | "customer_password_reset_completed"
+  | "customer_password_changed";
 
 /**
  * Appends a security event. Logging must never break authentication, so failures are

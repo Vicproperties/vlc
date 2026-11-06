@@ -46,11 +46,14 @@ There are no public estate pages and no standalone inspection page.
 
 ## 4. Identity
 
-- **Customers:** Google OAuth via Supabase Auth only. Profile in `customer_profiles`.
+- **Customers:** email + password via Supabase Auth (owner decision 2026-11-06; Google sign-in removed).
+  Registration is server-side (bot check, rate limits), the email must be verified before the account
+  works, and links are sent through Resend. Profile in `customer_profiles`. No external identity providers.
 - **Admins:** email + password, then a custom email OTP on every login. Admin status lives in
   `admin_users` (server-controlled). RLS helper `is_verified_admin()` requires an active admin **and**
   an OTP-verified, unrevoked `admin_sessions` row for the JWT `session_id`.
-- Admin accounts must use the email provider; Google identities are refused at admin login.
+- Customer and staff accounts are separate: customer forms refuse staff accounts (same answer as a wrong
+  password), staff login refuses non-admin accounts, and staff never receive customer emails.
 - No admin self-registration; super admins create admins. First super admin via a local CLI script.
 - Password reset: Supabase PKCE recovery link, generic response regardless of email existence,
   global sign-out and admin session revocation afterwards.

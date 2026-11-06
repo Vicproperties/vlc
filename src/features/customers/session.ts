@@ -28,7 +28,9 @@ export const getCustomer = cache(async (): Promise<CustomerSession | null> => {
     supabase.from("customer_profiles").select("full_name, avatar_url, phone").eq("id", claims.userId).maybeSingle(),
     supabase.auth.getUser(),
   ]);
-  return { userId: claims.userId, email: user.user?.email ?? null, isStaff: Boolean(staff), profile: profile ?? null };
+  // Accounts whose email is not verified yet count as signed out.
+  if (!user.user?.email_confirmed_at) return null;
+  return { userId: claims.userId, email: user.user.email ?? null, isStaff: Boolean(staff), profile: profile ?? null };
 });
 
 /** For pages and actions that need a customer account (signed in, not staff, with a profile). */

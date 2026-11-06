@@ -1783,6 +1783,7 @@ export type Database = {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
       };
+      customer_id_for_email: { Args: { p_email: string }; Returns: string };
       find_property_duplicate: {
         Args: {
           p_kind: Database["public"]["Enums"]["property_kind"];

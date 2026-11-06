@@ -25,7 +25,7 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' blob: data: https://i.ytimg.com https://lh3.googleusercontent.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  `img-src 'self' blob: data: https://i.ytimg.com${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,
   "frame-src https://www.youtube-nocookie.com https://challenges.cloudflare.com https://www.google.com",

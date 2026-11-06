@@ -24,19 +24,53 @@ function set(next: State) {
   for (const listener of listeners) listener();
 }
 
+/**
+ * Signing in or out happens on the server and the page then changes without a full reload, so
+ * this module would keep the old state. The Supabase session cookie is readable by the page: when
+ * it changes (sign in, sign out, account deleted, password reset), the state is loaded again.
+ */
+function sessionSignature(): string {
+  return document.cookie
+    .split("; ")
+    .filter((cookie) => /^sb-[^=]+-auth-token(\.\d+)?=/.test(cookie))
+    .sort()
+    .join("|");
+}
+
+let signature: string | null = null;
+let watcher: ReturnType<typeof setInterval> | null = null;
+
 function load() {
   loading ??= getFavouriteStateAction()
     .then((result) =>
       set({ loaded: true, signedIn: result.signedIn, isStaff: result.isStaff, ids: new Set(result.ids) }),
     )
     .catch(() => set({ ...state, loaded: true }));
+  signature ??= sessionSignature();
   return loading;
+}
+
+function checkSession() {
+  const current = sessionSignature();
+  if (signature === null || current === signature) return;
+  // Session refreshes rotate the cookie too; reloading is a single cheap request.
+  signature = current;
+  loading = null;
+  void load();
 }
 
 function subscribe(listener: () => void) {
   listeners.add(listener);
   void load();
-  return () => listeners.delete(listener);
+  checkSession();
+  watcher ??= setInterval(checkSession, 1000);
+  return () => {
+    listeners.delete(listener);
+    if (!listeners.size && watcher) {
+      clearInterval(watcher);
+      watcher = null;
+    }
+  };
 }
 
 export function useFavourites(): State {

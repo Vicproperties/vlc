@@ -4,10 +4,8 @@ import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { parsePhoneStrict } from "@/features/enquiries/server";
-import { publicEnv } from "@/lib/env/client";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { safeCustomerPath } from "./redirects";
 import { getCustomer, requireCustomer } from "./session";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -16,28 +14,6 @@ export interface CustomerFormState {
   status: "idle" | "error" | "success";
   message?: string;
   fieldErrors?: Record<string, string>;
-}
-
-/** Starts Google sign-in. `favourite` (a property id) is saved automatically after sign-in. */
-export async function startGoogleSignInAction(
-  _prev: CustomerFormState,
-  formData: FormData,
-): Promise<CustomerFormState> {
-  const next = safeCustomerPath(formData.get("next"));
-  const favourite = String(formData.get("favourite") ?? "");
-  const callback = new URL("/auth/callback", publicEnv().NEXT_PUBLIC_SITE_URL);
-  callback.searchParams.set("next", next);
-  if (UUID.test(favourite)) callback.searchParams.set("favourite", favourite);
-
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: callback.toString(), queryParams: { prompt: "select_account" } },
-  });
-  if (error || !data.url) {
-    return { status: "error", message: "Google sign-in is not available right now. Please try again later." };
-  }
-  redirect(data.url);
 }
 
 export async function signOutCustomerAction(): Promise<void> {

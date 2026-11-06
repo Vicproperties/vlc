@@ -10,6 +10,15 @@ import { isAdminPublicPath } from "@/features/auth/redirects";
  *      authorization is enforced by requireAdmin() on the server and by RLS in the database.
  * Also covers the customer account area (/account), which redirects to its own sign-in page.
  */
+/** Customer pages reachable without signing in. */
+const CUSTOMER_PUBLIC_PATHS = new Set([
+  "/account/login",
+  "/account/register",
+  "/account/verify",
+  "/account/forgot-password",
+  "/account/reset-password",
+]);
+
 export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -38,7 +47,7 @@ export async function proxy(request: NextRequest) {
 
   const { pathname, search } = request.nextUrl;
   const isAdminArea = pathname === "/admin" || pathname.startsWith("/admin/");
-  const needsLogin = isAdminArea ? !isAdminPublicPath(pathname) : pathname !== "/account/login";
+  const needsLogin = isAdminArea ? !isAdminPublicPath(pathname) : !CUSTOMER_PUBLIC_PATHS.has(pathname);
   if (!signedIn && needsLogin) {
     const login = request.nextUrl.clone();
     login.pathname = isAdminArea ? "/admin/login" : "/account/login";

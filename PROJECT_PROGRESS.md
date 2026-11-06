@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                                      |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                               |
-| Stage status  | Complete, awaiting approval                                                                                                                                                                                                                                |
-| Last updated  | 2026-11-06                                                                                                                                                                                                                                                 |
-| Next task     | Stage 10 COMPLETE, awaiting owner approval. Owner to configure Google sign-in (docs/runbooks/google-sign-in-setup.md). After approval: Stage 11 (marketing, announcements, analytics, cookie consent, newsletter double opt-in, dashboard overview stats). |
+| Item          | Value                                                                                                                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                          |
+| Stage status  | Complete, awaiting approval                                                                                                                                                                                                                           |
+| Last updated  | 2026-11-06                                                                                                                                                                                                                                            |
+| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: fix domain DNS and verify in Resend (then switch EMAIL_FROM); turn off public sign-up in Supabase and rerun the registration e2e; decide on blog likes/comments. Then Stage 11. |
 
 ## Stage history
 
@@ -36,57 +36,80 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 Owner (2026-11-05): "stage 9 approved start 10".
 
+Owner (2026-11-06): replace Google sign-in with Supabase email and password: verification before activation, forgot/reset, no Google or other external provider. Approved ("i dont want that one"). Blog likes and comments **do not exist** (never built and not in the agreed Stage 9 scope); the owner was asked whether to add them as a separate step and has not answered.
+
 ### Completed
 
-- **Google sign-in** (`/account/login`): "Continue with Google" (Supabase OAuth, PKCE). `/auth/callback` exchanges the code, creates the customer profile, and returns the visitor to where they were. Staff emails are refused (signed out, with a message), so customer and staff accounts stay separate.
-- **Favourites:** heart on property cards and on the property page. Signed-out visitors go to sign in, and the property is saved automatically after signing in. Shared client store: one server call per page, optimistic toggle, and a click before the state loads waits for it.
-- **Account area** (`/account`), signed-in customers only (proxy plus a server check):
-  - My profile: name and phone (international, Nigeria default);
-  - My favourites;
-  - My inspection requests: requests sent while signed in, with status, no staff notes;
-  - Account settings: sign out, and delete account (type DELETE). Deletion removes the profile and favourites; inspection requests are kept as business records but unlinked.
-- Header shows "Sign in" or "My account".
-- CSP `img-src` allows Google profile photos (lh3.googleusercontent.com).
-- Owner guide: docs/runbooks/google-sign-in-setup.md.
+- **Registration** (`/account/register`): full name, email, password and confirmation, plus the Turnstile bot check.
+  - The server creates the account through the admin API, unverified, and creates the customer profile.
+  - It then emails an activation link through Resend.
+  - The response is the same whether or not the email is already registered. For an existing unverified customer it resends the link.
+- **Email verification** (`/account/verify`):
+  - The link carries Supabase's hashed token, which is used only when the visitor clicks **Activate account** (so email scanners can't use it up).
+  - The click verifies the address, signs the customer in, saves the property they hearted before signing up, and returns them to their page.
+  - Unverified accounts count as signed out everywhere (`getCustomer`).
+- **Sign in** (`/account/login`):
+  - Email and password, rate limited per IP and per email.
+  - Unverified accounts are told so and can request a new activation link.
+  - Staff accounts and accounts without a profile get the same answer as a wrong password.
+- **Forgot / reset password:**
+  - `/account/forgot-password`: Turnstile, always the same response; staff and unknown emails get no email.
+  - `/account/reset-password`: one click uses the token. A signed http-only marker (15 minutes) ties the new-password form to that reset session. Saving signs out every device.
+- **Change password** (Account settings): the current password is checked without affecting the current session; other devices are signed out.
+- **Sign-in changes reload the page fully.** After sign in, sign out, password reset or account deletion, the browser loads the next page fresh, so hearts and the header reflect the new state. This bug was found by the e2e tests.
+- **Kept from earlier in the stage:** favourites (hearts), My favourites, My inspection requests, profile editing, account deletion, and the proxy guarding `/account`. The proxy now lets signed-out visitors reach register, verify, forgot-password and reset-password.
+- **Removed:** the Google button and action, `/auth/callback`, the Google photo permission in the CSP, the avatar in the account sidebar, and the Google setup runbook.
+- **Email templates:** customer activation and customer reset, with a customer footer (admin emails unchanged).
 
 ### Files created / modified
 
-- src/features/customers/{redirects,session,actions,favourites-store,queries}.ts
-- src/app/auth/callback/route.ts
-- src/app/(public)/account/{page,login/page,favourites/page,inspections/page,settings/page}.tsx
-- src/components/public/{account-shell,account-forms,favourite-button}.tsx; property-card, site-header and the property page (heart, account link)
-- src/proxy.ts (covers /account); next.config.ts (CSP); src/features/listings/queries.ts (CARD_COLUMNS exported)
-- tests/unit/customers.test.ts; tests/e2e/{account.spec,customer-fixtures}.ts; tests/e2e/public.spec.ts (axe on /account/login); playwright.config.ts
-- docs/runbooks/google-sign-in-setup.md; docs/security/risk-register.md (R-024, R-025)
+- src/features/customers/{auth-actions,auth-server,auth-schemas,redirects,session,actions,favourites-store,queries}.ts
+- src/app/(public)/account/{login,register,verify,forgot-password,reset-password,settings,favourites,inspections}/page.tsx, account/page.tsx
+- src/components/public/{account-forms,account-auth-card,account-shell,favourite-button}.tsx
+- src/lib/email/templates.ts; src/features/auth/security-log.ts (customer event types); src/proxy.ts; next.config.ts
+- Removed: src/app/auth/callback/route.ts, docs/runbooks/google-sign-in-setup.md
+- Tests: tests/unit/customers.test.ts; tests/e2e/{account.spec,customer-fixtures}.ts; tests/e2e/public.spec.ts (axe on login and register)
+- Docs: docs/architecture.md (identity), docs/security/risk-register.md (R-024 to R-026)
 
 ### Database changes
 
-None. Uses the Stage 3 tables and policies: customer_profiles, favourites, and the my_inspection_requests view.
+Migration `20261106000020_customer_email_auth.sql` (applied to the dev project):
+
+- dropped the Google-only trigger that created customer profiles;
+- added `public.customer_id_for_email(text)`, server-only: execute is revoked from anon and authenticated and granted to service_role only.
+
+Tables, relationships and RLS are unchanged.
 
 ### Tests and results (2026-11-06)
 
 - typecheck, lint, check:secrets: clean. Production build: OK.
-- Unit: 133 passed (15 new for safe redirects).
-- Integration: 80 tests. Customer RLS (favourites, profiles, my_inspection_requests, no admin access) was already covered and passes. One full run had a single admin-auth failure; the file re-run gave 18/18. The failures were the network DNS errors (ENOTFOUND).
-- e2e account.spec, 3/3:
-  - signed-out heart goes to sign in with the property kept;
-  - open-redirect refused;
-  - heart saves, and the property appears in My favourites;
-  - profile save (phone stored E.164);
-  - empty inspection list;
-  - no dashboard access;
-  - account deletion removes the user and favourites.
-- e2e public and smoke: all pass (one test passed on retry after ENOTFOUND). axe: no violations, including /account/login.
-- **Not tested:** the real Google sign-in round trip. It needs the owner's Google Cloud and Supabase setup and can't be automated; e2e signs customers in with test sessions instead.
+- Unit: 144 passed (customer redirects, carried parameters, registration and password rules, token format).
+- Integration: 80 passed (customer RLS for favourites, profiles, my_inspection_requests and no dashboard access was already covered). One file reported a cleanup error during the full run; re-run alone it gave 8/8 (network).
+- e2e account.spec, 5/5 on the first attempt:
+  - signed-out redirect, heart carried to sign-in and register, open redirect refused;
+  - register (validation, Turnstile), account unverified with a profile created, sign-in refused until verified, resend link;
+  - activation link signs in, saves the hearted property and returns to the page; a reused link is rejected;
+  - wrong password; staff account refused with the same message; customer has no dashboard access;
+  - forgot password, no reset form without a link, reset link, new password, old password rejected, new one works;
+  - profile save, favourites, inspections, change password (wrong current password rejected), sign out, delete account.
+- e2e public and smoke: 11 passed. axe: no violations on /account/login and /account/register.
+- **Not tested:** real email delivery. EMAIL_TRANSPORT=disabled in tests, and Resend can only deliver to the owner's address until the domain is verified. Tests use the same Supabase tokens the emails would carry.
 
-### Issues found and fixed during the stage
+### Issues found and fixed
 
-- Clicking the heart before the favourites state loaded treated signed-in customers as signed out. The click now waits for the state.
-- e2e timing: typing into the delete confirmation while an earlier submission was still running got cleared by React's form reset. The test now waits for the validation message.
+- After signing in or out, hearts and the header kept the old state until a full page load. The favourites store now watches the Supabase session cookie and reloads when it changes.
+- Clicking the heart before the state loaded treated signed-in customers as signed out. The click now waits for the state.
+
+### Owner actions
+
+- **Supabase → Authentication → Sign In / Providers → Email:** keep "Confirm email" on. It is on, checked 2026-11-06.
+- **Supabase → Authentication → Settings:** turn off "Allow new users to sign up" (R-026). Website registration should keep working, because it uses the admin API, not the public sign-up endpoint. **Not yet verified with the setting off:** rerun the registration e2e test after the switch.
+- **Domain:** fix the DNS of viclandandproperty.com, verify it in Resend, then tell Claude to switch EMAIL_FROM (R-025). Until then activation and reset emails only reach the Resend account address.
 
 ### Outstanding issues
 
-- The owner must set up Google sign-in (runbook). Production redirect URLs are added at launch (Stage 12).
+- Real email delivery to customers is blocked on domain verification (R-025).
+- Blog likes and comments: awaiting the owner's decision.
 
 ---
 

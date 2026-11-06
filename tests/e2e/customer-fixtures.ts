@@ -1,13 +1,10 @@
 import { randomBytes } from "node:crypto";
-import type { BrowserContext } from "@playwright/test";
-import { createServerClient } from "@supabase/ssr";
-import { RUN_ID, serviceClient, url } from "../integration/helpers";
+import { RUN_ID, serviceClient, sql } from "../integration/helpers";
 
 /**
- * Customer accounts for e2e. Real customers sign in with Google, which cannot be automated, so
- * the test creates an email/password user (rls-test- prefix, removed by cleanup), gives it a
- * customer profile as the OAuth callback would, and signs in through @supabase/ssr to obtain the
- * exact session cookies the app expects. Everything after that runs through the real UI.
+ * Customer accounts for e2e. Emails use the `rls-test-` prefix so the shared cleanup removes
+ * them. The app runs with EMAIL_TRANSPORT=disabled, so tests obtain the emailed link tokens
+ * directly from Supabase (the same tokens the emails would carry).
  */
 export interface TestCustomer {
   id: string;
@@ -16,10 +13,19 @@ export interface TestCustomer {
   name: string;
 }
 
+export function customerEmail(label: string): string {
+  return `rls-test-e2e-${label}-${RUN_ID}@example.com`;
+}
+
+export function customerPassword(): string {
+  return `Harbour ${randomBytes(6).toString("hex")}`;
+}
+
+/** An already verified customer (as if registered and activated through the site). */
 export async function createTestCustomer(label: string): Promise<TestCustomer> {
   const service = serviceClient();
-  const email = `rls-test-e2e-${label}-${RUN_ID}@example.com`;
-  const password = `E2e ${randomBytes(12).toString("hex")}`;
+  const email = customerEmail(label);
+  const password = customerPassword();
   const { data, error } = await service.auth.admin.createUser({ email, password, email_confirm: true });
   if (error || !data.user) throw new Error(`createUser: ${error?.message}`);
   const name = `Customer ${label}`;
@@ -28,21 +34,13 @@ export async function createTestCustomer(label: string): Promise<TestCustomer> {
   return { id: data.user.id, email, password, name };
 }
 
-export async function signInAsCustomer(context: BrowserContext, customer: TestCustomer, baseURL: string) {
-  const jar: { name: string; value: string }[] = [];
-  const supabase = createServerClient(url(), process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!, {
-    cookies: {
-      getAll: () => jar,
-      setAll: (cookies) => {
-        for (const c of cookies) {
-          const i = jar.findIndex((x) => x.name === c.name);
-          if (i >= 0) jar.splice(i, 1);
-          if (c.value) jar.push({ name: c.name, value: c.value });
-        }
-      },
-    },
-  });
-  const { error } = await supabase.auth.signInWithPassword({ email: customer.email, password: customer.password });
-  if (error) throw new Error(`customer sign-in: ${error.message}`);
-  await context.addCookies(jar.map((c) => ({ ...c, url: baseURL, sameSite: "Lax" as const })));
+/** The token an activation or reset email would carry. */
+export async function emailLinkToken(email: string, type: "magiclink" | "recovery"): Promise<string> {
+  const { data, error } = await serviceClient().auth.admin.generateLink({ type, email });
+  if (error || !data.properties?.hashed_token) throw new Error(`generateLink: ${error?.message}`);
+  return data.properties.hashed_token;
+}
+
+export async function resetCustomerRateLimits() {
+  await sql("delete from private.rate_limits where key like 'customer-%'");
 }

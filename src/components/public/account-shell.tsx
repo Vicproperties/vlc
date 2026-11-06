@@ -1,9 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/notice";
-import { signOutCustomerAction } from "@/features/customers/actions";
+import { SignOutButton } from "./account-forms";
 import { requireCustomer, getCustomer, type CustomerSession } from "@/features/customers/session";
 import { cn } from "@/lib/cn";
 
@@ -32,7 +31,9 @@ export async function AccountShell({
   if (session.isStaff) {
     return (
       <div className="container-content py-16">
-        <Notice tone="info">This is a staff account. Customer features use a separate personal Google account.</Notice>
+        <Notice tone="info">
+          This is a staff account. Staff sign in to the dashboard; customer features need a separate customer account.
+        </Notice>
       </div>
     );
   }
@@ -43,15 +44,6 @@ export async function AccountShell({
     <div className="container-content grid gap-10 py-12 md:py-16 lg:grid-cols-[15rem_1fr] lg:gap-14">
       <aside className="flex flex-col gap-6">
         <div className="flex items-center gap-3">
-          {customer.profile.avatar_url && (
-            // eslint-disable-next-line @next/next/no-img-element -- Google profile photo (small, external)
-            <img
-              src={customer.profile.avatar_url}
-              alt=""
-              referrerPolicy="no-referrer"
-              className="size-10 object-cover"
-            />
-          )}
           <div className="min-w-0">
             <p className="truncate font-medium text-ink">{customer.profile.full_name ?? "Your account"}</p>
             {customer.email && <p className="truncate text-caption text-stone">{customer.email}</p>}
@@ -77,11 +69,7 @@ export async function AccountShell({
             ))}
           </ul>
         </nav>
-        <form action={signOutCustomerAction}>
-          <Button type="submit" variant="link">
-            Sign out
-          </Button>
-        </form>
+        <SignOutButton variant="link" />
       </aside>
       <div className="flex min-w-0 flex-col gap-8">
         <h1 className="text-h2">{title}</h1>

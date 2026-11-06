@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                          |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                   |
-| Stage status  | Complete, awaiting approval                                                                                                                                                                    |
-| Last updated  | 2026-11-06                                                                                                                                                                                     |
-| Next task     | Stage 10 approved by owner (2026-11-06, "i need to go to the next stage"). Live site fixed (Vercel env). Next: Stage 11 plan for owner approval. Owner: real Turnstile keys for the live site. |
+| Item          | Value                                                                                                                                                                                                 |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                          |
+| Stage status  | Complete, awaiting approval                                                                                                                                                                           |
+| Last updated  | 2026-11-06                                                                                                                                                                                            |
+| Next task     | Stage 10 approved by owner (2026-11-06, "i need to go to the next stage"). Live site fixed (Vercel env). Next: Stage 11 plan for owner approval. Owner: test live registration with a personal email. |
 
 ## Stage history
 
@@ -37,7 +37,7 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 - Owner connected viclandandproperty.com and deployed to Vercel project vlc-land-and-property (GitHub main auto-deploys). The Supabase Vercel integration supplied the Supabase keys; it points at the **development** project (tcfpnbliwjlinwlgzmkc). A separate production project remains a Stage 12 task.
 - Admin sign-in returned HTTP 500: ADMIN_OTP_HMAC_SECRET and other server settings were missing. Added via Vercel CLI (values never printed): ADMIN_OTP_HMAC_SECRET, RESEND_API_KEY, EMAIL_FROM, TURNSTILE_SECRET_KEY, NEXT_PUBLIC_TURNSTILE_SITE_KEY (public config), NEXT_PUBLIC_SITE_URL=https://viclandandproperty.com, NEXT_PUBLIC_ADMIN_BASE_URL=https://viclandandproperty.com/admin. Redeployed commit 2d11b7b.
 - Verified: live /admin/login with an unknown account now answers "The email or password is incorrect." (HTTP 200, was 500).
-- **Open:** Turnstile still uses test keys, which the server refuses on production (R-021), so customer registration, contact and inspection forms will fail on the live site until real keys are set.
+- Real Turnstile keys (Cloudflare widget for viclandandproperty.com) set in Vercel production 2026-11-06 and redeployed. Verified: the live register page loads the widget with the real site key. **Not yet verified:** a full live form submission by a person (headless browsers are blocked by Turnstile, as intended). Local development keeps the test keys.
 
 ---
 

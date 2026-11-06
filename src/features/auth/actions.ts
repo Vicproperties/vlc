@@ -137,6 +137,8 @@ export async function verifyOtpAction(_prev: AuthFormState, formData: FormData):
   switch (outcome) {
     case "verified": {
       await logSecurityEvent("admin_login_success", meta, { actorId: claims.userId });
+      // Shown on the Admin Users page ("Last sign-in"); a failure must not block the sign-in.
+      await service.from("admin_users").update({ last_login_at: new Date().toISOString() }).eq("id", claims.userId);
       await service.rpc("log_activity_as", {
         p_actor_id: claims.userId,
         p_actor_type: "admin",

@@ -9,13 +9,18 @@ import type { RequestMeta } from "./request-meta";
 
 /**
  * Emails a password link to an ACTIVE admin. Does nothing (silently) for any other address,
- * so the caller's response never reveals whether an account exists.
+ * so the caller's response never reveals whether an account exists. Returns whether an email
+ * was handed to the provider (used only by the super-admin invite screen).
  *
  * The link points at our own confirmation page (built from the configured admin URL, never
  * from the request Host header) carrying Supabase's hashed token. The page requires a click
  * before the token is used, so email link scanners cannot consume it.
  */
-export async function sendAdminPasswordLink(email: string, meta: RequestMeta | null, kind: "reset" | "invite") {
+export async function sendAdminPasswordLink(
+  email: string,
+  meta: RequestMeta | null,
+  kind: "reset" | "invite",
+): Promise<boolean> {
   const service = createServiceClient();
   const { data: admin } = await service
     .from("admin_users")
@@ -28,7 +33,7 @@ export async function sendAdminPasswordLink(email: string, meta: RequestMeta | n
       emailHash: emailHash(email),
       metadata: { matched: false },
     });
-    return;
+    return false;
   }
 
   const { data, error } = await service.auth.admin.generateLink({ type: "recovery", email });
@@ -37,7 +42,7 @@ export async function sendAdminPasswordLink(email: string, meta: RequestMeta | n
       actorId: admin.id,
       metadata: { purpose: `admin_${kind}`, reason: "generate_link_failed" },
     });
-    return;
+    return false;
   }
 
   const link = `${publicEnv().NEXT_PUBLIC_ADMIN_BASE_URL}/auth/confirm?token_hash=${encodeURIComponent(
@@ -48,4 +53,5 @@ export async function sendAdminPasswordLink(email: string, meta: RequestMeta | n
     actorId: admin.id,
     metadata: sent.ok ? { matched: true, kind } : { purpose: `admin_${kind}`, reason: sent.reason },
   });
+  return sent.ok;
 }

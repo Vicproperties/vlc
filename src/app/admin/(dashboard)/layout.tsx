@@ -29,13 +29,11 @@ function visibleModules(admin: AdminContext): AdminModule[] {
   if (view("inspections") || view("enquiries")) modules.push("inspections");
   if (view("blog")) modules.push("blog");
   if (view("content")) modules.push("content");
-  if (view("marketing") || view("newsletter")) modules.push("marketing");
-  if (view("media")) modules.push("media");
   if (view("settings")) modules.push("settings");
-  if (view("admins")) modules.push("admins");
-  if (view("analytics")) modules.push("analytics");
-  if (view("cookies")) modules.push("cookies");
-  if (view("activity_logs")) modules.push("activity_logs");
+  // Only super admins manage administrators (sub-admins are never given "admins").
+  if (admin.isSuperAdmin) modules.push("admins");
+  // Marketing, Media Library, Visitor Analytics, Cookie Management and Activity Logs are
+  // added here as their pages are built (Stage 11), so the menu never leads to a missing page.
   return modules;
 }
 

@@ -6,11 +6,11 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                         |
-| Stage status  | Complete, awaiting approval                                                                                                                                                                                          |
-| Last updated  | 2026-11-06                                                                                                                                                                                                           |
+| Item          | Value                                                                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                     |
+| Stage status  | Complete, awaiting approval                                                                                                                      |
+| Last updated  | 2026-11-06                                                                                                                                       |
 | Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: optionally add DMARC record; decide on blog likes/comments. Then Stage 11. |
 
 ## Stage history
@@ -29,6 +29,39 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 10. Customer accounts                            | Complete    | —          |
 | 11. Marketing, announcements, analytics, consent | Not started | —          |
 | 12. Testing, security, deployment                | Not started | —          |
+
+---
+
+## Admin Users (/admin/admins), added 2026-11-06
+
+Owner: "the admin user page is not working so i cant add admins". The menu linked to a page that had never been built. Owner asked for sub-admins who can manage website content, and create, publish (no super admin approval) and delete blog posts, and delete blog comments.
+
+- **Who:** only super admins see and use Admin Users. Sub-admins are never given the "admins" section, so they cannot widen their own access.
+- **List:** name, email, role and access summary, last sign-in, status (Active, Invited, Access removed).
+- **Invite** (name, email, role):
+  - Default access for a new administrator: Website content (view, add, edit, delete) and Blog (view, add, edit, publish, delete). Other sections can be ticked: properties, estates, inspection requests, contact messages, website settings.
+  - A confirmation dialog shows the email before sending.
+  - An email already used by a customer or an existing admin is refused.
+  - The account is created without a password; the existing "Set up your dashboard account" email lets them set one. Then they sign in with password + emailed code.
+  - If any step fails, the half-created account is deleted. Limited to 20 invites or setup links per super admin per hour.
+- **Edit:** name, role and permissions, saved in one statement. Changes apply on the person's next page load.
+- **Remove access / Restore access:** removing marks them inactive and ends all their dashboard sessions immediately. Nothing is deleted.
+- **Send password setup link:** resends the invite email.
+- **Safety:** you cannot change or deactivate yourself; the database still refuses to remove, demote or deactivate the last super admin. Every change is written to the activity log.
+- **Blog publishing:** already based only on the Blog "publish" permission, so administrators with it publish directly. **Blog comments do not exist yet;** Blog "delete" will cover deleting comments when they are built.
+- **Last sign-in** is now recorded when the emailed code is accepted (existing admins show "Not yet" until their next sign-in).
+- **Menu:** Marketing, Media Library, Visitor Analytics, Cookie Management and Activity Logs are hidden until their pages are built (Stage 11), so no menu item leads to a missing page.
+
+Files: src/features/admins/permissions.ts, src/features/admins/actions.ts, src/components/admin/admin-user-form.tsx, src/app/admin/(dashboard)/admins/page.tsx, new/page.tsx, [id]/page.tsx; changed src/app/admin/(dashboard)/layout.tsx, src/features/auth/recovery.ts (returns whether the email was sent), src/features/auth/actions.ts (last_login_at). No database changes.
+
+Tests:
+
+- e2e admin-users.spec, 3/3 (first attempt of test 1 failed on a network ENOTFOUND, passed on retry):
+  - invite with default content + blog access, confirm dialog, permissions stored; duplicate admin and customer emails refused;
+  - invitee sets a password from the link, signs in with a code, sees only Blog and Website Content, is refused Admin Users and Properties, and publishes an article (status published);
+  - narrowing access takes effect; removing access signs them out; restoring works; own account cannot be changed.
+- admin-auth.spec 7/7 (2 flaky on network, passed on retry). Unit 144/144. Typecheck, lint, check:secrets, production build: OK.
+- **Not tested:** real delivery of the invite email to an outside inbox (tests run with email sending disabled).
 
 ---
 

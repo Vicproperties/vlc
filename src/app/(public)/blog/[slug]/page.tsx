@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { cache, Suspense } from "react";
 import { ArticleGrid } from "@/components/public/article-card";
 import { Comments, LikeButton, type PublicComment } from "@/components/public/blog-engagement";
@@ -219,6 +220,8 @@ interface Engagement {
 
 /** Per-visitor data: like count, whether this visitor liked it, and comments. */
 const loadEngagement = cache(async (postId: string) => {
+  // Per-visitor data: request time only (the Supabase client also reads the clock).
+  await connection();
   const supabase = await createClient();
   const [{ data }, customer] = await Promise.all([
     supabase.rpc("blog_post_engagement", { p_post_id: postId }),

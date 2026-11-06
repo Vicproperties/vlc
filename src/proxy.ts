@@ -8,7 +8,7 @@ import { isAdminPublicPath } from "@/features/auth/redirects";
  *   1. Refreshes the Supabase session cookies (Server Components cannot write cookies).
  *   2. Optimistic redirect: no signed-in user -> /admin/login. This is a convenience only;
  *      authorization is enforced by requireAdmin() on the server and by RLS in the database.
- * Customer pages (Stage 10) will extend the matcher.
+ * Also covers the customer account area (/account), which redirects to its own sign-in page.
  */
 export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -37,21 +37,25 @@ export async function proxy(request: NextRequest) {
   const signedIn = Boolean(data?.claims?.sub);
 
   const { pathname, search } = request.nextUrl;
-  if (!signedIn && !isAdminPublicPath(pathname)) {
+  const isAdminArea = pathname === "/admin" || pathname.startsWith("/admin/");
+  const needsLogin = isAdminArea ? !isAdminPublicPath(pathname) : pathname !== "/account/login";
+  if (!signedIn && needsLogin) {
     const login = request.nextUrl.clone();
-    login.pathname = "/admin/login";
+    login.pathname = isAdminArea ? "/admin/login" : "/account/login";
     login.search = "";
-    if (pathname !== "/admin") login.searchParams.set("next", `${pathname}${search}`.slice(0, 200));
+    if (pathname !== "/admin" && pathname !== "/account") {
+      login.searchParams.set("next", `${pathname}${search}`.slice(0, 200));
+    }
     const redirect = NextResponse.redirect(login);
     for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
     return redirect;
   }
 
-  // Dashboard responses are per-user: never store them in shared caches.
+  // Dashboard and account responses are per-user: never store them in shared caches.
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
 
 export const config = {
-  matcher: ["/admin", "/admin/:path*"],
+  matcher: ["/admin", "/admin/:path*", "/account", "/account/:path*"],
 };

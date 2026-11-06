@@ -6,29 +6,29 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 9 — Blog                                                                                                                                                                                                       |
-| Stage status  | **Complete — awaiting owner approval**                                                                                                                                                                               |
-| Last updated  | 2026-11-04                                                                                                                                                                                                           |
-| Next task     | Owner: try the blog (write, import from Word, publish) and the new homepage/About sections; approve Stage 9. Then present the Stage 10 (Customer accounts: Google sign-in, favourites, my inspection requests) plan. |
+| Item          | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Stage status  | In progress (started 2026-11-05)                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| Next task     | Stage 10 IN PROGRESS. Done: customer session/actions (Google OAuth start, favourites toggle/state, profile, delete account), /auth/callback (PKCE exchange, staff refused, profile ensure, post-login favourite save), proxy covers /account, favourites store + heart buttons (cards, property page), header account link. TODO: /account pages (login, profile, favourites, inspections, settings), CSP for Google avatars, tests, Google setup guide for owner, docs, commit, report. |
 
 ## Stage history
 
-| Stage                                            | Status                      | Approved   |
-| ------------------------------------------------ | --------------------------- | ---------- |
-| 1. Planning & architecture                       | Complete                    | 2026-11-03 |
-| 2. Setup & design system                         | Complete                    | 2026-11-04 |
-| 3. Database & security foundation                | Complete                    | 2026-11-04 |
-| 4. Admin auth & dashboard shell                  | Complete                    | 2026-11-04 |
-| 5. Properties & estates                          | Complete                    | 2026-11-04 |
-| 6. Public website                                | Complete                    | 2026-11-05 |
-| 7. Inspections & enquiries                       | Complete                    | 2026-11-05 |
-| 8. Content management                            | Complete                    | 2026-11-05 |
-| 9. Blog                                          | Complete, awaiting approval | —          |
-| 10. Customer accounts                            | Not started                 | —          |
-| 11. Marketing, announcements, analytics, consent | Not started                 | —          |
-| 12. Testing, security, deployment                | Not started                 | —          |
+| Stage                                            | Status      | Approved   |
+| ------------------------------------------------ | ----------- | ---------- |
+| 1. Planning & architecture                       | Complete    | 2026-11-03 |
+| 2. Setup & design system                         | Complete    | 2026-11-04 |
+| 3. Database & security foundation                | Complete    | 2026-11-04 |
+| 4. Admin auth & dashboard shell                  | Complete    | 2026-11-04 |
+| 5. Properties & estates                          | Complete    | 2026-11-04 |
+| 6. Public website                                | Complete    | 2026-11-05 |
+| 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
+| 8. Content management                            | Complete    | 2026-11-05 |
+| 9. Blog                                          | Complete    | 2026-11-05 |
+| 10. Customer accounts                            | In progress | —          |
+| 11. Marketing, announcements, analytics, consent | Not started | —          |
+| 12. Testing, security, deployment                | Not started | —          |
 
 ---
 

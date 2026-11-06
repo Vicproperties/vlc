@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ImageOff } from "lucide-react";
 import { DiscountLabel, Price } from "@/components/ui/price";
+import { FavouriteButton } from "./favourite-button";
 import type { ListingCardData } from "@/features/listings/queries";
 import { propertyImageUrl } from "@/features/properties/media";
 import { LAND_USE_LABELS, PURPOSE_LABELS } from "@/features/properties/options";
@@ -51,6 +52,11 @@ export function PropertyCard({ listing, priority = false }: { listing: ListingCa
         ) : (
           <div className="flex size-full items-center justify-center text-stone">
             <ImageOff className="size-6" strokeWidth={1.25} aria-hidden="true" />
+          </div>
+        )}
+        {listing.id && (
+          <div className="absolute top-2 right-2 z-10">
+            <FavouriteButton propertyId={listing.id} title={listing.title ?? "this property"} />
           </div>
         )}
         <div className="absolute top-0 left-0 flex flex-col items-start">

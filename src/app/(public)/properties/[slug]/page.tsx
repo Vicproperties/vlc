@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin, MessageCircle } from "lucide-react";
+import { FavouriteButton } from "@/components/public/favourite-button";
 import { InspectionForm } from "@/components/public/inspection-form";
 import { JsonLd } from "@/components/public/json-ld";
 import { listingPlace } from "@/components/public/property-card";
@@ -315,7 +316,8 @@ function PropertyDetail({
             </div>
           )}
           <div className="flex flex-col gap-3">
-            <h2 className="text-small font-medium text-ink">Share this property</h2>
+            <FavouriteButton propertyId={listing.id} title={listing.title} variant="inline" />
+            <h2 className="pt-3 text-small font-medium text-ink">Share this property</h2>
             <ShareButtons url={url} title={listing.title} />
           </div>
           {listing.published_at && <p className="text-caption text-stone">Listed {formatDate(listing.published_at)}</p>}

@@ -78,7 +78,11 @@ test("customers save favourites, edit their profile and see their account", asyn
   await page.getByRole("textbox", { name: /^Phone number/ }).fill("0803 123 4567");
   await page.getByRole("button", { name: "Save profile" }).click();
   await expect(message(page, "Profile saved")).toBeVisible();
-  const { data: profile } = await service.from("customer_profiles").select("full_name, phone").eq("id", customer.id).single();
+  const { data: profile } = await service
+    .from("customer_profiles")
+    .select("full_name, phone")
+    .eq("id", customer.id)
+    .single();
   expect(profile).toEqual({ full_name: "Ada Customer", phone: "+2348031234567" });
 
   await page.goto("/account/inspections", { waitUntil: "load" });

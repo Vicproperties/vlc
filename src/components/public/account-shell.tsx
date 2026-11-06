@@ -45,7 +45,12 @@ export async function AccountShell({
         <div className="flex items-center gap-3">
           {customer.profile.avatar_url && (
             // eslint-disable-next-line @next/next/no-img-element -- Google profile photo (small, external)
-            <img src={customer.profile.avatar_url} alt="" referrerPolicy="no-referrer" className="size-10 object-cover" />
+            <img
+              src={customer.profile.avatar_url}
+              alt=""
+              referrerPolicy="no-referrer"
+              className="size-10 object-cover"
+            />
           )}
           <div className="min-w-0">
             <p className="truncate font-medium text-ink">{customer.profile.full_name ?? "Your account"}</p>
@@ -61,7 +66,9 @@ export async function AccountShell({
                   aria-current={tab.href === current ? "page" : undefined}
                   className={cn(
                     "block border-l-2 py-1.5 text-small lg:px-4",
-                    tab.href === current ? "border-brand font-medium text-ink" : "border-transparent text-stone hover:text-ink",
+                    tab.href === current
+                      ? "border-brand font-medium text-ink"
+                      : "border-transparent text-stone hover:text-ink",
                   )}
                 >
                   {tab.label}

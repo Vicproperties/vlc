@@ -10,9 +10,7 @@ export default function AccountPage() {
   return (
     <Suspense fallback={<AccountFallback />}>
       <AccountShell current="/account" title="My profile">
-        {(customer) => (
-          <ProfileForm fullName={customer.profile.full_name ?? ""} phone={customer.profile.phone ?? ""} />
-        )}
+        {(customer) => <ProfileForm fullName={customer.profile.full_name ?? ""} phone={customer.profile.phone ?? ""} />}
       </AccountShell>
     </Suspense>
   );

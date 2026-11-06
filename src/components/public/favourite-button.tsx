@@ -3,7 +3,7 @@
 import { Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toggleFavourite, useFavourites } from "@/features/customers/favourites-store";
+import { loadedFavourites, toggleFavourite, useFavourites } from "@/features/customers/favourites-store";
 import { cn } from "@/lib/cn";
 
 /**
@@ -19,7 +19,7 @@ export function FavouriteButton({
   title: string;
   variant?: "overlay" | "inline";
 }) {
-  const { signedIn, isStaff, ids } = useFavourites();
+  const { signedIn, isStaff, ids, loaded } = useFavourites();
   const router = useRouter();
   const [note, setNote] = useState<string | null>(null);
   const saved = ids.has(propertyId);
@@ -29,7 +29,10 @@ export function FavouriteButton({
     setNote(null);
     // Read at click time (not during render), so cached pages stay static.
     const pathname = window.location.pathname;
-    if (!signedIn) {
+    // A click before the first load finishes must not treat a signed-in customer as signed out.
+    const current = loaded ? { signedIn, isStaff } : await loadedFavourites();
+    if (current.isStaff) return;
+    if (!current.signedIn) {
       router.push(`/account/login?next=${encodeURIComponent(pathname)}&favourite=${propertyId}`);
       return;
     }

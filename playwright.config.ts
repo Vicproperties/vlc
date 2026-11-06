@@ -22,7 +22,7 @@ export default defineConfig({
     {
       name: "mobile",
       use: { ...devices["Pixel 7"] },
-      testIgnore: /admin-auth|properties|public|enquiries|content|blog/,
+      testIgnore: /admin-auth|properties|public|enquiries|content|blog|account/,
     },
   ],
   webServer: {

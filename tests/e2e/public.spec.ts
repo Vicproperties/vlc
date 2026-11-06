@@ -194,7 +194,7 @@ test("sitemap and robots", async ({ request }) => {
 });
 
 test("public pages have no serious accessibility problems", async ({ page }) => {
-  for (const path of ["/", "/properties", `/properties/${land.slug}`]) {
+  for (const path of ["/", "/properties", `/properties/${land.slug}`, "/account/login"]) {
     await page.goto(path, { waitUntil: "load" });
     await page.getByRole("heading", { level: 1 }).waitFor();
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();

@@ -47,6 +47,12 @@ export function useFavourites(): State {
   );
 }
 
+/** Current state once loaded; a click before the first load finishes waits for it. */
+export async function loadedFavourites(): Promise<State> {
+  await load();
+  return state;
+}
+
 export async function toggleFavourite(propertyId: string): Promise<"ok" | "sign_in" | "staff" | "error"> {
   const had = state.ids.has(propertyId);
   const optimistic = new Set(state.ids);

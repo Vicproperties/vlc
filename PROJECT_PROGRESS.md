@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Stage status  | In progress (started 2026-11-05)                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| Last updated  | 2026-11-04                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| Next task     | Stage 10 IN PROGRESS. Done: customer session/actions (Google OAuth start, favourites toggle/state, profile, delete account), /auth/callback (PKCE exchange, staff refused, profile ensure, post-login favourite save), proxy covers /account, favourites store + heart buttons (cards, property page), header account link. TODO: /account pages (login, profile, favourites, inspections, settings), CSP for Google avatars, tests, Google setup guide for owner, docs, commit, report. |
+| Item          | Value                                                                                                                                                                                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                               |
+| Stage status  | Complete, awaiting approval                                                                                                                                                                                                                                |
+| Last updated  | 2026-11-06                                                                                                                                                                                                                                                 |
+| Next task     | Stage 10 COMPLETE, awaiting owner approval. Owner to configure Google sign-in (docs/runbooks/google-sign-in-setup.md). After approval: Stage 11 (marketing, announcements, analytics, cookie consent, newsletter double opt-in, dashboard overview stats). |
 
 ## Stage history
 
@@ -26,9 +26,67 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
 | 8. Content management                            | Complete    | 2026-11-05 |
 | 9. Blog                                          | Complete    | 2026-11-05 |
-| 10. Customer accounts                            | In progress | —          |
+| 10. Customer accounts                            | Complete    | —          |
 | 11. Marketing, announcements, analytics, consent | Not started | —          |
 | 12. Testing, security, deployment                | Not started | —          |
+
+---
+
+## Stage 10 — Customer Accounts
+
+Owner (2026-11-05): "stage 9 approved start 10".
+
+### Completed
+
+- **Google sign-in** (`/account/login`): "Continue with Google" (Supabase OAuth, PKCE). `/auth/callback` exchanges the code, creates the customer profile, and returns the visitor to where they were. Staff emails are refused (signed out, with a message), so customer and staff accounts stay separate.
+- **Favourites:** heart on property cards and on the property page. Signed-out visitors go to sign in, and the property is saved automatically after signing in. Shared client store: one server call per page, optimistic toggle, and a click before the state loads waits for it.
+- **Account area** (`/account`), signed-in customers only (proxy plus a server check):
+  - My profile: name and phone (international, Nigeria default);
+  - My favourites;
+  - My inspection requests: requests sent while signed in, with status, no staff notes;
+  - Account settings: sign out, and delete account (type DELETE). Deletion removes the profile and favourites; inspection requests are kept as business records but unlinked.
+- Header shows "Sign in" or "My account".
+- CSP `img-src` allows Google profile photos (lh3.googleusercontent.com).
+- Owner guide: docs/runbooks/google-sign-in-setup.md.
+
+### Files created / modified
+
+- src/features/customers/{redirects,session,actions,favourites-store,queries}.ts
+- src/app/auth/callback/route.ts
+- src/app/(public)/account/{page,login/page,favourites/page,inspections/page,settings/page}.tsx
+- src/components/public/{account-shell,account-forms,favourite-button}.tsx; property-card, site-header and the property page (heart, account link)
+- src/proxy.ts (covers /account); next.config.ts (CSP); src/features/listings/queries.ts (CARD_COLUMNS exported)
+- tests/unit/customers.test.ts; tests/e2e/{account.spec,customer-fixtures}.ts; tests/e2e/public.spec.ts (axe on /account/login); playwright.config.ts
+- docs/runbooks/google-sign-in-setup.md; docs/security/risk-register.md (R-024, R-025)
+
+### Database changes
+
+None. Uses the Stage 3 tables and policies: customer_profiles, favourites, and the my_inspection_requests view.
+
+### Tests and results (2026-11-06)
+
+- typecheck, lint, check:secrets: clean. Production build: OK.
+- Unit: 133 passed (15 new for safe redirects).
+- Integration: 80 tests. Customer RLS (favourites, profiles, my_inspection_requests, no admin access) was already covered and passes. One full run had a single admin-auth failure; the file re-run gave 18/18. The failures were the network DNS errors (ENOTFOUND).
+- e2e account.spec, 3/3:
+  - signed-out heart goes to sign in with the property kept;
+  - open-redirect refused;
+  - heart saves, and the property appears in My favourites;
+  - profile save (phone stored E.164);
+  - empty inspection list;
+  - no dashboard access;
+  - account deletion removes the user and favourites.
+- e2e public and smoke: all pass (one test passed on retry after ENOTFOUND). axe: no violations, including /account/login.
+- **Not tested:** the real Google sign-in round trip. It needs the owner's Google Cloud and Supabase setup and can't be automated; e2e signs customers in with test sessions instead.
+
+### Issues found and fixed during the stage
+
+- Clicking the heart before the favourites state loaded treated signed-in customers as signed out. The click now waits for the state.
+- e2e timing: typing into the delete confirmation while an earlier submission was still running got cleared by React's form reset. The test now waits for the validation message.
+
+### Outstanding issues
+
+- The owner must set up Google sign-in (runbook). Production redirect URLs are added at launch (Stage 12).
 
 ---
 

@@ -14,7 +14,7 @@ import { CONTENT_TAG, LISTINGS_TAG } from "./tags";
 export { CONTENT_TAG, LISTINGS_TAG };
 export const LISTINGS_PAGE_SIZE = 12;
 
-const CARD_COLUMNS =
+export const CARD_COLUMNS =
   "id, kind, purpose, title, slug, city, state, location_text, status, regular_price, sales_price, instalment_price, instalment_note, price_period, promotion_active, discount_percent, effective_price, land_use, land_size, land_size_unit, building_type, bedrooms, bathrooms, cover_image_path, published_at";
 
 export async function searchListings(filters: ListingFilters) {

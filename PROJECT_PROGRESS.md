@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                            |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Current stage | Stage 11 — Marketing, announcements, analytics, consent                                                                                          |
-| Stage status  | Complete, awaiting approval                                                                                                                      |
-| Last updated  | 2026-11-06                                                                                                                                       |
-| Next task     | Stage 11 COMPLETE, awaiting owner approval. Owner: add CRON_SECRET in Vercel (daily clean-up), have cookie/privacy text reviewed. Then Stage 12. |
+| Item          | Value                                                                          |
+| ------------- | ------------------------------------------------------------------------------ |
+| Current stage | Stage 12 — Testing, security, deployment                                       |
+| Stage status  | In progress                                                                    |
+| Last updated  | 2026-11-06                                                                     |
+| Next task     | Stage 12: security review, CI, production database decision, launch checklist. |
 
 ## Stage history
 
@@ -27,8 +27,19 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 8. Content management                            | Complete    | 2026-11-05 |
 | 9. Blog                                          | Complete    | 2026-11-05 |
 | 10. Customer accounts                            | Complete    | 2026-11-06 |
-| 11. Marketing, announcements, analytics, consent | Complete    | —          |
-| 12. Testing, security, deployment                | Not started | —          |
+| 11. Marketing, announcements, analytics, consent | Complete    | 2026-11-06 |
+| 12. Testing, security, deployment                | In progress | —          |
+
+---
+
+## Owner requests after Stage 11 (2026-11-06): likes/comments, logo/favicon, redesign
+
+- **Blog likes and comments** (migration 0021, applied with owner approval): signed-in customers like and comment (plain text, first name + last initial shown); authors delete their own; admins with blog delete use Blog > Comments. Public read via blog_post_engagement() (no ids or emails). Rate limit 5 comments per 10 minutes.
+- **Logo and browser icon** in Website Settings: re-encoded server-side (logo WebP max 800x320, icon 512x512 PNG), SVG refused; logo in header and footer, favicon via root metadata (default /favicon.ico moved to public/).
+- **Redesign** to the owner's reference image, purple and white kept: floating rounded header, hero with search card (adds max price), category chips, rounded cards with price on the photo and icon facts, icon "Why choose us" cards, call-to-action band, bold sans headings (Newsreader removed), rounded controls site-wide. The brand-logo strip (would be false) and the map (no coordinates) were left out.
+- Blog article page reads its address inside Suspense; per-visitor likes and comments call connection().
+- Tests: blog-engagement.spec 4/4 on the first full run (later retries hit network ENOTFOUND); blog.spec 5/5; public.spec 6/6 incl. axe (network-flaky, passed on retry); smoke 5/5; unit 148/148. No horizontal overflow at 390 px on the checked pages.
+- Live: pushed 4392053; Vercel deployment ready; live pages return 200 with the new design.
 
 ---
 

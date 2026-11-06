@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                                                                                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                                                          |
-| Stage status  | Complete, awaiting approval                                                                                                                                                                                                                           |
-| Last updated  | 2026-11-06                                                                                                                                                                                                                                            |
-| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: fix domain DNS and verify in Resend (then switch EMAIL_FROM); turn off public sign-up in Supabase and rerun the registration e2e; decide on blog likes/comments. Then Stage 11. |
+| Item          | Value                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 10 — Customer Accounts                                                                                                                                                                                         |
+| Stage status  | Complete, awaiting approval                                                                                                                                                                                          |
+| Last updated  | 2026-11-06                                                                                                                                                                                                           |
+| Next task     | Stage 10 COMPLETE (email + password), awaiting owner approval. Owner: optionally add DMARC record; turn off public sign-up in Supabase and rerun the registration e2e; decide on blog likes/comments. Then Stage 11. |
 
 ## Stage history
 
@@ -104,11 +104,10 @@ Tables, relationships and RLS are unchanged.
 
 - **Supabase → Authentication → Sign In / Providers → Email:** keep "Confirm email" on. It is on, checked 2026-11-06.
 - **Supabase → Authentication → Settings:** turn off "Allow new users to sign up" (R-026). Website registration should keep working, because it uses the admin API, not the public sign-up endpoint. **Not yet verified with the setting off:** rerun the registration e2e test after the switch.
-- **Domain:** fix the DNS of viclandandproperty.com, verify it in Resend, then tell Claude to switch EMAIL_FROM (R-025). Until then activation and reset emails only reach the Resend account address.
+- **Domain:** done 2026-11-06. viclandandproperty.com uses Vercel DNS and is verified in Resend; EMAIL_FROM switched to no-reply@viclandandproperty.com in .env.local; Resend accepted a test email. Recommended: add a DMARC TXT record.
 
 ### Outstanding issues
 
-- Real email delivery to customers is blocked on domain verification (R-025).
 - Blog likes and comments: awaiting the owner's decision.
 
 ---

@@ -24,7 +24,7 @@ function env(name: string): string {
  * Safety: this suite creates and deletes users and data. It refuses to run against any
  * project other than the development project.
  */
-const DEV_PROJECT_REF = "tcfpnbliwjlinwlgzmkc";
+const DEV_PROJECT_REF = "ncgtfridrpmcwgojpgix"; // the separate TEST project (never the live one)
 
 export const url = () => {
   const value = env("NEXT_PUBLIC_SUPABASE_URL");

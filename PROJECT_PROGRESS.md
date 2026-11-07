@@ -6,12 +6,12 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                          |
-| ------------- | ------------------------------------------------------------------------------ |
-| Current stage | Stage 12 — Testing, security, deployment                                       |
-| Stage status  | In progress                                                                    |
-| Last updated  | 2026-11-06                                                                     |
-| Next task     | Stage 12: security review, CI, production database decision, launch checklist. |
+| Item          | Value                                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 12 — Testing, security, deployment                                                                   |
+| Stage status  | Awaiting owner approval                                                                                    |
+| Last updated  | 2026-11-06                                                                                                 |
+| Next task     | Owner: CRON_SECRET, optional Supabase Pro, legal review, DMARC, Search Console (docs/launch-checklist.md). |
 
 ## Stage history
 
@@ -29,6 +29,19 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 | 10. Customer accounts                            | Complete    | 2026-11-06 |
 | 11. Marketing, announcements, analytics, consent | Complete    | 2026-11-06 |
 | 12. Testing, security, deployment                | In progress | —          |
+
+---
+
+## Stage 12 — Testing, security, deployment (2026-11-07)
+
+- **Separate test database** (R-027 closed): Supabase project Test-database (ncgtfridrpmcwgojpgix), all 21 migrations applied, public sign-up off. `.env.local` and every automated test use it; the integration helpers refuse any other project. The live project (tcfpnbliwjlinwlgzmkc, named vlc-dev) is changed only by `npm run db:push:live` after owner approval; `.env.live.local` keeps the old live settings.
+- **Security**: sharp 0.35.5 (libvips/libheif/librsvg advisories), `npm audit` 0 vulnerabilities; image re-encode failures now logged.
+- **Hero background upload** fixed on the live site (confirmed by the owner).
+- **CI**: GitHub Actions runs typecheck, lint, format check and unit tests on every push.
+- **Test fixes**: the mobile Playwright project matched no files ("vicsproperties" contains "properties"), so phone checks had silently not run — now anchored on file names and running. The settings test no longer depends on the owner's live WhatsApp number.
+- **Results on the test database**: RLS 80/80; unit 148/148; typecheck, lint, format clean; e2e desktop 54 pass (4 passed on retry after network ENOTFOUND drops); settings test passes after its fix; marketing 3/3 (promotion test re-run alone after a network drop); mobile 6/6 (1 on retry).
+- **Docs**: `docs/deployment-runbook.md`, `docs/launch-checklist.md`; risk register updated.
+- **Owner actions open**: CRON_SECRET in Vercel (R-028), optional Supabase Pro for backups and leaked-password checks (R-016), legal review (R-005), DMARC record, Google Search Console. HSTS preload (R-007) later.
 
 ---
 

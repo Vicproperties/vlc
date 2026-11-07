@@ -166,6 +166,7 @@ test("website settings: contact details appear in the footer and on the contact 
   await page.getByLabel(/Short description/).fill(`Trusted land advisers ${token}`);
   await page.getByRole("textbox", { name: /^Email address/ }).fill("hello@example.com");
   await page.getByRole("textbox", { name: /Main phone number/ }).fill("0803 123 4567");
+  await page.getByRole("textbox", { name: /WhatsApp number/ }).fill("0803 765 4321");
   await page.getByRole("button", { name: "Save settings" }).click();
   await expect(message(page, "Settings saved.")).toBeVisible();
 
@@ -174,6 +175,6 @@ test("website settings: contact details appear in the footer and on the contact 
   await expect(footer.getByText(`Trusted land advisers ${token}`)).toBeVisible();
   await expect(footer.getByRole("link", { name: "hello@example.com" })).toBeVisible();
   await expect(page.getByRole("main").getByRole("link", { name: "+234 803 123 4567" })).toBeVisible();
-  // WhatsApp (set earlier by the owner) is kept.
+  // The WhatsApp number shows as a chat link.
   await expect(page.getByRole("main").getByRole("link", { name: /Chat on WhatsApp/ })).toBeVisible();
 });

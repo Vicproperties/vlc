@@ -50,8 +50,9 @@ export default defineConfig({
     {
       name: "mobile",
       use: { ...devices["Pixel 7"] },
+      // Matched against the full path, so anchor on the file name ("vicsproperties" contains "properties").
       testIgnore:
-        /admin-auth|admin-users|marketing|cookies|blog-engagement|properties|public|enquiries|content|blog|account/,
+        /[\\/](admin-auth|admin-users|marketing|cookies-analytics|blog-engagement|properties|public|enquiries|content|blog|account)\.spec\.ts$/,
     },
   ],
   webServer: {

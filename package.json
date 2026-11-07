@@ -16,6 +16,8 @@
     "check:secrets": "node scripts/check-client-secrets.mjs",
     "db:push": "node scripts/with-env.mjs supabase db push --db-url {SUPABASE_DB_URL}",
     "db:push:dry": "node scripts/with-env.mjs supabase db push --db-url {SUPABASE_DB_URL} --dry-run",
+    "db:push:live": "node scripts/with-env.mjs supabase db push --db-url {SUPABASE_LIVE_DB_URL}",
+    "db:push:live:dry": "node scripts/with-env.mjs supabase db push --db-url {SUPABASE_LIVE_DB_URL} --dry-run",
     "db:types": "node scripts/with-env.mjs supabase gen types typescript --project-id tcfpnbliwjlinwlgzmkc --schema public > src/types/database.ts",
     "test:rls": "vitest run --config vitest.integration.config.mts",
     "admin:bootstrap": "node scripts/create-first-admin.mjs"

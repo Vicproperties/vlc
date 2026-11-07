@@ -6,29 +6,29 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ## Current status
 
-| Item          | Value                                                                                                      |
-| ------------- | ---------------------------------------------------------------------------------------------------------- |
-| Current stage | Stage 12 — Testing, security, deployment                                                                   |
-| Stage status  | Awaiting owner approval                                                                                    |
-| Last updated  | 2026-11-06                                                                                                 |
-| Next task     | Owner: CRON_SECRET, optional Supabase Pro, legal review, DMARC, Search Console (docs/launch-checklist.md). |
+| Item          | Value                                                                                              |
+| ------------- | -------------------------------------------------------------------------------------------------- |
+| Current stage | Stage 12 — Testing, security, deployment                                                           |
+| Stage status  | Complete — all 12 stages approved (2026-11-07)                                                     |
+| Last updated  | 2026-11-06                                                                                         |
+| Next task     | Maintenance. Owner: CRON_SECRET, optional Supabase Pro, Search Console (docs/launch-checklist.md). |
 
 ## Stage history
 
-| Stage                                            | Status      | Approved   |
-| ------------------------------------------------ | ----------- | ---------- |
-| 1. Planning & architecture                       | Complete    | 2026-11-03 |
-| 2. Setup & design system                         | Complete    | 2026-11-04 |
-| 3. Database & security foundation                | Complete    | 2026-11-04 |
-| 4. Admin auth & dashboard shell                  | Complete    | 2026-11-04 |
-| 5. Properties & estates                          | Complete    | 2026-11-04 |
-| 6. Public website                                | Complete    | 2026-11-05 |
-| 7. Inspections & enquiries                       | Complete    | 2026-11-05 |
-| 8. Content management                            | Complete    | 2026-11-05 |
-| 9. Blog                                          | Complete    | 2026-11-05 |
-| 10. Customer accounts                            | Complete    | 2026-11-06 |
-| 11. Marketing, announcements, analytics, consent | Complete    | 2026-11-06 |
-| 12. Testing, security, deployment                | In progress | —          |
+| Stage                                            | Status   | Approved   |
+| ------------------------------------------------ | -------- | ---------- |
+| 1. Planning & architecture                       | Complete | 2026-11-03 |
+| 2. Setup & design system                         | Complete | 2026-11-04 |
+| 3. Database & security foundation                | Complete | 2026-11-04 |
+| 4. Admin auth & dashboard shell                  | Complete | 2026-11-04 |
+| 5. Properties & estates                          | Complete | 2026-11-04 |
+| 6. Public website                                | Complete | 2026-11-05 |
+| 7. Inspections & enquiries                       | Complete | 2026-11-05 |
+| 8. Content management                            | Complete | 2026-11-05 |
+| 9. Blog                                          | Complete | 2026-11-05 |
+| 10. Customer accounts                            | Complete | 2026-11-06 |
+| 11. Marketing, announcements, analytics, consent | Complete | 2026-11-06 |
+| 12. Testing, security, deployment                | Complete | 2026-11-07 |
 
 ---
 

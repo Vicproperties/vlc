@@ -20,8 +20,8 @@ Status as of 2026-11-07. "Owner" items need the site owner's accounts.
 
 - [ ] **CRON_SECRET** in Vercel → Settings → Environment Variables (Production): any long random text. Enables the daily clean-up of old visit records (R-028).
 - [ ] **Supabase Pro** for the live project (optional, $25/month): daily backups, and leaked-password checks (R-016). Without it, deleted data cannot be recovered.
-- [ ] **Legal review** of Privacy Policy, Terms and cookie text by a Nigerian lawyer (NDPA 2023) (R-005).
-- [ ] **DMARC record** for the sending domain in the DNS provider, e.g. `_dmarc` TXT `v=DMARC1; p=none; rua=mailto:<owner inbox>`. Improves email delivery.
+- [x] **Legal review** (owner confirmed 2026-11-07) of Privacy Policy, Terms and cookie text by a Nigerian lawyer (NDPA 2023) (R-005).
+- [x] **DMARC record** (owner confirmed 2026-11-07) for the sending domain in the DNS provider, e.g. `_dmarc` TXT `v=DMARC1; p=none; rua=mailto:<owner inbox>`. Improves email delivery.
 - [ ] **Google Search Console**: add the domain and submit `https://viclandandproperty.com/sitemap.xml`.
 - [ ] Replace sample text with real company details, listings, photos and testimonials where still missing (nothing is invented by the site).
 

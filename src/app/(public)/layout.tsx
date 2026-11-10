@@ -3,6 +3,8 @@ import { SiteHeader } from "@/components/public/site-header";
 import { SiteFooter } from "@/components/public/site-footer";
 import { AnnouncementPopup, TopBannerBar } from "@/components/public/marketing";
 import { CookieConsent } from "@/components/public/cookie-consent";
+import { LiveChat } from "@/components/public/live-chat";
+import { ScrollReveal } from "@/components/public/scroll-reveal";
 import { getCookieSettings } from "@/features/cookies/queries";
 import { getActiveAnnouncement, getActiveBanner } from "@/features/marketing/queries";
 import { JsonLd } from "@/components/public/json-ld";
@@ -37,6 +39,8 @@ export default async function PublicLayout({ children }: { children: React.React
         {children}
       </main>
       <SiteFooter />
+      <ScrollReveal />
+      <LiveChat />
       {announcement && (
         <AnnouncementPopup key={`${announcement.id}:${announcement.version}`} announcement={announcement} />
       )}

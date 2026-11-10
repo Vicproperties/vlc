@@ -8,7 +8,7 @@ describe("page sections", () => {
     const keys = SECTIONS.map((s) => `${s.page}/${s.key}`);
     expect(new Set(keys).size).toBe(keys.length);
     for (const section of SECTIONS) expect(section.fields.length).toBeGreaterThan(0);
-    expect(sectionsFor("about").map((s) => s.key)).toEqual(["intro", "mission", "vision", "values", "team"]);
+    expect(sectionsFor("about").map((s) => s.key)).toEqual(["intro", "ceo", "mission", "vision", "values", "team"]);
   });
 
   it("validate field lengths", () => {

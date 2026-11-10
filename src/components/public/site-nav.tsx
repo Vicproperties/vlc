@@ -23,7 +23,7 @@ export function DesktopNav({ items }: { items: NavItem[] }) {
 export function DesktopNavLinks({ items, pathname }: { items: NavItem[]; pathname: string }) {
   return (
     <nav aria-label="Main" className="hidden md:block">
-      <ul className="flex items-center gap-1 lg:gap-2">
+      <ul className="flex items-center gap-0.5 lg:gap-1.5">
         {items.map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -32,7 +32,7 @@ export function DesktopNavLinks({ items, pathname }: { items: NavItem[]; pathnam
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative rounded-lg px-3 py-2 text-small font-medium transition-colors",
+                  "relative rounded-lg px-2.5 py-2 text-small font-medium transition-colors lg:px-3",
                   "after:absolute after:inset-x-3 after:bottom-0.5 after:h-0.5 after:rounded-full after:bg-brand after:transition-transform after:duration-200",
                   active ? "text-brand after:scale-x-100" : "text-stone after:scale-x-0 hover:text-ink",
                 )}

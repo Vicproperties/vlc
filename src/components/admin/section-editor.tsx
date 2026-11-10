@@ -98,8 +98,8 @@ export function SectionEditor({
                     // eslint-disable-next-line @next/next/no-img-element -- dashboard preview of an optimised WebP
                     <img
                       src={current}
-                      alt="Current background image"
-                      className="aspect-[16/7] w-full max-w-xl object-cover"
+                      alt={`Current ${field.label.toLowerCase()}`}
+                      className="max-h-64 w-auto max-w-full rounded-xl border border-line object-contain"
                     />
                   )}
                   <input

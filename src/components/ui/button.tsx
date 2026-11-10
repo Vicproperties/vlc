@@ -3,7 +3,8 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { Spinner } from "./spinner";
 
-export type ButtonVariant = "primary" | "secondary" | "quiet" | "link" | "danger";
+/** "inverse" and "outline-light" are for use on Russian Purple backgrounds. */
+export type ButtonVariant = "primary" | "secondary" | "quiet" | "link" | "danger" | "inverse" | "outline-light";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
@@ -12,11 +13,13 @@ const base =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand";
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white shadow-[0_6px_16px_rgb(107_75_166/0.28)] hover:bg-brand-deep rounded-xl",
+  primary: "bg-brand text-white shadow-[0_8px_20px_rgb(50_23_77/0.22)] hover:bg-brand-deep rounded-xl",
   secondary: "border border-line-strong text-ink bg-white hover:border-brand hover:text-brand rounded-xl",
   quiet: "text-ink bg-transparent hover:bg-brand-tint rounded-xl",
   link: "text-brand underline decoration-1 underline-offset-4 hover:text-brand-deep hover:decoration-2 px-0! h-auto!",
   danger: "bg-danger text-white hover:bg-danger-deep rounded-xl",
+  inverse: "bg-white text-brand hover:bg-brand-light rounded-xl",
+  "outline-light": "border border-white/50 text-white bg-transparent hover:border-white hover:bg-white/10 rounded-xl",
 };
 
 const sizes: Record<ButtonSize, string> = {

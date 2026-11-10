@@ -55,8 +55,8 @@ export function SiteHeader() {
           <DesktopNav items={publicNav} />
         </Suspense>
         <div className="flex items-center gap-3 md:gap-4">
-          <AccountLink className="hidden text-small font-semibold text-ink transition-colors hover:text-brand sm:inline" />
-          <div className="hidden md:block">
+          <AccountLink className="hidden text-small font-semibold text-ink transition-colors hover:text-brand md:inline" />
+          <div className="hidden lg:block">
             <ButtonLink
               href="/properties"
               size="sm"

@@ -79,7 +79,7 @@ export function PropertyCard({ listing, priority = false }: { listing: ListingCa
   });
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line/70 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-card transition-[box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-card-hover">
       <div className="relative aspect-[4/3] overflow-hidden bg-surface">
         {listing.cover_image_path ? (
           <Image
@@ -128,7 +128,7 @@ export function PropertyCard({ listing, priority = false }: { listing: ListingCa
 
       <div className="flex flex-1 flex-col gap-2 p-5">
         {listing.purpose && (
-          <p className="text-caption font-semibold tracking-[0.06em] text-brand uppercase">
+          <p className="self-start rounded-full bg-brand-tint px-3 py-1 text-caption font-semibold tracking-[0.06em] text-brand uppercase">
             {PURPOSE_LABELS[listing.purpose]}
           </p>
         )}
@@ -153,7 +153,7 @@ export function PropertyCard({ listing, priority = false }: { listing: ListingCa
       {/* Keyboard focus ring for the whole card (the link covers the card). */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden rounded-2xl outline-2 -outline-offset-2 outline-brand group-has-[a:focus-visible]:block"
+        className="pointer-events-none absolute inset-0 hidden rounded-[1.5rem] outline-2 -outline-offset-2 outline-brand group-has-[a:focus-visible]:block"
       />
     </article>
   );
@@ -169,7 +169,10 @@ export function PropertyGrid({
   columns?: 3 | 4;
 }) {
   return (
-    <ul className={cn("grid gap-6 sm:grid-cols-2", columns === 4 ? "lg:grid-cols-3 xl:grid-cols-4" : "xl:grid-cols-3")}>
+    <ul
+      data-reveal-stagger
+      className={cn("grid gap-6 sm:grid-cols-2", columns === 4 ? "lg:grid-cols-3 xl:grid-cols-4" : "xl:grid-cols-3")}
+    >
       {listings.map((listing, index) => (
         <li key={listing.id}>
           <PropertyCard listing={listing} priority={index < priorityCount} />

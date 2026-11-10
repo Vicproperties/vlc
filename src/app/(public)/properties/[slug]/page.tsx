@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { MapPin, MessageCircle } from "lucide-react";
+import { MapPin, MessageCircle, Check } from "lucide-react";
 import { FavouriteButton } from "@/components/public/favourite-button";
 import { InspectionForm } from "@/components/public/inspection-form";
 import { JsonLd } from "@/components/public/json-ld";
@@ -197,9 +197,13 @@ function PropertyDetail({
 
       <header className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          {listing.purpose && <p className="eyebrow">{PURPOSE_LABELS[listing.purpose]}</p>}
+          {listing.purpose && (
+            <p className="rounded-full bg-brand-tint px-3.5 py-1.5 text-caption font-semibold tracking-[0.08em] text-brand uppercase">
+              {PURPOSE_LABELS[listing.purpose]}
+            </p>
+          )}
           {unavailable ? (
-            <span className="bg-ink px-3 py-1.5 text-caption font-semibold tracking-[0.14em] text-white uppercase">
+            <span className="rounded-full bg-ink px-3.5 py-1.5 text-caption font-semibold tracking-[0.08em] text-white uppercase">
               Unavailable
             </span>
           ) : (
@@ -209,14 +213,14 @@ function PropertyDetail({
         <h1 className="max-w-4xl text-h1">{listing.title}</h1>
         {place && (
           <p className="flex items-center gap-2 text-body text-stone">
-            <MapPin className="size-4 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+            <MapPin className="size-4 shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
             {place}
           </p>
         )}
       </header>
 
       {unavailable && (
-        <p className="border-l-2 border-ink bg-surface px-4 py-3 text-small text-ink">
+        <p className="rounded-2xl border border-line bg-surface px-5 py-4 text-small text-ink">
           This property is currently unavailable. It is shown for reference.
         </p>
       )}
@@ -230,11 +234,14 @@ function PropertyDetail({
       <div className="grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
         <div className="flex min-w-0 flex-col gap-12">
           {facts(listing).length > 0 && (
-            <section aria-labelledby="facts-heading" className="flex flex-col gap-5">
+            <section
+              aria-labelledby="facts-heading"
+              className="flex flex-col gap-5 rounded-[1.75rem] border border-line bg-white p-6 shadow-card sm:p-8"
+            >
               <h2 id="facts-heading" className="text-h3">
                 Key details
               </h2>
-              <dl className="grid gap-x-10 border-t border-line sm:grid-cols-2">
+              <dl className="grid gap-x-10 sm:grid-cols-2">
                 {facts(listing).map(([label, value]) => (
                   <div key={label} className="flex justify-between gap-6 border-b border-line py-3">
                     <dt className="text-small text-stone">{label}</dt>
@@ -258,14 +265,22 @@ function PropertyDetail({
           )}
 
           {listing.features && listing.features.length > 0 && (
-            <section aria-labelledby="features-heading" className="flex flex-col gap-5">
+            <section
+              aria-labelledby="features-heading"
+              className="flex flex-col gap-5 rounded-[1.75rem] bg-brand-tint/70 p-6 sm:p-8"
+            >
               <h2 id="features-heading" className="text-h3">
                 Features
               </h2>
               <ul className="grid gap-x-10 gap-y-3 sm:grid-cols-2">
                 {listing.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-3 text-small text-ink">
-                    <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 bg-brand" />
+                    <span
+                      aria-hidden="true"
+                      className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-brand text-white"
+                    >
+                      <Check className="size-3" strokeWidth={3} />
+                    </span>
                     {feature}
                   </li>
                 ))}

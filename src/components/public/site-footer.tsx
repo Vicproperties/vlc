@@ -3,6 +3,8 @@ import { cacheLife } from "next/cache";
 import { legalNav, publicNav, siteConfig } from "@/config/site";
 import { getContactDetails } from "@/features/content/queries";
 import { SOCIAL_NETWORKS } from "@/features/settings/networks";
+import { Rings } from "./page-hero";
+import { SocialLinks } from "./social-icons";
 import { parsePhone } from "@/lib/phone";
 import { CookieSettingsLink } from "./cookie-consent";
 import { NewsletterSignup } from "./marketing";
@@ -14,8 +16,8 @@ async function CopyrightYear() {
   return <>{new Date().getFullYear()}</>;
 }
 
-const linkClass = "text-small text-white/90 transition-colors hover:text-white";
-const headingClass = "mb-4 text-caption font-medium tracking-[0.14em] text-white/75 uppercase";
+const linkClass = "text-small text-white/85 transition-colors hover:text-white";
+const headingClass = "mb-5 text-caption font-semibold tracking-[0.16em] text-brand-light uppercase";
 
 /** Footer. Contact details and social links come from Website Settings; empty ones are hidden. */
 export async function SiteFooter() {
@@ -27,10 +29,12 @@ export async function SiteFooter() {
   const hasContact = Boolean((phone && phone.ok) || details.email || whatsapp || details.address);
 
   return (
-    <footer className="mt-auto rounded-t-[2rem] bg-brand-deep text-white">
-      <div className="border-b border-white/15">
-        <div className="container-content grid gap-6 py-10 md:grid-cols-[1fr_1fr] md:items-center">
-          <div>
+    <footer className="relative isolate mt-auto overflow-hidden rounded-t-[2.5rem] bg-brand-deep text-white">
+      <Rings className="-top-64 -right-48 -z-10 size-[44rem] text-brand-light/10" />
+      <div className="container-content pt-12 md:pt-16">
+        <div className="grid gap-6 rounded-[2rem] bg-brand p-7 md:grid-cols-[1fr_1fr] md:items-center md:p-10">
+          <div className="flex flex-col gap-2">
+            <p className="text-caption font-semibold tracking-[0.16em] text-brand-light uppercase">Newsletter</p>
             <p className="text-h3 font-bold">Stay informed</p>
             <p className="text-small text-white/80">New listings, price changes and property news.</p>
           </div>
@@ -38,21 +42,16 @@ export async function SiteFooter() {
         </div>
       </div>
       <div className="container-content grid gap-12 py-16 md:grid-cols-[2fr_1fr_1fr_1fr] md:py-20">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-5">
           <SiteLogo variant="light" />
-          {details.tagline && <p className="max-w-sm text-small text-white/80">{details.tagline}</p>}
-          {social.length > 0 && (
-            <ul className="flex flex-wrap gap-x-5 gap-y-2 pt-2" aria-label="Social media">
-              {social.map((network) => (
-                <li key={network.key}>
-                  <a href={details.social[network.key]} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                    {network.label}
-                    <span className="sr-only"> (opens in a new tab)</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+          <p className="max-w-sm text-small text-white/80">
+            {details.tagline ?? "Land and buildings for sale, rent and lease."}
+          </p>
+          <SocialLinks
+            tone="dark"
+            links={social.map((network) => [network.key, details.social[network.key]])}
+            who={siteConfig.name}
+          />
         </div>
         <nav aria-label="Footer">
           <p className={headingClass}>Explore</p>

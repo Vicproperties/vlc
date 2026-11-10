@@ -10,7 +10,7 @@ export function ArticleCard({ article, large = false }: { article: ArticleCardDa
   return (
     <article
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line/70 bg-white shadow-card transition-shadow duration-200 hover:shadow-card-hover",
+        "group relative flex h-full flex-col overflow-hidden rounded-[1.5rem] border border-line/70 bg-white shadow-card transition-[box-shadow,transform] duration-300 hover:-translate-y-1 hover:shadow-card-hover",
         large && "md:grid md:grid-cols-[1.3fr_1fr] md:items-center",
       )}
     >
@@ -49,7 +49,7 @@ export function ArticleCard({ article, large = false }: { article: ArticleCardDa
       </div>
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 hidden rounded-2xl outline-2 -outline-offset-2 outline-brand group-has-[a:focus-visible]:block"
+        className="pointer-events-none absolute inset-0 hidden rounded-[1.5rem] outline-2 -outline-offset-2 outline-brand group-has-[a:focus-visible]:block"
       />
     </article>
   );
@@ -57,7 +57,7 @@ export function ArticleCard({ article, large = false }: { article: ArticleCardDa
 
 export function ArticleGrid({ articles }: { articles: ArticleCardData[] }) {
   return (
-    <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <ul data-reveal-stagger className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {articles.map((article) => (
         <li key={article.id}>
           <ArticleCard article={article} />

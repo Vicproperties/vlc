@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /*
- * Design tokens. Modern direction (owner request 2026-11-06): bold sans headings, rounded
- * cards and controls, soft shadows; purple and white palette unchanged.
+ * Design tokens. Brand system (owner brief 2026-11-09): white #FFFFFF, Russian Purple
+ * #32174D (primary) and Soft Lavender #D8CBE3 (secondary), with neutral supporting shades.
  * See docs/design-system.md. Components must use these tokens, not raw hex values.
  */
 @theme {
@@ -12,17 +12,17 @@
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  /* Brand: light purple and white (owner decision 2026-11-04). */
-  --color-paper: #ffffff; /* page background */
-  --color-surface: #faf8fd; /* panels, inputs, admin surfaces (faint lavender) */
-  --color-ink: #2a1f45; /* headings and body text (very dark purple) */
-  --color-stone: #625b73; /* secondary text, AA on white and surface */
-  --color-line: #e7e1f1; /* hairlines */
-  --color-line-strong: #c9bfdc; /* input borders */
-  --color-brand: #6b4ba6; /* buttons, links, focus — AA with white text */
-  --color-brand-deep: #4e3480; /* hover / pressed, footer */
-  --color-brand-light: #c9b6ec; /* light purple accents: rules, highlights */
-  --color-brand-tint: #f1ebfa; /* selected rows, soft section backgrounds */
+  --color-paper: #ffffff; /* page background (White) */
+  --color-surface: #faf7fc; /* panels, inputs, admin surfaces (faint lavender) */
+  --color-ink: #1c1824; /* headings and body text (near-black, neutral) */
+  --color-stone: #5d5768; /* secondary text, AA on white and surface */
+  --color-line: #ece5f2; /* hairlines */
+  --color-line-strong: #cdbfdb; /* input borders */
+  --color-brand: #32174d; /* Russian Purple: buttons, links, focus, dark sections */
+  --color-brand-deep: #241038; /* hover / pressed, footer */
+  --color-brand-mid: #5a3a7e; /* accents on lavender, icons */
+  --color-brand-light: #d8cbe3; /* Soft Lavender: secondary colour, accents, text on purple */
+  --color-brand-tint: #f3eef7; /* soft section backgrounds, selected rows */
   --color-danger: #8e2a21;
   --color-danger-deep: #74221b;
   --color-danger-tint: #f4e6e3;
@@ -60,9 +60,9 @@
   --radius-sm: 6px;
 
   /* Elevation */
-  --shadow-overlay: 0 1px 2px rgb(42 31 69 / 0.06), 0 16px 40px rgb(42 31 69 / 0.14);
-  --shadow-card: 0 1px 2px rgb(42 31 69 / 0.04), 0 8px 24px rgb(42 31 69 / 0.07);
-  --shadow-card-hover: 0 2px 4px rgb(42 31 69 / 0.06), 0 16px 36px rgb(42 31 69 / 0.12);
+  --shadow-overlay: 0 1px 2px rgb(50 23 77 / 0.06), 0 16px 40px rgb(50 23 77 / 0.16);
+  --shadow-card: 0 1px 2px rgb(50 23 77 / 0.04), 0 10px 28px rgb(50 23 77 / 0.07);
+  --shadow-card-hover: 0 2px 4px rgb(50 23 77 / 0.06), 0 20px 44px rgb(50 23 77 / 0.14);
 
   /* Motion */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -239,4 +239,40 @@
 }
 .rich-text.article .ProseMirror-selectednode {
   outline: 2px solid var(--color-brand);
+}
+
+/*
+ * Scroll reveal (components/public/scroll-reveal.tsx). Content is only hidden once the script
+ * has started (html.reveal-ready) and only for visitors who have not asked for reduced motion,
+ * so nothing stays invisible if JavaScript fails. Elements already on screen are revealed first.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready [data-reveal] {
+    transition:
+      opacity 700ms var(--ease-standard),
+      transform 700ms var(--ease-standard),
+      clip-path 900ms var(--ease-standard);
+  }
+  .reveal-ready [data-reveal]:not([data-revealed]) {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  .reveal-ready [data-reveal="image"]:not([data-revealed]) {
+    transform: scale(1.03);
+    clip-path: inset(0 0 100% 0 round 1.5rem);
+  }
+  .reveal-ready [data-reveal="image"][data-revealed] {
+    clip-path: inset(0 0 0 0 round 1.5rem);
+  }
+  /* Staggered children: each direct child follows the previous one by 90 ms. */
+  .reveal-ready [data-reveal-stagger] > * {
+    transition:
+      opacity 650ms var(--ease-standard),
+      transform 650ms var(--ease-standard);
+    transition-delay: calc(min(var(--i, 0), 8) * 90ms);
+  }
+  .reveal-ready [data-reveal-stagger]:not([data-revealed]) > * {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 }

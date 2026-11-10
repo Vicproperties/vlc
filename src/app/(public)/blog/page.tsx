@@ -9,6 +9,7 @@ import { Pagination } from "@/components/ui/pagination";
 import { EmptyState, Skeleton } from "@/components/ui/states";
 import { BLOG_PAGE_SIZE, getActiveCategories, getFeaturedArticle, listArticles } from "@/features/blog/queries";
 import { cn } from "@/lib/cn";
+import { PageHero } from "@/components/public/page-hero";
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
@@ -45,13 +46,11 @@ export async function generateMetadata({ searchParams }: PageProps<"/blog">): Pr
 export default function BlogPage({ searchParams }: PageProps<"/blog">) {
   return (
     <div className="flex flex-col">
-      <section className="border-b border-line bg-surface">
-        <div className="container-content flex flex-col gap-4 py-14 md:py-20">
-          <p className="eyebrow">Blog</p>
-          <h1 className="max-w-3xl text-h1">Property news and guides</h1>
-          <p className="max-w-2xl text-body text-stone">News, guides and advice about land and property.</p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Blog"
+        title="Property news and guides"
+        text="News, guides and advice about land and property."
+      />
       <Suspense
         fallback={
           <div className="container-content py-14">

@@ -132,7 +132,7 @@ test("logo and browser icon upload in Website Settings", async ({ page }) => {
   await expect(message(page, "Browser icon updated.")).toBeVisible();
 
   await page.goto("/", { waitUntil: "networkidle" });
-  await expect(page.locator("header").getByRole("img", { name: "Vic Land and Property" })).toBeVisible();
+  await expect(page.locator("header").getByRole("img", { name: "V.I.C Land and Property" })).toBeVisible();
   await expect(page.locator('link[rel="icon"][href*="branding/favicon-"]')).toBeAttached();
 
   // A non-image file is refused.

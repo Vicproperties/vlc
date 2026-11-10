@@ -203,6 +203,14 @@ test("profile, favourites, change password, sign out and delete", async ({ page 
   await page.goto(`/properties/${property.slug}`, { waitUntil: "load" });
   await page.getByRole("button", { name: `Save ${property.title} to favourites` }).click();
   await expect(page.getByRole("button", { name: `Remove ${property.title} from favourites` })).toBeVisible();
+  // The heart updates at once (optimistic); wait until the save is stored before leaving the page.
+  await expect
+    .poll(
+      async () =>
+        (await service.from("favourites").select("property_id").eq("customer_id", customer.id)).data?.length ?? 0,
+      { timeout: 20_000 },
+    )
+    .toBe(1);
   await page.goto("/account/favourites", { waitUntil: "load" });
   await expect(page.getByRole("link", { name: property.title }).first()).toBeVisible();
 

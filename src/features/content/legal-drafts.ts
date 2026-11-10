@@ -7,7 +7,7 @@
 export const PRIVACY_POLICY_DRAFT = `
 <p><strong>DRAFT FOR LEGAL REVIEW. Complete the parts in [square brackets] and have this policy reviewed by a qualified lawyer before publishing it.</strong></p>
 <h2>Who we are</h2>
-<p>This website is operated by Vic Land and Property ([registered company name and RC number], [registered address]). We are responsible for the personal data described in this policy. You can contact us about privacy at [privacy contact email].</p>
+<p>This website is operated by V.I.C Land and Property ([registered company name and RC number], [registered address]). We are responsible for the personal data described in this policy. You can contact us about privacy at [privacy contact email].</p>
 <h2>What we collect and why</h2>
 <h3>Inspection requests</h3>
 <p>When you request a property inspection we collect your name, phone number, optional email address, your preferred date and time, any message you write, the property you asked about, and the time you gave consent. We use this to arrange and follow up the inspection. The legal basis is your consent, which you give by ticking the box on the form.</p>

@@ -22,6 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
       default: siteConfig.name,
       template: `%s | ${siteConfig.name}`,
     },
+    description: `Land and buildings for sale, rent and lease from ${siteConfig.name}. Search listings, see full details and book an inspection.`,
+    applicationName: siteConfig.name,
+    openGraph: { siteName: siteConfig.name, type: "website", locale: "en_NG" },
     icons: faviconUrl
       ? { icon: [{ url: faviconUrl, type: "image/png" }], apple: [{ url: faviconUrl }] }
       : { icon: [{ url: "/favicon.ico" }] },

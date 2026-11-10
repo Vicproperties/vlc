@@ -18,6 +18,7 @@ let admin: TestAdmin;
 let originalHero: { content: unknown; is_visible: boolean } | null = null;
 let originalPrivacy: Record<string, unknown> | null = null;
 let originalSettings: Record<string, unknown> | null = null;
+let originalCeo: { content: unknown; is_visible: boolean } | null = null;
 
 test.beforeAll(async () => {
   test.setTimeout(120_000);
@@ -29,6 +30,14 @@ test.beforeAll(async () => {
       .select("content, is_visible")
       .eq("page_key", "home")
       .eq("section_key", "hero")
+      .maybeSingle()
+  ).data;
+  originalCeo = (
+    await service
+      .from("page_sections")
+      .select("content, is_visible")
+      .eq("page_key", "about")
+      .eq("section_key", "ceo")
       .maybeSingle()
   ).data;
   originalPrivacy = (await service.from("legal_pages").select("*").eq("slug", "privacy-policy").maybeSingle()).data;
@@ -49,6 +58,19 @@ test.afterAll(async () => {
   if (originalHero)
     await service.from("page_sections").upsert({ page_key: "home", section_key: "hero", ...originalHero } as never);
   else await service.from("page_sections").delete().eq("page_key", "home").eq("section_key", "hero");
+  // CEO section: remove photos uploaded by this run and restore the original row.
+  const keepCeo = (originalCeo?.content as { image_path?: string } | undefined)?.image_path;
+  const { data: ceoNow } = await service
+    .from("page_sections")
+    .select("content")
+    .eq("page_key", "about")
+    .eq("section_key", "ceo")
+    .maybeSingle();
+  const ceoPhoto = (ceoNow?.content as { image_path?: string } | undefined)?.image_path;
+  if (ceoPhoto && ceoPhoto !== keepCeo) await service.storage.from("site-media").remove([ceoPhoto]);
+  if (originalCeo)
+    await service.from("page_sections").upsert({ page_key: "about", section_key: "ceo", ...originalCeo } as never);
+  else await service.from("page_sections").delete().eq("page_key", "about").eq("section_key", "ceo");
   if (originalPrivacy) await service.from("legal_pages").upsert(originalPrivacy as never);
   else await service.from("legal_pages").delete().eq("slug", "privacy-policy");
   if (originalSettings)
@@ -144,6 +166,38 @@ test("team member with photo appears on the About page", async ({ page }) => {
   await page.goto("/about", { waitUntil: "load" });
   await expect(page.getByRole("heading", { name })).toBeVisible();
   await expect(page.getByRole("img", { name: `Photo of ${name}` })).toBeVisible();
+
+  // The full Team page lists the member too, reached from the main menu.
+  await page.goto("/", { waitUntil: "load" });
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Team" }).click();
+  await page.waitForURL(/\/team$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name })).toBeVisible();
+  await expect(page.getByRole("img", { name: `Photo of ${name}` })).toBeVisible();
+});
+
+test("CEO section is managed in the dashboard and shown on the About page", async ({ page }) => {
+  await signInAsAdmin(page, admin);
+  await page.goto("/admin/content/about", { waitUntil: "networkidle" });
+  const form = page.locator("form").filter({ has: page.getByRole("button", { name: "Save ceo" }) });
+  const ceoName = `Victoria Test ${token}`;
+  await form.getByRole("textbox", { name: /^Full name/ }).fill(ceoName);
+  await form.getByRole("textbox", { name: /^Designation/ }).fill("Chief Executive Officer");
+  await form
+    .getByRole("textbox", { name: /^Short biography/ })
+    .fill("Leads the company with a focus on clear documents.");
+  const photo = await sharp({ create: { width: 900, height: 1200, channels: 3, background: "#32174d" } })
+    .jpeg()
+    .toBuffer();
+  await form.getByLabel(/^Photograph/).setInputFiles({ name: "ceo.jpg", mimeType: "image/jpeg", buffer: photo });
+  await form.getByRole("button", { name: "Save ceo" }).click();
+  await expect(message(page, "Saved. The website is updated.")).toBeVisible({ timeout: 60_000 });
+
+  await page.goto("/about", { waitUntil: "load" });
+  const ceo = page.getByRole("region", { name: "Meet our CEO" });
+  await expect(ceo.getByText(ceoName).first()).toBeVisible();
+  await expect(ceo.getByText("Leads the company with a focus on clear documents.")).toBeVisible();
+  await expect(ceo.getByRole("img", { name: `Photo of ${ceoName}` })).toBeVisible();
 });
 
 test("privacy policy: insert the starter draft, publish, and read it on the website", async ({ page }) => {

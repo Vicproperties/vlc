@@ -137,7 +137,7 @@ async function ArticleContent({ params }: { params: PageProps<"/blog/[slug]">["p
             )}
           </ol>
         </nav>
-        <h1 className="text-h1">{article.title}</h1>
+        <h1 className="text-h1 md:text-[3.5rem] md:leading-[1.05]">{article.title}</h1>
         {article.excerpt && <p className="text-h4 font-normal text-stone">{article.excerpt}</p>}
         <p className="text-small text-stone">
           {[
@@ -151,7 +151,7 @@ async function ArticleContent({ params }: { params: PageProps<"/blog/[slug]">["p
 
       {image && (
         <div className="container-content">
-          <div className="relative aspect-[16/9] overflow-hidden bg-surface">
+          <div data-reveal="image" className="relative aspect-[16/9] overflow-hidden rounded-[2rem] bg-surface">
             <Image
               src={image}
               alt={article.featured_image_alt ?? ""}
@@ -174,14 +174,14 @@ async function ArticleContent({ params }: { params: PageProps<"/blog/[slug]">["p
           <ShareButtons url={url} title={article.title} />
         </div>
         {article.author?.name && article.author.bio && (
-          <aside className="flex gap-4 border-t border-line pt-6" aria-label="About the author">
+          <aside className="flex gap-4 rounded-[1.75rem] bg-brand-tint/70 p-6" aria-label="About the author">
             {article.author.photo_path && (
               <Image
                 src={publicStorageUrl("blog-media", article.author.photo_path)}
                 alt=""
                 width={64}
                 height={64}
-                className="size-16 shrink-0 object-cover"
+                className="size-16 shrink-0 rounded-full object-cover"
               />
             )}
             <div className="flex flex-col gap-1">

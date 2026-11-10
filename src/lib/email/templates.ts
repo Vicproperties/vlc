@@ -19,7 +19,7 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const colors = { ink: "#2a1f45", stone: "#625b73", brand: "#6b4ba6", line: "#e7e1f1", surface: "#faf8fd" };
+const colors = { ink: "#1c1824", stone: "#5d5768", brand: "#32174d", line: "#ece5f2", surface: "#faf7fc" };
 
 function layout(title: string, body: string, audience: "admin" | "customer" = "admin"): string {
   const footer =

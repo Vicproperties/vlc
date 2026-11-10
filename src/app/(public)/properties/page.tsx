@@ -16,6 +16,7 @@ import {
   SORTS,
 } from "@/features/listings/filters";
 import { getPublicBuildingTypes, LISTINGS_PAGE_SIZE, searchListings } from "@/features/listings/queries";
+import { PageHero } from "@/components/public/page-hero";
 
 const TITLE = "Properties for sale, rent and lease";
 
@@ -34,14 +35,17 @@ export async function generateMetadata({ searchParams }: PageProps<"/properties"
 
 export default function PropertiesPage({ searchParams }: PageProps<"/properties">) {
   return (
-    <div className="container-content flex flex-col gap-10 py-12 md:py-16">
-      <div className="flex flex-col gap-3">
-        <h1 className="text-h1">Properties</h1>
-        <p className="max-w-2xl text-body text-stone">Land and buildings for sale, rent and lease.</p>
+    <div className="flex flex-col">
+      <PageHero
+        eyebrow="Our listings"
+        title="Properties"
+        text="Land and buildings for sale, rent and lease. Filter by location, type and price."
+      />
+      <div className="container-content flex flex-col gap-10 py-12 md:py-16">
+        <Suspense fallback={<ResultsSkeleton />}>
+          <Results searchParams={searchParams} />
+        </Suspense>
       </div>
-      <Suspense fallback={<ResultsSkeleton />}>
-        <Results searchParams={searchParams} />
-      </Suspense>
     </div>
   );
 }

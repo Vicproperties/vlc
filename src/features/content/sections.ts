@@ -71,7 +71,42 @@ export const SECTIONS: SectionDef[] = [
     key: "intro",
     title: "About us",
     description: "The main text of the About page.",
-    fields: [heading("Default: “About us”."), { key: "body", label: "Text", type: "rich", max: 20_000 }],
+    fields: [
+      heading("Default: “About us”."),
+      { key: "body", label: "Text", type: "rich", max: 20_000 },
+      {
+        key: "image_path",
+        label: "Photo",
+        type: "image",
+        max: 500,
+        hint: "Optional. Shown beside the text on the About page and the homepage preview (for example your office or a project). Portrait or square works best.",
+      },
+    ],
+  },
+  {
+    page: "about",
+    key: "ceo",
+    title: "CEO",
+    description: "Introduces the CEO on the About page. Shown once a name is filled in.",
+    fields: [
+      heading("Default: “Meet our CEO”."),
+      { key: "name", label: "Full name", type: "text", max: 120 },
+      {
+        key: "designation",
+        label: "Designation",
+        type: "text",
+        max: 120,
+        hint: "For example: Chief Executive Officer.",
+      },
+      { key: "bio", label: "Short biography", type: "textarea", max: 2000 },
+      {
+        key: "image_path",
+        label: "Photograph",
+        type: "image",
+        max: 500,
+        hint: "A professional portrait (taller than wide works best).",
+      },
+    ],
   },
   {
     page: "about",
@@ -98,7 +133,8 @@ export const SECTIONS: SectionDef[] = [
     page: "about",
     key: "team",
     title: "Team",
-    description: "Heading for the team members (managed under Team).",
+    description:
+      "Heading and introduction for the Team page (/team) and the team preview on the About page. Members are managed under Team.",
     fields: [heading("Default: “Our team”."), intro()],
   },
   {

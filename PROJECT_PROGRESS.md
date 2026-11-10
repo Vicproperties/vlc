@@ -32,6 +32,19 @@ and continue from **Next task** below. Do not repeat completed work or overwrite
 
 ---
 
+## Redesign and live chat (owner brief 2026-11-09 / 2026-11-10)
+
+- **Brand**: White #FFFFFF, Russian Purple #32174D (primary), Soft Lavender #D8CBE3 (secondary); official name **V.I.C Land and Property** (siteConfig, metadata, legal starter drafts). Email templates use the new colours.
+- **Homepage**: purple hero (dashboard photo with purple tint), search card, category strip, About preview with photo or V.I.C monogram, featured listings, "Why choose us" cards (numbered, one squared corner, hover accent) on a purple band, latest news, lavender contact band, new footer with newsletter panel and social icons.
+- **About page**: page banner, story with optional photo (new "Photo" field on About us), mission/vision cards, **CEO section** (Website Content → About → CEO: name, designation, biography, photograph; hidden until a name is entered), value tiles with icons, team preview, FAQ cards.
+- **Team page /team**: active members from the existing Team list, redesigned cards (photo, role, biography with "Read full biography", social icons); menu, footer and sitemap link to it.
+- **All pages**: shared PageHero on properties, blog, contact, legal pages; account sign-in card with benefits panel; account sidebar card; property and blog details polished.
+- **Scroll reveal** (no library): fade/rise, image wipe, staggered cards; nothing hidden without JavaScript or with reduced motion.
+- **Live chat (Tawk.to)**: fixed purple button bottom right; Tawk.to loads only on click (no cookies before). CSP allows *.tawk.to (+ cdn.jsdelivr.net images). Hidden until the owner's Tawk.to property/widget IDs are added to `liveChat` in src/config/site.ts. Owner to mention Tawk.to in the Privacy Policy.
+- **Tests**: unit 148/148; e2e desktop 53 passed + 6 after network-drop retries; privacy-policy test passed alone; favourites test fixed (waited for the optimistic save); new tests for /team and the CEO section; marketing 3/3; mobile 10/10; smoke/public incl. axe pass. Visual review at 1440 px and 390 px: no horizontal overflow, no console errors, no broken images.
+
+---
+
 ## Stage 12 — Testing, security, deployment (2026-11-07)
 
 - **Separate test database** (R-027 closed): Supabase project Test-database (ncgtfridrpmcwgojpgix), all 21 migrations applied, public sign-up off. `.env.local` and every automated test use it; the integration helpers refuse any other project. The live project (tcfpnbliwjlinwlgzmkc, named vlc-dev) is changed only by `npm run db:push:live` after owner approval; `.env.live.local` keeps the old live settings.

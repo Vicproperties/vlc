@@ -7,10 +7,8 @@ import { liveChat } from "@/config/site";
 
 interface TawkApi {
   onLoad?: () => void;
-  onChatMinimized?: () => void;
   maximize?: () => void;
   showWidget?: () => void;
-  hideWidget?: () => void;
   getStatus?: () => string;
 }
 
@@ -24,10 +22,11 @@ declare global {
 /**
  * Live chat (Tawk.to). Our own button sits at the bottom right; Tawk.to is only loaded when a
  * visitor clicks it, so visitors who never chat get no Tawk.to cookies or extra scripts.
- * When the chat window is closed, Tawk.to's own launcher is hidden and our button returns.
+ * Once loaded, Tawk.to's own launcher (same corner) takes over: its page layer covers this
+ * corner, so our button steps aside for good.
  */
 export function LiveChat() {
-  const [status, setStatus] = useState<"idle" | "loading" | "open" | "ready" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "open" | "error">("idle");
   const loaded = useRef(false);
 
   useEffect(() => {
@@ -48,25 +47,18 @@ export function LiveChat() {
     }
     setStatus("loading");
     let done = false;
-    const minimized = () => {
-      window.Tawk_API?.hideWidget?.();
-      setStatus("ready");
-    };
     const ready = () => {
       if (done) return;
       done = true;
       window.clearInterval(poll);
       loaded.current = true;
       const live = window.Tawk_API;
-      // The current widget replaces Tawk_API with its own object: re-attach the close handler.
-      if (live) live.onChatMinimized = minimized;
       live?.showWidget?.();
       live?.maximize?.();
       setStatus("open");
     };
     const tawk: TawkApi = window.Tawk_API ?? {};
     tawk.onLoad = ready;
-    tawk.onChatMinimized = minimized;
     window.Tawk_API = tawk;
     window.Tawk_LoadStart = new Date();
 

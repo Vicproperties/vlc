@@ -11,6 +11,7 @@ interface TawkApi {
   maximize?: () => void;
   showWidget?: () => void;
   hideWidget?: () => void;
+  getStatus?: () => string;
 }
 
 declare global {
@@ -46,25 +47,51 @@ export function LiveChat() {
       return;
     }
     setStatus("loading");
-    const tawk: TawkApi = window.Tawk_API ?? {};
-    tawk.onLoad = () => {
-      loaded.current = true;
-      tawk.showWidget?.();
-      tawk.maximize?.();
-      setStatus("open");
-    };
-    tawk.onChatMinimized = () => {
-      tawk.hideWidget?.();
+    let done = false;
+    const minimized = () => {
+      window.Tawk_API?.hideWidget?.();
       setStatus("ready");
     };
+    const ready = () => {
+      if (done) return;
+      done = true;
+      window.clearInterval(poll);
+      loaded.current = true;
+      const live = window.Tawk_API;
+      // The current widget replaces Tawk_API with its own object: re-attach the close handler.
+      if (live) live.onChatMinimized = minimized;
+      live?.showWidget?.();
+      live?.maximize?.();
+      setStatus("open");
+    };
+    const tawk: TawkApi = window.Tawk_API ?? {};
+    tawk.onLoad = ready;
+    tawk.onChatMinimized = minimized;
     window.Tawk_API = tawk;
     window.Tawk_LoadStart = new Date();
+
+    // The newer Tawk.to widget does not always call onLoad, so also watch for it being ready.
+    const started = Date.now();
+    const poll = window.setInterval(() => {
+      let status: unknown;
+      try {
+        status = window.Tawk_API?.getStatus?.();
+      } catch {
+        status = undefined;
+      }
+      if (status === "online" || status === "away" || status === "offline") ready();
+      else if (Date.now() - started > 30_000) {
+        window.clearInterval(poll);
+        if (!done) setStatus("error");
+      }
+    }, 300);
+
     const script = document.createElement("script");
     script.async = true;
     script.src = `https://embed.tawk.to/${encodeURIComponent(liveChat.propertyId)}/${encodeURIComponent(liveChat.widgetId)}`;
     script.charset = "UTF-8";
-    script.setAttribute("crossorigin", "*");
     script.onerror = () => {
+      window.clearInterval(poll);
       script.remove();
       setStatus("error");
     };

@@ -20,16 +20,16 @@ const supabaseWs = supabaseOrigin.replace(/^https:/, "wss:");
  *   - Cloudflare Turnstile (script/frame) in Stage 7 — added
  *   - YouTube embeds (frame: youtube-nocookie.com) in Stage 6
  *   - Tawk.to live chat (loaded only when a visitor opens the chat): *.tawk.to, and
- *     cdn.jsdelivr.net for its emoji images
+ *     cdn.jsdelivr.net/emojione/ for its emoji script and images
  * A nonce-based policy for the dynamic admin area is evaluated in Stage 4 (risk R-002).
  */
 const TAWK = "https://*.tawk.to";
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com ${TAWK}${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com ${TAWK} https://cdn.jsdelivr.net/emojione/${isDev ? " 'unsafe-eval'" : ""}`,
   `style-src 'self' 'unsafe-inline' ${TAWK}`,
-  `img-src 'self' blob: data: https://i.ytimg.com ${TAWK} https://cdn.jsdelivr.net${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
+  `img-src 'self' blob: data: https://i.ytimg.com ${TAWK} https://cdn.jsdelivr.net/emojione/${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   `font-src 'self' ${TAWK}`,
   `media-src 'self' ${TAWK}`,
   `connect-src 'self' ${TAWK} wss://*.tawk.to${supabaseOrigin ? ` ${supabaseOrigin} ${supabaseWs}` : ""}`,

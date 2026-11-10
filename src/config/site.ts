@@ -34,6 +34,6 @@ export const legalNav: NavItem[] = [
  * is hidden while these are empty.
  */
 export const liveChat = {
-  propertyId: "",
-  widgetId: "",
+  propertyId: "6af2c814aeb7363c46bc3027",
+  widgetId: "1k725r4d9",
 } as const;
